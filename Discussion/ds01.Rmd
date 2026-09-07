@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 - This file should be in `STAT240/discussion`.
 - Set `STAT240/discussion` as your working directory. (This will be in problem 5).
 
-The goal of today's discussion will be to review the syllabus, think about your learning goals for STAT 240, and learn how to knit an Rmarkdown file to html.
+The goal of today's discussion will be to review the syllabus, think about your learning goals for STAT 240, setting your directory and learn how to knit an Rmarkdown file to html.
 
 
 # Problem 1
