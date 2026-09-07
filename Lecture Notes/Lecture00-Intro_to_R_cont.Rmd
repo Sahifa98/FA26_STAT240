@@ -1,0 +1,775 @@
+---
+title: "STAT 240: Data Types and Structures"
+author: "Sahifa Siddiqua"
+date: "Spring 2026"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, error = TRUE)
+library(tidyverse)
+```
+
+# Overview
+
+## Learning Outcomes
+
+* This lecture will teach you how to:
+    + Create and work with simple variables
+    + Use basic functions and their arguments
+    + Create and work with simple vectors
+    + Create and work with simple dataframes
+    + Understand few other R things like loops, functions, packages, etc.
+    
+    
+## Introduction
+
+R is the most popular language used for Statistical Computing and Data Analysis with the support of over 10,000+ free packages in [CRAN](https://www.geeksforgeeks.org/r-language/what-is-cran-in-r-language/) repository. Like any other programming language, R has a specific syntax which is important to understand if you want to make use of its features. This article assumes R is already installed on your machine.
+
+We will be using the console to demonstrate the codes and syntax of R. In this lecture note, we will start with some operations and then move on to discussing different R objects and finally go over functions, packages and loops in R.
+
+# Operations
+
+R can be used as a calculator to carry out many different operations. It can do basic mathematical operations as well as complex operations like finding square root, logarithm, exponential using functions. We will first see the basic mathematical and logical operations that can be done in R and the syntax for that.
+
+### $\cdot$ Mathematical Operations
+
+All basic mathematical operations like addition, subtraction, etc can be done in R using using standard symbols such as:
+
+-   add: `+`
+-   subtract: `-`
+-   multiply: `*`
+-   divide: `/` (forward slash)
+-   raised to: `^`, `**`
+-   remainder of the division: `%%`
+
+```{r}
+3+2
+3-2
+3*2
+1:5
+3/2
+3^2
+3**2
+3%%2
+```
+
+These operations can also be done using functions from a package called `magrittr` which has functions for all the operations listed above.
+
+### $\cdot$ Logical operations
+
+Logical operations involve getting answers for statemnets like "are these two values equal", "is this value greater/smaller than the other" and so on. The output of these operations are as `TRUE` or `FALSE`. Some of the most common logocal operations and their symbols are given below:
+
+- greater than: `>` 
+- greater than or equal to: `>=`
+- less than: `<`
+- less than or equal to: `<=`
+- equality: `==` 
+- not equal: `!=` 
+
+Note: Adding `!` infornt of anything in R changes it to the negation of the following.
+
+```{r}
+5 < 1
+5 >= 1
+5 != 3
+5 == 3
+```
+
+We also have the `and` and `or` operators which uses the symbols `&` and `|`, respectively. These operators are used in the same context as `and` and `or` truth tables.
+
+![And and Or truth tables](https://www.mathsisfun.com/sets/images/truth-table.svg)
+
+```{r}
+# And table
+T & T
+T & F
+F & T
+F & F
+
+
+# Or table
+
+T | T
+T | F
+F | T
+F | F
+```
+
+
+
+# Basic R Objects
+
+In R programming, objects are the fundamental data structures used to store and manipulate data. Objects in R can hold different types of data, such as numbers, characters, lists, or even more complex structures like data frames and matrices.
+
+An object in R is important an instance of a class and can be assigned to a variable. Unlike many other programming languages, R does not require variables to be explicitly declared with a data type. Instead, variables in R are associated with objects and R automatically determines the object type based on the assigned value. There are several types of objects that R supports like vectors, lists, data frames, matrices and functions.
+
+Below we discuss some of these object in details but we first start by understanding variables and different types of values that a variable/object can take.
+
+
+### $\cdot$ Variables:
+
+> Variables are a named object which "contains" some value, vector, dataframe, or other information.
+
+You can create a new variable with the expression `name_of_Variable = ...`, where `...` is the information you want the variable to store. You may use `<-` or `=`; the recommended symbol to use for assigning values to a variable is `<-`, since `=` is used to assign inputs to arguments of functions (we will see that later). For all intents and purposes, they are the same and you are free to use whichever you feel the most comfortable with. Once the variable is created it will be listed in the environment. 
+
+Example: I can create a variable `x` and assign it the value `5`.
+
+```{r}
+x = 5
+```
+
+To see the value assigned to an object, just enter the name of the object.
+
+```{r}
+x
+```
+
+A variable can be reassigned a new value by just assigning the new value to it using `=` or `<-`. A variable can be named by using lower case letters, `a-z`, upper case letters `A-Z`, digits `0-9`, and the symbols like period `.` and under score `\_`. Most important rules for naming variables in R is as follows: 
+
+- Letters or alphabets first and R is case sensitive, so the names `a` and `A` are different
+
+- A valid name cannot begin with a number. So you can use numbers in the name, but it should always come after a letter.
+
+- No mathematical symbols can be used, like, '-' (because this is for subtraction) ,  '!', or any other mathematical operators (discussed later in this note).
+
+```{r, error=T} 
+# the error = T is to override the default setting of RMarkdown to stop knoitting at the first error
+
+X = 5 # creates a separate variable than x defined before even though the value is same
+
+x1_ = 2 # number and symbol in the name
+
+1x = 2 # produces error since the name starts from a number
+
+_x = 2 # produces error since the name starts from a symbol
+```
+
+
+### $\cdot$ Values:
+
+Some common value types in R are numeric, logical, and character. Mostly, you will work with double, logical, and character. You can check the type of the values in an object using an `class()` function, which we will demonstrate below. The sam ecan also be done by the `is._` functions where the is. is followd by the types of variable and it checks whether the value provided is of that calss or not.
+
+#### Numeric values:
+
+> Numeric values are numbers. Numeric values can technically be broken down into more subtle types, like `integer`, `double`, `float`, and `long`, but these distinctions will not matter to us this semester, and all refer to numeric values.
+
+```{r}
+# recall the variable x from above, which has a value of 5 which is a number
+x 
+
+class(x)
+
+y = 2.111
+class(y)
+
+z = -2
+class(z)
+
+is.numeric(x) # this is to check whether the number is specifically a numeric value or not
+```
+
+By default, every numeric value is saved as what we call a `double`, but can also be saved as integers and such by using functions like `as.integer()` or `as.float()`, etc.
+
+It is also interesting to see that R has a default color for all similar types of variables. For example, all numeric values are in dark blue. R also has built in numeric values for pi, infinity, and negative infinity.
+
+```{r}
+pi # value of pi
+Inf # infinity
+-Inf # negative infinity
+```
+
+
+#### Character values:
+
+> Character values, also called strings, are interpreted as non numeric entries and as a text. A character value can be created in R by enclosing the value in quotations, `" "` (double or single, doesn't matter) and it will be saved as character values, even if it's a number. 
+
+A numeric or other types of values can be converted into characters by using teh function `as.character()`.
+
+```{r}
+"Hello, world"
+
+a = "this is a character"
+
+class(a)
+
+b = 2
+class(b)
+b = as.character(b)
+class(b)
+```
+
+
+Although space does not matter in numeric data, it does matter for character data:
+
+```{r}
+c = "space " # you can see that the c has a space in the evironment and let's check whether c is the same as "space"
+
+c == "space"
+
+c == "space "
+```
+
+Now, here you might have already noticed that all character values appear in green.
+
+It is also important to note that character values can not be mathematically operated on.
+
+```{r}
+a + 2
+b + 2 # eventhough b is 2 but since it is a character, R doesn't recognize it as a number
+
+# a character variable can be converted into numeric to do mathematical operations using the functions like as.numeric
+
+b.num = as.numeric(b)
+b.num+2
+```
+
+#### Logical values:
+
+> Logical values are very common in R as we often are comparing things to see if they are the same or not. There are three types of logival values: `TRUE` or `T`, `FALSE` or `F`, and `NA` for missing value. 
+
+`TRUE` (or just `T`) and `FALSE` (or `F`) can also be considered boolean variables since by default in R they are considered as boolean values in mathematical environments. Since upper case T and F are used for TRUE and FALSE in R it is suggested not to use T and F as variable names.
+
+
+```{r}
+t = TRUE
+f = FALSE
+class(t)
+
+t + f # mathematical operations can be done using logical values as boolean values
+```
+
+`NA` on the other hand is a special value, it is considered by R as a "nothing", that is, it has no value. `NA` is never considered as a 0, since 0 is a numerical value.
+
+```{r}
+na = NA
+```
+
+Due to the weird nature of `NA`'s, we can't do any operations with it. That is, all mathematical operations on it returns an `NA`. Thus, presence of `NA` makes it difficult to work with the variable. The function `is.na()` is used to check the presence of `NA` in a variable. There are numerous functions that can used to deal with `NA` like remove it or replace it. We will learn about some of these functions later in class.
+
+```{r}
+na + 1 # it can't be added
+na*0 # or multiplied
+
+na == NA # or check the equality of, here eventhough the answer is yes, it outputs NA since NA is not a character and can't be operated on
+
+is.na(na)
+
+!is.na(na)
+```
+
+These were all types of values that variables.objects can take in R. Now, we move onto understanding some of the most commonly used object in R.
+
+### $\cdot$ Vector:
+
+> A vector contains an ordered collection of numbers or character strings or other values indexed by the integers 1, 2, …, n, where n is the length of the vector. 
+
+There are differnt ways of creating a vector. Some of the ways to create vectors: `c()`, `seq()`, `rep()` and `:`. We will look into them individually.
+
+- `c()`: The most commonly used way of creating a vector is the `c()` function, which is the abbreviation of "combine". The wide popularity of the `c()` function is due to it's ability to create vectors out of random values.
+
+```{r}
+# let's create a list of student names: Ashley, Ryan, Ben, Cam, Sue, Xin
+c("Ashley", "Ryan", "Ben", "Cam", 'Sue', "Xin")
+
+# let's save it as names
+
+names = c("Ashley", "Ryan", "Ben", "Cam", 'Sue', "Xin")
+
+names
+```
+
+You can see that the vector 'names' has been saved to the *Environment* and can be called by it's name. You can also see the presence of `[1]` at the beginning of the output. This is to indicate the indicate the index of the first value in the output. If the vector is longer and the output uses multiple line to display the vector then the index of the first entry of each line is displayed at the start inside if square brackets.
+
+For example, we create a list of random numers.
+
+```{r}
+num = c(1, 0 , 10, -11, 20, 1.50, 1.100, 2, 7, 91, 30, 74, -90, 30, 20 , -32, 55, 5.3, 4, -2, -10, 0.5, 10000, -8.77, 6.99)
+
+num
+```
+
+Here, you can see that each line starts with a different index, indicating the position of the first value in that line in the vector 'num'. 
+
+
+All vectors can contain either numeric or character values, but not both. The typ eof vector can be checked by using `class()` or by checking the first word after the name of the vector in the *Environment* (abbreviations like 'num', 'chr' or 'dbl' is used). If different types of values are used to create a vector, it forces all the values to be of the same type. With the exception of `NA`, any vector can contain `NA` as it is understood by R as a missing value.
+
+For example: 
+
+```{r}
+class(names)
+
+class(num)
+
+class(c(T, F, TRUE, FALSE, NA)) # the vector c(T, F, TRUE, FALSE, NA) has all logical values
+
+class(c(1, 2, 3, NA)) # even in the presence of `NA` this vector is numeric
+```
+
+
+Let's mix and match and create vectors with numeric and character values, character and logical values, and numeric and logical values. We will check the type of each to see how R is saving mixed vectors.
+
+```{r}
+num_chr = c(1, 2, "3", 4, "five")
+class(num_chr) # a mix of num and chr creates a chr vector, since numbers can always be converted to chr but converse is not always true
+
+chr_log = c("true", "f", T, FALSE, NA)
+class(chr_log) # for the same reason as above, a vector with mix of chr and log values is always saved as a chr
+
+num_log = c(1, 2, 3, T, TRUE, F)
+class(num_log) # a mix of num and log creates a num vector, since log can always be converted to num (F to '0' and T to '1') but converse is not always possible
+```
+
+`c()` can also be used to create vectors with existing vectors and variables.
+
+For example: I can combine the `num_chr` and `chr_log` into the same vector. If you combine different types of vectors, like, `chr_log` and `num_log`, it follows the mix and match rules.
+
+```{r}
+c(num_chr, chr_log)
+class(c(num_chr, chr_log))
+
+c(num_log, chr_log)
+class(c(num_log, chr_log))
+```
+
+- `seq()` and `:`: The function `seq()` and the `:` are used to create systematic/sequences of numeric vectors exclusively. Any to numbers separated by `:` creates a sequence starting from the first number ending at the second number separated by 1.
+
+```{r}
+1:10 # creates a vector of all integers between 1 and 10
+-10:-1 # creates a vector of all integers between -10 and -1
+pi:20 # all real numbers between pi and 20 separated by 1
+```
+
+
+`seq()` does the same thing as `:` but it gives a little more flexibility for choosing the distance between two numbers in the vector (or sequence) or the number of numbers between any two numbers. `seq()` needs arguments `from =` (first arg by default) and `to =` (second arg by default) which specifies the start and beginning of the vectors (or sequence). By default, the spacing between the numbers in the output is 1 and the output is similar to `:`. But the distance can be chnaged using the `by = ` argument. Users can also decide the length of the output instead.
+
+For example: Let's say we want to create a sequence of numbers starting from pi to 20 with a difference of 2 or 15 numbers between those.
+
+```{r}
+seq(from = pi, to = 20) # same output as pi:20
+
+seq(pi, 20, by = 2) # creates a sequence/vector of all real numbers between pi and 20 separated by 2
+
+seq(pi, 20, length.out = 15) # creates a sequence/vector of 15 real numbers between pi and 20
+```
+
+You can also create a sequence in the opposite order by using a negative value `by =` argument.
+
+- `rep()`: The `rep()` function creates a vector by repeating the first argument `n` number of times (second argument).
+
+```{r}
+rep(c(1,2), 10) # repeats 1, 2; 10 times
+
+rep(5, 10) # repeats 5; 10 times
+```
+
+R also has built in vectors like `letters`, `LETTERS`, `month.name`, etc.
+
+```{r}
+letters # a vector of lowercase alphabets
+LETTERS # a vector of uppercase alphabets
+month.name # vector of all month names
+```
+
+
+##### Factor
+
+> A factor is a special kind of vector which is a vector of length `n` that contains `k` distinct values also known as levels/categories. A factor can be created by using functions like `factor()`, and `as.factor()`. Details of levels can be obtained using the function `levels()`
+
+One common use of a factor is to store a categorical variable for use in a data analysis. 
+
+Example: Let's say you have a vector, `c("underweight", "underweight", "normal", "overweight", "normal")`, that gives the categories of a persons weight. You can convert it into a factor by using the functions listed above.
+
+```{r}
+wt_category = factor(c("underweight", "underweight", "normal", "overweight", "normal")) # this is a vector with 3 distinct levels
+
+levels(wt_category) # this shows the levels are present in wt_category
+```
+
+
+#### Operations with vectors:
+
+All basic operations, mathematical or logical, can be done with numeric vectors. Logical operations can be done with character vectors but not mathematical operations. Operations can be done on one vector along with another vector or a single value. 
+
+If the vector is operated on along with a number, than, the operation is done to each element of the vector with the number.
+
+For example: Let's say we have a vector called `vec`. You can add, multiply or raise to 10 to each number of the `vec` or check whether we have a number equal to 1 in the vector or greater than 4, or is there an `NA`.  
+
+```{r}
+vec = c(1, 2, 3, 4)
+
+vec+10 # 10 is added to each number in the vector
+vec*10 # 10 is multiplied to each number in the vector
+vec^10 # each number in the vector is raised to 10 
+
+vec == 1
+vec > 4
+is.na(vec)
+```
+
+
+If the vector is operated alongside another vector, then, operations are done with respect to the indices. If the vectors are of unequal length, then, the short vector is repeated after the first round, until all elements of the longer vector has been acted upon. A warning is also displayed to warn the user of the unequal vector lengths.
+
+For example: We have a vector `vec1` with 3 elements, `vec2` with 9 elements and `vec3` with 5 elements.
+
+
+```{r}
+vec1 = 1:3
+vec2 = seq(1, 18, by = 2)
+vec3 = 11:15
+
+vec1
+vec2
+vec3
+
+vec1+vec2
+
+vec3+vec1 
+vec1+vec3
+
+vec2 == vec3
+```
+
+- The `%in%` operator in R is a special operator used to check if the values of the first object are present in the second object and return a logical vector indicating if there is a match or not in its left operand. Here, the first and second objects can be a value, vector, list, or sequence.
+
+For example: Let's say we want to check whether 2 is in the vector `1:3`, similarly, the vector `vec2` has elements of `vec3` or not. 
+
+```{r}
+2 %in% 1:3 
+
+vec2
+vec3
+
+vec2 %in% vec3
+```
+
+Most functions in R work with vectors and some of the useful funstions will be discussed later in this lecture note. 
+
+#### Accessing vector elements
+
+> Vector elements can be accessed in many ways by their index. The most basic is using the '[]', indexing operator or the placeholder, after the name of the vector. 
+
+The `[]` only needs the index of the element with in the vector to extract it. Using a negative number in `[]` returns all but the element at that index.
+
+For example: Find the 10th, 15th and 20th alphabet. or all alphabets after 'j'.
+
+```{r}
+# we will use the built in vector `letters`
+
+letters[10] # gives the 10th alphabet
+letters[15] # gives the 15th alphabet
+letters[20] # gives the 20th alphabet
+
+# all of these alphabets can be extracted at once by using the `c()` function
+
+letters[c(10, 15, 20)]
+
+#all alphabets after j can be obtained using 
+
+letters[11:26] # this using the fact that j is the 10th alphabet.
+```
+
+We can also use the `[]` can also be used to add or replace elements into a vector.
+
+For example: You want to add 19 to the vector `vec2` or replace it's 5th element by 5.
+
+```{r}
+vec2[10] = 19 # note that originally vec2 only had 9 elements, so a 10th element can be added by using the indexing operator
+
+vec2[5] = 5
+```
+
+The placeholder can also use logical arguments as inputs. It replaces the elements of vector with the given value at all places where the logical argument returns `TRUE`.
+
+For example: In the vector `chr_log` you want to replace `NA` with 0 or the value `FALSE` with the character 'false'.
+
+```{r}
+chr_log[is.na(chr_log)] = 0
+chr_log
+
+chr_log[chr_log == FALSE] = "false"
+chr_log
+```
+
+### $\cdot$ List, Arrays and Matrices (\textcolor{X}{red})
+
+We don't need these objects for STAT 240. Thus, we won't be covering them in details, just an overview.
+
+> A list contains an ordered collection of objects, like vectors of different types, and single variables. 
+
+Example:
+
+```{r}
+l <- list("5", c(1,2,3), y) # I put y, an object we created earlier, in this list
+l
+class(l)
+```
+
+> A matrix contains a two-dimensional collection of numeric or character values indexed by pairs of integers (i, j).
+
+Example:
+
+```{r}
+m <- matrix(c(1,2,3,4,5,6), nrow = 2, ncol = 3)
+m
+class(m)
+```
+
+> An array contains an n-dimensional collection of numeric or character values indexed by n-tuples of integers (e.g., (i,j,k) for a 3-dimensional array). an array can also be understood as the generlization of matrices. 
+
+Example:
+
+```{r}
+z <- array(c(1,2,3,4,5,6,7,8), dim = c(2,2,2))
+z
+class(z)
+```
+
+
+### $\cdot$ Dataframes
+
+> A data.frame is a type of list commonly used to store datasets, with a row for each observation and a column for each variable. Each column is a vector and can be of different types (e.g., numeric, character, etc.). 
+
+A dataframe can be created using the functions `data.frame()` and `tibble()` (this is used instead of `data_frame()`). You can construct dataframes by using the following syntax: `data.frame(columnName1 = vector1, columnName 2 = vector2, ...)` or `tibble(columnName1 = vector1, columnName 2 = vector2, ...)`. One a dataframe is created it's saved in teh Environment as a Data. It describes the data as "r obs. of c variables", where, r is the number of rows and c is number of columns.
+
+Example: Let's create a dataset that contains all the alphabets in english language, position of each alphabet and whether it's a vowel or not.
+
+```{r}
+alphabet = tibble(alp = letters, pos = 1:26, isItAVowel = letters %in% c("a", "e", "i", "o", "u"))
+
+# alphabet = data.frame(alp = letters, pos = 1:26, isItAVowel = letters %in% c("a", "e", "i", "o", "u"))
+
+alphabet
+```
+
+#### Accessing dataframe elements
+
+> Dataframe elements can also be accessed by their index. The most basic is using the '[]', indexing operator or the placeholder, after the name of the data. 
+
+The `[]` needs the index of the element in the format of x,y; where x is the row number and y is column number. If the column number is left empty, it will extract the whole row and if the row number is left empty if extracts the whole column.
+
+Example:
+
+```{r}
+alphabet[5,1] # the fifth alphabet or the 5th element in the 1st column
+alphabet[5,] # gives the 5th row
+alphabet[,1] # gives the first column
+```
+
+Just like in vectors, `[]` can be used to add or replace elements in a dataframe.
+
+Example:
+
+```{r}
+alphabet[27, ] = list("just a test", 27, NA) # list of elements that goes in each column. Here we use list because it can combine different type of values in the same object in contrast to c() which needs same types of values
+
+alphabet
+
+alphabet[27,3] = 0 # replaced that NA as FALSE, why FALSE?
+
+alphabet
+
+alphabet = alphabet[-27,] # removes that extra row that we just created
+```
+
+> The `$` operator can be used to extract columns from dataset.
+
+```{r}
+alphabet$isItAVowel
+```
+
+There are some important functions that can be used to get the number of rows, cols or in general the dimension and much more which we will learn later on in this lecture note. 
+
+# Functions:
+
+> Functions are reusable blocks of code that produce outputs depending on the task defined and using the inputs given to them. These inputs are called arguments. These are saved in the environment and are used by using the following syntax `function_name(arg1 = value, arg2 = value, ...)`. Not all functions require input, we will some examples of those soon.
+
+We have already seen a few functions, like `log()`, `sqrt()`, `tibble()`, `is.numeric()` and many more. Functions typically have one or more arguments, which are the inputs you put in the parentheses after the function name. 
+
+Every function uses a default order of some inputs/arguments. If a user follows the order of the inputs then the arguments need not be named while providing the value. All other optional arguments (these are arguments with defaults in the function), if provided, must be named. 
+
+For example, in the `seq()` function the `from` arg is the first argument followed by the `to` argument. If a user wishes to create a sequence from 1 to 10 and uses the syntax `seq(1, 10)`, it will create the desired results. But if the user uses the syntax `seq(10, 1)` it will create a different. If you wish to provide the end value first then the `to` arg must be named, so the syntax will be `seq(to =1 , from = 10)`. The `by` and `length.out` are optional arguments which have their own defaults and need not be used. 
+
+```{r}
+seq(1, 10) # creates a seq from 1 to 10
+
+seq(10, 1) # creates a reverse seq of 10 to 1
+
+seq(to = 10, from = 1) # creates a seq from 1 to 10, since the arguments are named, the order doesn't matter.
+```
+
+
+To learn more about a function, you can use the `Help` tab in the `Files` window, or you can type `?` followed by the name of the function to see a detailed help file that explains the nature of the function along with, references, and example code.
+
+```{r}
+?seq
+?sqrt
+```
+
+
+- Types of Function in R Language
+  - **Built-in Function**: Built-in functions in R are pre-defined functions that are available in R programming languages to perform common tasks or operations.
+  - **User-defined Function**: R language allow us to define our own functions
+  
+### $\cdot$ Built-in Function:
+
+We will list out some basic and useful built-in R functions below and go over the use of some of them. These are separate from the ones already mentioned above and the ones we will learn about later.
+
+- `print()`: Displays an object’s value in the R console.
+
+- `sqrt()`: Calculates the square root of a number.
+
+- `log()`: Computes the natural logarithm of a number.
+
+- `exp()`: Calculates e raised to the power of a given number.
+
+- `sum()`: Adds all elements of a numeric vector.
+
+- `mean()`: Computes the average of a numeric vector.
+
+- `median()`: Finds the middle value of a sorted numeric vector.
+
+- `mode()`: Returns the storage type of an object (not the statistical mode).
+
+- `cor()`: Calculates the correlation between two numeric variables.
+
+- `var()`: Computes the variance of a numeric vector.
+
+- `sd()`: Calculates the standard deviation of a numeric vector.
+
+- `read.csv("path")`: Imports a CSV file into R as a data frame using the path provided.
+
+- `write.csv("path")`: Exports a data frame to a CSV file following the path
+
+- `getwd()`: Returns the current working directory.
+
+- `setwd("path")`: Sets the working directory to the specified path.
+
+- `length()`: Returns the number of elements in a vector
+
+- `min()`: Returns the smallest value in a vector.
+
+- `max()`: Returns the largest value in a vector.
+
+- `which()`: Returns the indices of elements that meet a condition (given using logical operations or functions like is.na()).
+
+- `View()`: Opens the dataset in a spreadsheet-style viewer in RStudio.
+
+- `head()`: Displays the first few rows of a dataset (default is 6).
+
+- `tail()`: Displays the last few rows of a dataset (default is 6).
+
+- `glimpse()`: Shows column names, data types, and a preview of values in a dataset.
+
+- `dim()`: Returns the dimensions of a dataset as number of rows and columns.
+
+- `nrow()`: Returns the total number of rows in a dataset.
+
+- `ncol()`: Returns the total number of columns in a dataset.
+
+Some of the above listed functions are useful for vectors dataframes
+
+### $\cdot$ User defined Function:
+
+We won't be building our own functions in STAT 240, so this is only a brief overview.
+
+> User-defined functions are the functions that are created by the user. The User defines the working, parameters, default parameter, etc. of the function. They can be only used when run and saved in the environment every time the user opens a new session in R. 
+
+Functions are created in R by using the command function(). The general structure of the function file is as follows: 
+
+![](https://media.geeksforgeeks.org/wp-content/uploads/20250612125808316194/functions_in_r.webp)
+
+Example:
+
+```{r}
+add_num <- function(a,b) # this is a function defined in this lecture note, this is not saved in R, but once the code is run, it'll be saved in the Environment for the current session
+{
+  sum_result <- a+b
+  return(sum_result)
+  }
+
+add_num(35,34)
+```
+
+
+```{r}
+area_per_rect = function(length = 1, width = 1){ # here the default length and width is 1. If the length or width is not provided while using the function, it'll use it as 1.
+  area = length * width
+  perimeter = 2 * (length + width)
+
+  result = list("Area" = area, "Perimeter" = perimeter)
+  return(result)
+}
+
+area_per_rect(2) # suing width as 1, and 2 as the length since length is the first argument
+```
+
+All user defined functions are saved in the Environment under Functions.
+
+# Packages
+
+> Packages in R are a set of functions, compiled codes, and sample data. These are stored under a directory called "library" within the R environment. By default, R installs a group of packages during installation. Once we start the R console, only the default packages, specifically the `base` R package, are available to use. Other packages that are already installed need to be loaded explicitly before each session. 
+
+A strength of R is that users can create their own collection of commands and data, publish them to the internet, and allow others to download them. These user-written, public collections are called "packages". We will use a number of user-written packages for this course; in fact, the first third of this course centers around `tidyverse`, a collection of user-written packages which work together to make data manipulation and visualization easier than they would be with the base commands that come with R.
+
+For installing R Package from CRAN we need the name of the package and use the following command `install.packages("package name")`. The package name is case sensitive, so user must make sure they are providing the right package name. Installing Package from CRAN is the most common and easiest way as we just have to use only one command. In order to install more than a package at a time, we just have to write the names in a character vector and provide it as the first argument of the `install.packages()` function. The installation needs to be done only once on any device, as long as R is not deleted from the device.
+
+A package can be loaded onto the current session of R by using the command `library()`, the functions and objects in that package all become available in the global environment.
+
+# Loops or Iterations
+
+We won't be using loops or iterations for this course, so we will go over them very briefly.
+
+> Loops and iterations in R are used to repeatedly execute a set of instructions until a specific condition is met. They are especially useful when performing the same operation on multiple elements of a vector, rows of a data frame, or over a sequence of values. R provides several looping constructs such as for, while, and repeat, which allow users to control how many times a block of code runs. Understanding loops helps automate repetitive tasks, improve efficiency, and write more structured and readable R programs.
+
+There are different types of loops, like `for` loops, `while` loops, etc.
+
+- `for` loops: A for loop is used when you know in advance how many times a block of code should run. It iterates over a sequence such as a vector, list, or range of numbers.
+
+Syntax: 
+
+```
+for (value in sequence)
+{
+  statement for what you want to do
+}
+```
+
+
+Example:
+
+```{r}
+for (x in 1:5)
+{
+    print(x)
+}
+```
+- `while` loop: The while loop runs as long as a specified condition holds TRUE. It is useful when the number of iterations is unknown beforehand.
+
+Syntax: 
+
+```
+while ( condition ) 
+{
+  statement
+}
+```
+
+Example:
+
+```{r}
+val = 1
+while (val <= 5)
+{
+    print(val)
+    val = val + 1 # thsi line redefines the variable val by adding 1 to the current value
+}
+```
+Now that you all are familiar with basic R syntax, we will go ahead dive deeper into data visualization, wrangling and more.
+
+
+--------------------
+# THE END
+
+
+
