@@ -1,0 +1,75 @@
+---
+title: "Discussion 1"
+author: "Student's Name Here"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# We will usually provide a chunk like this for you. You shouldn't change this chunk until and unless you know what you are doing.
+
+# This is setting "global chunk options":
+
+#   echo = TRUE causes every chunk to appear in the knitted file.
+#   warning = FALSE causes warning messages to NOT appear in the knitted file.
+#   message = FALSE causes other messages to NOT appear in the knitted file.
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Preliminaries
+
+- This file should be in `STAT240/discussion`.
+- Set `STAT240/discussion` as your working directory. (This will be in problem 5).
+
+The goal of today's discussion will be to review the syllabus, think about your learning goals for STAT 240, and learn how to knit an Rmarkdown file to html.
+
+
+# Problem 1
+
+What are the dates for the first midterm, second midterm, and final exam for this course? As a reminder, makeup dates or times for the final exam are rarely offered and require extenuating or emergency circumstances.
+
+> Write your answers here!
+
+
+# Problem 2
+
+What are your goals for taking this course and what are you hoping to learn?
+
+> Write your answers here!
+
+# Problem 3
+
+Please ensure that the `STAT240` folder on your computer is set up according to the image attached in the assignment.
+
+# Problem 4
+
+In line 49 below, remove the text and add an R chunk and compute three times exp(10) plus five.
+
+*You may find [Section 2.3.2 of the textbook ](https://bwu62.github.io/stat240-revamp/rstudio-intro.html#r-math) helpful.*
+
+Add an R chunk here!
+
+Ensure that the answer is appearing in the knitted file correctly. Do not just type the answer, write the code to get the answer.
+
+# Problem 5 <b>(Working directory check)</b>
+
+```{r}
+# no written response needed, simply knit the document and
+# check the output, this chunk should print:
+
+getwd()
+```
+
+Copy the output of the previous line of code and change it to direct it to `Desktop/STAT240/discussion` and give it as input for `setwd()`. For example:
+
+In my computer getwd() gives `"/Users/s.sahifa98/Downloads"`, then I change it to `"/Users/s.sahifa98/Desktop/STAT240/discussion"` and put it inside `setwd("/Users/s.sahifa98/Desktop/STAT240/discussion")`.
+
+Run getwd() again to make sure it's set correctly.
+
+# Submission
+
+When you have answered the above questions, please knit this file and submit **both** the R Markdown file (.Rmd) and the knitted html file (.html).
+
+We will ask for both files for every assignment in this course.
+
+We will grade directly from the .html file, so make sure you are satisfied with how it looks before you submit. We ask for your .Rmd as a backup in case your .html file has errors in it. 
