@@ -1,0 +1,135 @@
+---
+title: "Basic R stuff - 003"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Basic R 
+
+## Operators:
+
+### Mathematical Operators:
+
++, -, *, /, ** or ^ (raised to power of), %% (remainder of a division)
+
+
+```{r}
+3+2
+3/2
+3%%2
+3**2
+3^2
+```
+
+### Logical Operation:
+
+<, <=, >, >=, == (equivalency), !=
+
+```{r}
+3>2
+3<=2
+3==3
+3!=3
+```
+
+'and' operator: `&`
+'or' operator: `|`
+
+```{r}
+T|T
+T|F
+F|T
+F|F
+```
+
+### Other mathematical calculation
+
+```{r}
+sqrt(2)
+log(10)
+exp(10)
+```
+
+
+# Variables:
+
+format: name = value, name <- value
+
+
+```{r}
+a = 1 # defined a variable called `a` which has a value 1
+
+a # calling a variable to get it's value
+```
+
+Rules:
+
+1) Every variable name should start with letters, and not numbers or symbols. And it can be followed by numbers or symbols like `_` or `.`.
+
+Eg: 1a shouldn't be a name for a variable
+
+```{r}
+1a = 10
+*a 
+_a = 10
+
+a1 = 2
+a_ = 2
+```
+
+2) Variable names are case sensitive
+
+```{r}
+A = 1
+```
+
+3) Any weird variable names should be enclosed in quotation.
+
+```{r}
+'my fav number' = 2
+'1a' = 10
+
+`1a`
+`my fav number`
+```
+
+
+```{r}
+a
+```
+
+### Types of variables
+
+- numeric: 
+
+Different ways R saves numbers: double, numeric, float, integer. BUt all of them are still considered numeric for our purposes
+
+```{r}
+class(a)
+```
+
+- character values:
+
+texts, to define these variables you have to enclose the value in quotations.
+
+```{r}
+b = '22'
+class(b)
+
+b+1
+
+'my name' = "Sahifa"
+
+'my name with a space' = "Sahifa "
+
+`my name` == `my name with a space`
+```
+
+
+
