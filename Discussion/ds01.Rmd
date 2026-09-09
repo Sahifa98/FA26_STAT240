@@ -68,8 +68,6 @@ Run getwd() again to make sure it's set correctly.
 
 # Submission
 
-When you have answered the above questions, please knit this file and submit **both** the R Markdown file (.Rmd) and the knitted html file (.html).
+When you have answered the above questions, please knit this file and inspect the output html file. You can also discuss any issues with your TA.
 
-We will ask for both files for every assignment in this course.
-
-We will grade directly from the .html file, so make sure you are satisfied with how it looks before you submit. We ask for your .Rmd as a backup in case your .html file has errors in it. 
+We will ask for both files for every HWs assignment in this course. For HWs we will grade directly from the .html file, so make sure you learn how to properly knit an html file. 
