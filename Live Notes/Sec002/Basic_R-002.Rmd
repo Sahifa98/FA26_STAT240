@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 
-
+# Wednesday 09/09
 # Basic R stuff
 
 ## Mathematical Operations:
@@ -109,6 +109,131 @@ numbers = c(1, 2, 3, 4, 5)
 ```{r}
 3+2
 ```
+
+# Friday 09/11
+
+### Types of variables
+
+- Numbers: These are called numeric variables. dbl, int, num, date, etc.
+
+Check the type of variable using the function `class()`
+
+```{r}
+a
+
+class(a)
+```
+
+- characters: these are texts, are defined inside quotations.
+
+```{r}
+name = "Sahifa"
+my_name = 'Sahifa'
+
+name == my_name
+
+no. = "22"
+no.+1
+
+num = as.numeric(no.)
+class(num)
+
+as.numeric(name)
+```
+
+- Logical values: TRUE, FALSE, NA (stands for `not available` and is interpreted as missing value), NaN (`Not A Number`)
+
+```{r}
+TRUE
+FALSE
+T
+F
+
+T+2
+F/1
+
+0/0
+NA+1
+
+NA == NA
+```
+
+
+# Vectors
+
+all numbers between 1 to 5 as numbers.
+
+- `c()`: stands for combine
+
+```{r}
+numbers = c(1, 2, 3, 4, 5)
+numbers
+```
+
+```{r}
+nu_chr = c(1,2, 3, "four", "five", "name")
+num_log = c(1, 2, T, FALSE, 40)
+log_chr = c(T, TRUE, FALSE, "F", "100")
+
+num_log
+log_chr
+```
+
+
+- `:` this is used to create sequences of numbers with a diff of one
+
+format: a:b, where a and b are numbers
+
+```{r}
+1:20
+pi:20
+-10:10
+
+10:1
+```
+
+- `seq()`:
+
+```{r}
+?seq
+
+seq(from = 10, to = 1, by = -0.1)
+
+seq(1, 10, length.out = 98)
+```
+
+- `rep()`: repetition
+
+```{r}
+?rep
+
+rep(numbers, times = 10)
+```
+
+
+### Operations with vectors:
+
+Mathematical opeartions:
+
+```{r}
+a
+b = c(1, 11, 21)
+b
+numbers
+```
+
+```{r}
+a + b
+
+b+numbers
+```
+
+1+1
+11+2
+21+3
+1+4
+11 + 5
+
 
 
 
