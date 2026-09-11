@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+#Wednesday 09/09
 
 # Basic R 
 
@@ -130,6 +130,121 @@ b+1
 
 `my name` == `my name with a space`
 ```
+# Friday 09/11
+- Logical values: T or TRUE, F or FALSE, NA (`Not Available` this is a missing value), NaN (`Not a Number` is usually an output for a mathematical operation that doesn't generate a numeric answer).
+
+```{r}
+TRUE
+FALSE
+T
+F
+
+100 + T
+
+T / 2
+
+1/0
+sqrt(-1)
+
+is.na(NaN)
+class(NaN)
+
+NA + 1
+NA == NA
+
+is.na(NA)
+```
+
+
+# Vectors:
+
+A string of things defined into one output
+
+You want to save numbers 1 to 5 in the same variable name `num`
+
+- `c()`: this is the combine function. 
+
+
+```{r}
+num = c(1, 2, 3, 4, 5)
+
+words = c("Ashley", "Banana", "Cabbage")
+
+a1 = c(1, 2, 3, "four", "five", "all")
+
+b1 = c(1, 2, T, FALSE, 40)
+b1
+
+chr_log = c("F", FALSE, 0)
+chr_log
+```
+
+
+```{r}
+1:50
+
+-1:100
+```
+
+- `:` through the number
+
+format: a:b, where it will generate a vector starting from a and go through b with a diff of 1 between entries.
+
+```{r}
+1:10
+-10:10
+pi:20
+```
+
+- `seq()`: a function that generates numeric sequences
+
+```{r}
+?seq
+
+seq(1, 10, by = 0.1)
+
+seq(from = 10, to = 1)
+
+seq(1, 10, length.out = 13)
+
+seq()
+
+10:1
+```
+
+
+- `rep()`: function of repeating
+
+
+```{r}
+words
+?rep
+rep(words, times = 10)
+```
+
+### Operations with vectors:
+
+- Mathematical operation
+
+```{r}
+a
+b1 = c(1, 11, 21)
+b1
+c = num
+c
+```
+
+
+```{r}
+a + b1 # 1+1, 1+11, 1+21
+
+b1+c # 1+1, 11+2, 3+21, 1+4, 11+5
+
+a < b1
+b1 > c
+```
+
+
 
 
 
