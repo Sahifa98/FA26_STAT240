@@ -1,0 +1,89 @@
+---
+title: "Discussion 2"
+author: "Student's Name Here"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = FALSE, error = TRUE)
+```
+
+# Preliminaries
+
+- This file should be in `STAT240/discussion`.
+- The file `lake-monona-winters-2025.csv` should be in `STAT240/data`.
+
+The goal of today's discussion will be to break R in as many ways as possible!  We want to become comfortable with reading, understanding, and eventually debugging error messages.
+
+Today we will have some fun during discussion. Try to come up with as many unique error messages as possible!  At the end of discussion, we will see who comes up with the greatest number of distinct errors.
+
+
+# Problem 1 
+
+The chunks below contain a few lines of simple R code to play with. The current codes run fine and will return outputs. Your task is to  **break** the code by changing it such that it return an error message, or write your own broken code.  
+
+- Make sure you understand what each line of code is doing before breaking it.
+- Since `error = TRUE` is set at the top, the file should still knit, but it should print error messages.
+- `Error: unexpected symbol in "2 x"` and `Error: unexpected symbol in "y<-x^4-5x"` are treated as the same error message.
+- Warning messages do not count.
+
+Here's an example to get you started.  It returns an error since the object `sprint_times` has not been defined.
+
+```{r}
+mean(sprint_times)
+```
+
+The codes below are the ones you need to change or create your own in the space below.  
+
+```{r}
+# Code 1
+# Do some arithmetic with numeric vectors
+1:10 + 11:20
+```
+
+```{r}
+# Code 2
+# Define a logical vector and calculate the mean
+logicalValues <- c(TRUE, TRUE, FALSE, NA, FALSE, TRUE)
+
+mean(logicalValues)
+mean(logicalValues, na.rm = T)
+
+# What is the second item in this vector?
+logicalValues[2]
+```
+
+```{r}
+# Code 3
+# Using tidyverse's tibble to make a dataset of instructors
+library(tidyverse)
+
+tibble(
+  name = c("Cameron", "Bret", "Miranda", "Sahifa", "Bi"),
+  favoriteNumber = c(12, 240, 8, NA, 3),
+  singleDigit = favoriteNumber < 10
+)
+```
+
+```{r}
+# Code 4
+# Read in a new dataframe
+## This assumes that:
+### STAT240/data/ contains the data file
+### STAT240/discussion/ is your working directory.
+
+monona <- read_csv("../data/lake-monona-winters-2025.csv")
+
+# This command should print out the first six rows of the monona winters dataset, starting with 1855-1856.
+
+head(monona)
+```
+
+
+
+
+
+
+
+
+
