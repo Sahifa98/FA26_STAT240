@@ -1,0 +1,869 @@
+---
+title: "STAT 240: Chapter 1 ggplot2"
+author: "Sahifa Siddiqua"
+date: "`r Sys.Date()`"
+output: rmdformats::readthedown
+---
+
+```{r setup, include = FALSE}
+##   when the tidyverse library is loaded, messages are generated that we do not want to include in the knitted document
+## setting the chunk argument include = FALSE means this chunk is executed, but the text in the chunk and any output do not appear in the knitted document
+
+## The following command sets some options for this R Markdown file
+  ##   echo = TRUE means that the code in R chunks will appear in the knitted document
+  ##   message = FALSE and warning = FALSE mean that messages and warnings do not appear in the final document
+  ##   error = TRUE means the document will continue to knit in the presence of errors while knitting
+  ##   fig.height = 3 means figures are 3 inches tall unless otherwise specified
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      error = TRUE, fig.height = 3, fig.width = 4)
+
+library(tidyverse)
+```
+
+# Overview
+
+Create Elegant Data Visualizations Using the Grammar of Graphics package ggplot2 from tidyverse
+
+## Learning Outcomes
+
+-   These lectures will teach you how to:
+    -   Create basic graphs with ggplot2
+    -   Choose an appropriate graph based on the variable/question of interest
+    -   Visualize data among subgroups, whether on the same panel or across multiple
+    -   Manipulate specific elements of graphs with ggplot2
+
+## Introduction
+
+`ggplot2` is an R package for creating data visualizations. Unlike many graphics packages, ggplot2 uses a conceptual framework based on The [*Grammar of Graphics*](https://link.springer.com/book/10.1007/0-387-28695-0). This allows you to 'speak' a graph from composable elements, instead of being limited to a predefined set of charts.
+
+`ggplot2` builds on and enhances basic R functions with an easier-to-understand syntax and a more intuitive workflow. All `ggplot2` plots are built on the idea that any graph can be constructed using three components: **data**, a set of **coordinates**, and **geoms** (short for geometric objects, which are visual representations of data points).
+
+More in depth information about the `ggplot2` package can be found [here](https://ggplot2.tidyverse.org/articles/ggplot2.html).
+
+-   Having a "grammar" of graphics is important because:
+    -   A wide variety of graph types can be implemented with extremely similar code
+    -   The user has a rich language to customize plots to a more rich degree than graphing software with pre-specified dropdown menu options
+    -   **Just like ordinary language, the creative combination of smaller building blocks can support a very wide range of expression.**
+
+### Installation:
+
+The `ggplot2` package is a part of the `tidyverse` package. If you have the tidyverse package you don't have to reinstall `ggplot2` but you can always reinstall individually by using the following code.
+
+```{r eval=FALSE, include=TRUE}
+# The easiest way to get ggplot2 is to install the whole tidyverse:
+install.packages("tidyverse")
+library(tidyverse)
+
+# Alternatively, install just ggplot2:
+install.packages("ggplot2")
+
+library(ggplot2) # to load the package for every session, needs to be run every time you start a session.
+```
+
+## Structure
+
+In a ggplot plot, we go over the 7 composable parts that, together, form a set of instructions for drawing a chart. Not all plot needs all 7 layers. Of these components, ggplot2 requires at least the following three to produce a chart: **data, a mapping**, and **a layer**. The scales, facets, coordinates, and themes have defaults. You build the plots from the bottom and keep adding layers as you go.
+
+![](https://ggplot2.tidyverse.org/articles/ggplot2_files/figure-html/overview_graphic-1.png)
+
+## Step-by-step process
+
+We will now go over the step by step process of building a plot from scratch:
+
+-   Step 1: ggplot()
+
+The first step is the ggplot function. This line of code sets up the environment for the rest of the ggplot components. This is where you can provide the dataset, information about the coordinates/ primary variables, secondary variables to add dimensions to the data, etc.
+
+As the foundation of every graphic, ggplot2 uses data to construct a plot. The data is best provided as a dataframe. For example, if we want to use the `mpg` dataset from the ggplot2 package to make a plot, we type
+
+```{r}
+ggplot(data = mpg)
+```
+
+**Note:** It is important note that by default the ggplot function doesn't need a dataset, as long as the data points are provided in the mapping (the next component of a ggplot) as vectors.
+
+-   Step 2: mapping
+
+The mapping of a plot is a set of instructions for how parts of the data are mapped to the aesthetic attributes of geometric objects. It is the 'dictionary' for translating the dataframe into the graphics system.
+
+A mapping can be created using the `aes()` function to pair graphical attributes with parts of the data. If we want the "cty" and "hwy" columns to map to the x- and y-coordinates in the plot, we can do that as follows:
+
+```{r}
+ggplot(data = mpg, mapping = aes (x = cty, y = hwy))
+```
+
+> Note: The arguments for data and mapping are fixed as the first and second argument, respectively, inside ggplot and all geom_functions. So data and mapping have to be provided as the first and second arguments; even if they are not specified, they’ll be used as such. If these are not your first and second argument, use the names of the argument that you are providing.
+
+-   Step 3: Geom layers
+
+The heart of any graphic is the layers. They take the mapped data and display it in something humans can understand as a representation of the data. The geometry that determines how data are displayed, such as points, lines, or rectangles. These are created using the geom functions. There are several geom functions, specific for each type of plots and some variations of them. Here we list some of the basic geom functions:
+
+-   geom_points()
+-   geom_line()
+-   geom_area()
+-   geom_path()
+-   geom_pointrange()
+-   geom_linerange()
+-   geom_smooth()
+-   geom_ribbon()
+-   geom_bar()
+-   geom_col()
+-   geom_histogram()
+-   geom_density()
+-   geom_violin()
+-   geom_boxplot()
+-   geom_contour()
+-   geom_text()
+-   geom_label()
+
+More geom functions can be found [here](https://ggplot2.tidyverse.org/reference/index.html).
+
+In this course, we will be learning in depth about some of these geom functions. It is important to note that every geom function creates its own plot using the mappings provided either in the ggplot() or in the geom function itself.
+
+Even though every plot uses both `x` and `y` axes, some plots create their own summary to display on the `y` axis. Thus, some of these geom functions require data for both axes (geom_point, geom_line, etc), whereas others need data for just one axis (geom_bar, geom_histogram, etc).
+
+All of these function have *color* and *size* aesthetics. Some of them have specialized aesthetics unique to the type, for example, the line graphs like `geom_line` uses *linetype*, the filled graphs like `geom_histogram` and `geom_polygon` use *fill*. Before we dive more into the geoms, let's understand aesthetics.
+
+## Aesthetics
+
+In the ggplot world, aesthetics refer to the characteristics/attributes of a plot. Some of the most commonly used characteristics of a plot are
+
+-   x and y-axis: axes of the plot
+-   color: used for specifying the color of solid shapes and outline of hollow shapes. This aesthetic applies to most geom functions.
+-   fill: used for specifying the color of the inside of hollow shapes
+-   shape: used to specify shapes of points
+-   alpha: used to control opacity of plots. This aesthetic applies to most geom functions and especially useful for plotting multiple plots in a single ggplot.
+-   linetype: used to create different styles of line such as dashed, dotted, etc.
+-   size: used to control the size/thickness of points and lines
+-   linewidth: used to control the thickness of lines (same as size)
+-   fonts: used to control the fonts of the texts
+
+More on ggplot aesthetics can be found [here](https://ggplot2.tidyverse.org/articles/ggplot2-specs.html).
+
+Depending on how these aesthetics are provided to the plots, they can be further classified.
+
+Every aesthetic of a plot can be provided from the dataset or as a constant value. If the plot's aesthetic is sourced from the dataset and varies from point to point, it is called a **variable aesthetic**. If the plot's aesthetic is provided as a constant value (which can also be sourced from the dataset) and doesn't vary from point to point, then it is called a **constant aesthetic**.
+
+All aesthetics sourced from the dataset must be provided to the mapping argument in the aes() function. The aesthetics provided through the aes() function create a legend. Even with a constant aesthetic provided to aes(), it still makes a legend with one category.
+
+Example: In the `mpg` dataset, we use `cty` and `hwy` as the axes and `displ` as the color, let's may a point graph with point size 1 (default size is 2).
+
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(mapping = aes(colour = displ), size = 1) 
+```
+
+Here, axes and color are variable aesthetics and thus provided in the `aes()` function, whereas the size is a constant aesthetic thus provided outside the `aes()` function.
+
+If the size is instead provided to the `aes()` function, we get the following graph.
+
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(mapping = aes(colour = displ, size = 1)) 
+```
+
+Aesthetics can be provided in two ways: either through the ggplot function or through individual geom functions. The aesthetic provided through the ggplot function is called a **global aesthetic** and gets applied to all the layers that follow it. The aesthetic provided through individual geom functions is called a **local aesthetic**, and its effect is visible only within that geom.
+
+For example, let's make the same plot as the previous one but also with a line plot.
+
+```{r}
+ggplot(mpg, aes(cty, hwy, colour = displ)) +
+  geom_point() + 
+  geom_line()
+```
+
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(mapping = aes(colour = displ)) + 
+  geom_line()
+```
+
+You can see that in the first plot since the color was provided globally to the ggplot() function, both the points and lines have same gradient coloring. In the second plot, the color was provided locally to geom_point, the gradient coloring only applies to the points.
+
+> Note: It is important to note that the arguments for aesthetics don’t have a fixed order of input in the functions; thus, they must be specified by their name when providing them to the geom_functions.
+
+Now that we've established a groundwork vocabulary and framework for understanding where specific aesthetics go in code and which layers they apply to, we can begin diving into the large variety of geoms available to us!
+
+We will start with two-variable plots and then move on to one-variable plots.
+
+## Two-Variable Plots
+
+The two variable geom functions important in this course are: geom_point, geom_line, geom_smooth and geom_col. We will see some of the aesthetics and arguments for each of these functions.
+
+#### $\cdot$ `geom_point()`:
+
+> The point geom is used to create scatterplots. The scatterplot is most useful for displaying the relationship between two continuous variables and thus one of the most commonly used geom functions. It can be used to compare one continuous and one categorical variable, or two categorical variables
+
+The most commonly used aesthetics of `geom_point()` are the size, shape and color. More about the size, shape and color arguments can be found [here](https://ggplot2.tidyverse.org/articles/ggplot2-specs.html).
+
+Example:
+
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point(color = "purple", size = 4, shape = 24, fill = "yellow")
+```
+
+Here, you can see that we used the both color and fill for the points this is because the shape used for the points is a hollow shape. Most of the shapes for points are solid points and just use color as aesthetic.
+
+#### $\cdot$ `geom_line()`:
+
+> The line geom is used to create connected scatterplots. `geom_line()` connects the points in the order of the variable on the x axis. An equivalent function is the `geom_path()` which connects the observations in the order in which they appear in the data. Just like `geom_point`, `geom_line` is one of the most commonly used geoms and often used in combination with `geom_point`. In this course we will only work with `geom_line`.
+
+The most commonly used aesthetics of `geom_line` are `linetype`, `color` and `linewidth`. It is good to note that `linewidth` does exactly the same thing as `size` and thus can be used interchangibly.
+
+Example:
+
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_line(color = "purple")
+```
+
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_line(color = "purple") +
+  geom_point(color = "yellow", size = 1)
+```
+
+#### $\cdot$ `geom_smooth()`:
+
+> This geom function creates what we call a trend line or the best-fit line. A trend line aids the eye in seeing patterns in the data or understanding the relationship between X and Y variables. It is often used in combination to `geom_point` to help better visualization of the trends. Eventhough, the function requires a y variable, it generates its own y values using the provided y variable and uses that to plot the best fit line. In last 1/3rd of the course, we will use this function a lot.
+
+Most commonly used arguments of `geom_smooth` in this course are `method`, `formula` and `se`.
+
+-   The `method` argument is used to specify the smoothing method, by default the smoothing method is automatically selected by R depending on the sample size. In this course we will use method as 'lm' for linear models. `formula` can also be used to specify the exact formula for your method of smoothing, for example, lm uses y\~x and you can use formula = y\~x.
+
+-   The `se` argument is the argument that displays the standard error (also known as the confidence interval) band of the best fit line. It uses values `TRUE` or `FALSE` depending on whether you want to display or not display the se band, the default being `TRUE`.
+
+Example:
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth()
+```
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F)
+```
+
+#### $\cdot$ `geom_col()`:
+
+> This geom function creates bar charts for discrete/categorical variables where the heights of the bars are created using values from a dataset. This geom treats each axis differently and, thus, can thus have two orientations. It uses one of the axis as a named variable or discrete variable and the other axis as a continuous variable.
+
+Most commonly used aesthetic for geom_col is color and fill.
+
+Example: Let's say we wish to create a bar chart for the `class` variable in the `mpg` dataset that shows the number of cars or counts in each class on the y-axis.
+
+```{r}
+ggplot(count(mpg, class), aes(class, n)) + # the count function counted the number of cars in each class. So how many compact cars, how many 2seater, etc. We will learn more about count in next chapter notes.
+  geom_col(color = "purple", fill = "yellow")
+```
+
+We will see later that, if the variable in the y axis is the count there's a one variable plot that is more convenient to use than geom_col. But the geom_col is more flexible as it gives you choices other than count in the other axis.
+
+Now we move onto the one-variable plots.
+
+## One Variable Plots
+
+The plots we have covered so far, all require `x` and `y`. But sometimes we need answers about the characteristics of just one variable. For example: what is the most common value of a variable? or what is the average of a variable? and so on. The following geoms help analyze such question about a single variable, and as such, they require **exactly one** of `x` or `y`. They will then compute some useful statistic to serve as the other variable.
+
+#### $\cdot$ `geom_bar()`:
+
+> This geom function creates bar charts for discrete/categorical variables where the height of the bar is proportional to the number of observation in each group. `geom_bar` is equivalent to `geom_col` with the other variable being the count of the given categorical variable. 
+
+It uses the same aesthetics as geom_col. The x-axis is
+
+```{r}
+ggplot(mpg, aes(class)) +
+  geom_bar(
+    color = "purple",
+    fill = "yellow"
+  )
+```
+
+Note, that the here `geom_bar` created the exact same graph as `geom_col` in the previous plot without the counts given to it. It also arranges the x-axis alphabetically by default. If you wish to arrange the chart according to the height of the bars, you will need to use `reorder`. You can see an example of that in your discussion assignment.
+
+#### $\cdot$ `geom_histogram()`:
+
+> `geom_histogram` helps visualise the distribution of a single continuous variable by dividing the x (or y) axis into bins and counting the number of observations in each bin. Each column shows the frequency in the given interval.
+
+Most commonly used aesthetics for geom_histogram are the `color` and `fill`. Choosing a reasonable binning scheme is subjective but very important part of creating a histogram. Thus, `binwidth`, `bins`, `center` and `boundary` are some of the most commonly used arguments. All of these arguments take in a single number. 
+
+- `binwidth` is how wide you want each interval to be. 
+
+- `bins` is how many bins you want to end up with. You cannot specify both `binwidth` and `bins`. 
+
+- `center` allows you to declare you want a bin centered around a specific number. 
+
+- `boundary` allows you to declare you want a certain boundary between two bins. You cannot specify both `center` and `boundary`.
+
+```{r}
+ggplot(mpg, aes(x = displ)) + 
+  geom_histogram(color = "purple", fill = "yellow")
+```
+
+From the way the x-axis is labeled, we can't tell exactly how wide each bin is, let alone what the two endpoints are. So, let's say we need the bins from 0-0.5, 0.5-1, 1-1.5 and so one, we could use binwidth to be 1 and boundary to be 0 (or center to be 0.5, boundary and center can be used alternatively).
+
+```{r}
+ggplot(mpg, aes(x = displ)) + 
+  geom_histogram(color = "purple", fill = "yellow", binwidth = 0.5, boundary = 0)
+```
+
+
+#### $\cdot$ `geom_density()`:
+
+> `geom_density` computes and draws kernel density estimates, which is a smoothed version of the histogram. This is a useful alternative to the histogram for continuous data that comes from an underlying continuous distribution.
+
+Most commonly used aesthetics for geom_density are `color`, `fill`, `linewidth` or `size`, `linetype` and `alpha`. 
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_density(
+    color = "purple",
+    fill = "yellow"
+  )
+```
+
+Since, `geom_density` emphasizes the general trend in the data and `geom_histogram` shows the frequency of the raw data. Sometimes it is useful to see them both in the same plot. We can overlay the density plot on a histogram or vice versa and tuning down the opacity of one on the top. But we face a problem, when plot both of these in one plot, due to the significant difference on the scale of their y-axis, density plot only appears as a line on the bottom.
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_histogram(fill = "skyblue1") +
+  geom_density(color = "red", fill = "pink", alpha = 0.3)
+```
+
+
+To handle that, we can set the y variable of the histogram as after_stat(density), which will scale down the axis of the histogram to fit that to the density.
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_histogram(
+    aes(y = after_stat(density)), # This line shrinks the histogram's height to be on the same scale as geom_density
+    fill = "skyblue1"
+  ) +
+  geom_density(
+    color = "red",
+    fill = "pink",
+    alpha = 0.3, # alpha takes value between 0 and 1. The closer the value is to 0, the more transparent the plot is. The density plot here is "on top".
+  )
+```
+
+#### $\cdot$ `geom_boxplot()`:
+
+> `geom_boxplot` compactly displays the distribution of a continuous variable. It visualises five quantities and all "outlying" points individually.  The quantities are:
+    -   The minimum (or in the presence of outliers, the smallest data value bigger than Q1-1.5*IQR)
+    -   The first quartile, Q1
+    -   The second quartile or median, Q2
+    -   The third quartile, Q3
+    -   The maximum (or in the presence of outliers, the largest value less than Q3+1.5*IQR)
+    
+Here, Q1 is the 25th percentile, Q2 is the 50th percentile and Q3 is the 75th percentile. IQR is the interquartile range or Q3-Q1 also represented by the box in the boxplot. Note: The Xth percentile is the value at which X% of the data is below it.
+
+A boxplot is fundamentally different from the other one-variable `geom`s.
+
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_boxplot(fill = "orange")
+```
+
+It is important to note that the y-axis in the boxplot does not represent anything meaningful like the other one-variable geoms. Here all the relevant information is obtained from the x-axis.
+
+#### Using a variable aesthetic for color or fill 
+
+Let's try making some of the plots we built above and using a variable aesthetic for color or fill. This is just a demonstration of how variable aesthetics other than x and y-axis can be applied to plots. You can explore and see how other aesthetics such as size, shape, etc will be affected.
+
+Since it's a variable aesthetic, we will be providing it inside the `aes()`. Let's revisit one of the plots we have made before. Say, for the `mpg` dataset, you want to make a scatterplot for `hwy` vs `cty` plot and color the points according to the class of car. 
+
+```{r}
+ggplot(mpg, aes(x = cty, y = hwy, color = class)) +
+  geom_point(size = 1)
+```
+
+Let's say you want to understand the relationship between `hwy` and `displ` for each fuel type. So we will build a scatterplot for `hwy` vs `displ` and color depending on fuel type. This should create 5 colors for the 5 fuel types. 
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy, color = fl)) +
+  geom_point() +
+  geom_smooth()
+```
+
+You can see that it has colored the points and the trend lines according to the fuel types. We don't see a trendline for fuel type 'c' and 'd' since we don't have enough data to build our model on.
+
+Now let's say we want to understand the distribution of the type of drive and make a bar chart for that. Also, color of each bar depending on the type of drive. Before we can make a bar graph for just automatic and manual transmission, we need to modify all the auto(_) entries to just auto and all the manual(_) into just manual.
+
+```{r}
+mpg_1 = mpg #save the dataset from the package to your environment
+mpg_1$trans = mpg_1$trans %>% str_extract("auto") #the str_extract extracts the word "auto" from the rows of trans column of mpg_1 and if the row doesn't have "auto" it replaces it with NA 
+mpg_1$trans[which(is.na(str_extract(mpg_1$trans, "auto")))] = "manual" # here we replace those NAs with manual
+ggplot(mpg_1, aes(y = trans, color = trans, fill = trans)) +
+  geom_bar()
+```
+
+Now let's make boxplots from the `displ` depending on the `cyl`. Here, we have to be a little cautious, since the `cyl` variable is numeric, R doesn't consider it categorical expects all real numbers between 4 and 8, and thus can't produce seperate graph for individual cylinders. Thus, we need to make it categorical, by using the function `as.factor()`.
+
+```{r}
+ggplot(mpg, aes(displ, fill = as.factor(cyl))) +
+  geom_boxplot()
+```
+
+Play with some more of the ideas like making histograms and density plots for some variable and supplying a second variable as color or fill. We will now move to some exercises and then introduce ways to facet and customizations for plots such as labels, themes, titles, scales and more
+
+------------------------------------------------------------------------
+
+## EXERCISE: Lake Mendota Dataset
+
+- Scientists have been recording the dates when Lake Mendota first closes due to ice (at least half the surface is covered with ice) and opens (more than half the surface is liquid water) since the middle of the 1800s.
+
+* This data set contains **one row for every winter season**, which starts in the late months of one year and ends in the early months of the next.
+    + The first winter recorded is 1855-56, and the most recent winter recorded is 2024-25.
+    + The variable `year1` is the first year of the given winter season.
+    + The variable `duration` is the total number of days that Lake Mendota was closed in that winter.
+    
+- The following R chunk has one line of code that will take the data in the .csv file and read it into a variable named `mendota`.
+
+```{r read-data, message = TRUE}
+## This assumes that:
+### STAT240/data/ contains the data file
+### STAT240/lecture is your working directory.
+### If this gives you "Error: could not find file ... in working directory ...", go to Session > Set Working Directory > To Source File Location, and try again.
+### If that doesn't work, then you downloaded one or both files to the wrong place, or they have the wrong name - make sure they don't have a " (1)" or "-1" at the end of their names, which can happen when you download multiple times.
+
+mendota = read_csv("../data/lake-mendota-winters-2025.csv") %>% 
+  mutate(century = as.character(floor(year1/100)+1), # this line of code adds an extra column for century in the mendota dataset, which you can use to interesting graphs
+         century = case_when(
+           century == "19" ~ "19th",
+           century == "20" ~ "20th",
+           century == "21" ~ "21st"
+         ))
+```
+
+-   This exercise needs you to interpret the question at hand and create graphs that will be helpful in creating graphs to answer them. Note: Some of these questions can be solved multiple ways and we encourage you to explore and think of all different ways to solve it. 
+
+Go SOLVE IT!!! Happy exploring!!
+
+> Question 1) How has the duration of time Lake Mendota closes due to ice each winter changed over the last 168 years?
+
+```{r}
+#write your code here
+```
+
+> Question 2) What is the most common duration of closure?
+
+```{r}
+#write your code here
+```
+
+> Question 3) Create three plots that explains the distribution of the `duration`. One of these should give an idea about the outliers.
+
+```{r}
+#write your code here
+```
+
+> Question 4) Try to create a density plot for `duration` that shows one line for each century. Also, make sure that that each of the lines are of different types and the inside of the density curve is of different color.
+
+```{r}
+#write your code here
+```
+
+> Question 5) Create a bar chart to get an idea of the average duration of lake closure through different centuries. What conclusion can you reach to from this plot? Does it help you answer question 1?
+
+```{r}
+# use this dataset for creating the bar chart
+mendota_summarized = mendota %>% 
+  group_by(century) %>% 
+  summarize(numYears = n(), avgDuration = mean(duration))
+
+#write your code here
+```
+
+> Question 6) Why Won't It Work? You want a scatterplot with `year1` on the x axis, `duration` on the y axis and the *points* colored by `intervals`. The four code below produce errors or incorrect results. Examine the code and the associated error message/output, and explain what is going wrong and why. Suggest a fix for the code in the same r-chunk.
+
+```{r, error = TRUE}
+ggplot(mendota) +
+  geom_point(aes(color = intervals))
+
+#write the corrected code here
+```
+
+```{r, error = TRUE}
+ggplot(mendota, aes(x = year1, y = duration)) +
+  geom_point(color = intervals)
+
+#write the corrected code here
+```
+
+```{r}
+# Why are these points not huge? Why is there a legend for it?
+ggplot(mendota, aes(x = year1, y = duration)) +
+  geom_point(aes(color = intervals, size = 1000))
+
+#write the corrected code here
+```
+
+```{r, eval = FALSE}
+# This just produces a gridded canvas with no points. Why?
+ggplot(mendota, aes(x = year1, y = duration, color = intervals))
+  geom_point()
+
+#write the corrected code here
+```
+
+
+------------------------------------------------------------------------
+
+### Everything covered after this point will not be tested on the Exams but will be used for HWs and DISs.
+
+Moving forward we will just use the mendota dataset to demonstrate faceting and customizations.
+
+## Faceting
+
+#### $\cdot$ `facet_wrap()`:
+
+> Faceting with `facet_wrap` is a way to replicate a single plot within each subgroup defined by a categorical variable.
+
+* When replicating a single plot, we reviewed in a previous exercise how to use `color` or `fill` to overlay separate marks for each subgroup on the same panel, as below.
+
+```{r, fig.height = 2, fig.width = 3}
+ggplot(mendota, aes(x= duration, fill = century, linetype = century)) +
+  geom_density(alpha = 0.3)
+```
+
+* However, we may also just want to split each onto its own plot. This is called **faceting**.
+
+* The function `facet_wrap` requires one argument, `facets`; the variable by which you want to split the plot. One panel will be generated for each category of that variable.
+    + `facet_wrap` requires you to surround this variable with the `vars()` function, like in the example below.
+    + Unfortunately, this is just something that you have to memorize. If you do not use `vars()`, it will say `object 'century' not found`, or whatever variable you used.
+
+```{r}
+ggplot(mendota, aes(x = duration, fill = century)) +
+  geom_density() +
+  facet_wrap(facets = vars(century))
+```
+
+#### $\cdot$ `facet_grid()`
+
+> You can also facet by *two* variables with `facet_grid`, which requires you to specify the `rows` variable and `cols` variable with `vars()`. This is most useful when you have two variables for which every combination exists in the data. For example, faceting by `decade` and `century` doesn't help much, because each decade only appears in one century. 
+
+```{r, fig.height = 5, fig.width = 6}
+ggplot(mendota, aes(x = duration)) +
+  geom_density() +
+  facet_grid(rows = vars(decade), cols = vars(century))
+```
+
+* Perhaps a more effective choice to communicate the same information as above would be to facet by `decade` and fill by `century.`
+
+```{r, fig.height = 5, fig.width = 6}
+ggplot(mendota, aes(x = duration, fill = century)) +
+  geom_density() +
+  facet_grid(rows = vars(decade))
+```
+
+* Consider a column `leap_year` which identifies if `year1` for each winter was a leap year.
+    + Code to create this column is included in the .Rmd but suppressed in the knitted file.
+
+```{r, echo = FALSE}
+mendota = mendota %>% 
+  mutate(leap_year = year1 %% 4 == 0) # a %% b gives the remainder of dividing a by b.
+
+mendota %>%
+  select(year1, leap_year) %>% 
+  head()
+```
+
+* Leap years have occurred in every century; so it makes sense to facet by both `century` and `leap_year`.
+
+```{r, fig.height = 5, fig.width = 6}
+ggplot(mendota, aes(x = duration)) +
+  geom_density() +
+  facet_grid(rows = vars(century), cols = vars(leap_year))
+```
+    
+----------
+
+## Customizations
+
+### $\cdot$ Adding refernce lines to your plots
+
+Adding a reference line to the graph sometimes makes it easier to understand some context. There are three functions that can be used to do so: `geom_vline()`, `geom_hline()` and `geom_abline()`.
+
+-   `geom_vline()` creates a vertical line. It requires the `xintercept` that you provide in a vector, which controls the horizontal position of the line.
+
+-   `geom_hline()` creates a horizontal line. It requires the `yintercept` that you provide in a vector, which controls the vertical position of the line.
+
+- `geom_abline()` creates a line with some slope and intercept (y-intercept). It requires the `slope` and `intercept`, which controls the placement of the line on the plot.
+
+Unlike most other geoms, these geoms do not inherit aesthetics from the plot default, because they do not understand x and y aesthetics which are commonly set in the plot. They also do not affect the x and y scales. Thus, they additionally accept useful constant aesthetics like `size`, `color`, and `linetype`.
+
+Example: Annotating where the mean is on a histogram; the value of the mean needs to be calculated before it is provided as the xintercept.
+
+```{r}
+meanDuration = mean(mendota$duration)
+
+ggplot(mendota, aes(duration)) +
+  geom_histogram(
+    color = "steelblue4",
+    fill = "skyblue1"
+  ) +
+  geom_vline(xintercept = meanDuration,
+             size = 0.5, linetype = "dashed", color = "red") 
+
+# Note: even though xintercept = meanDuration technically has a variable in it, that variable just contains one single number. It is not a column in the dataframe mendota. Therefore, this is a constant aesthetic and does not require aes().
+
+# A reminder: geom_vline() should come AFTER geom_histogram! What would happen if we put geom_vline() before the geom_histogram?
+```
+
+-   You can also give a vector of values as the `xintercept`.
+
+```{r}
+usefulValues = meanDuration + c(-3, -2, -1, 0, 1, 2, 3) * sd(mendota$duration)
+# A vector with length six; these values are meaningful statistically, we'll learn why in the second half of the course
+usefulValues
+
+ggplot(mendota, aes(duration)) +
+  geom_histogram(
+    color = "steelblue4",
+    fill = "skyblue1"
+  ) +
+  geom_vline(xintercept = usefulValues,
+             size = 0.5, color = "darkblue") 
+```
+
+-   And finally, an example of `geom_hline`. Remember those outliers that `geom_boxplot` identified? We can identify them on the scatterplot too!
+
+```{r}
+iqr = IQR(mendota$duration)
+firstQuartile = quantile(mendota$duration, 0.25)
+thirdQuartile = quantile(mendota$duration, 0.75)
+
+ggplot(mendota, aes(x = year1, y = duration)) +
+  geom_point() +
+  geom_hline(
+    yintercept = c(firstQuartile - iqr, thirdQuartile + iqr)
+    )
+
+```
+
+#### Deeper Customization
+
+-   We have mentioned many times and shown a few examples of `ggplot2` allowing very granular customization of plots; this section will take you through a few of the many ways you can customize `ggplot`s.
+
+-   While we will continue to add these customizations with `+`, the addition of these functions primarily serves to edit previously created layers.
+
+### $\cdot$ Scales:
+
+> Editing graphical properties of the axes is done with the family of `scale_x_*` and `scale_y_*` commands.
+
+-   The asterisk specifies the type of variable on that axis. For example, `continuous` for variables like `duration` (which can take on any numeric value in a given range), or `discrete` for variables like `century` (which only take on one of a finite set of categories).
+
+-   We will most commonly use:
+
+    -   `scale_x_continuous()`
+    -   `scale_y_continuous()`
+    -   `scale_x_discrete()`
+    -   `scale_y_discrete()`
+
+-   Just like `geom`s, there are too many examples of `scale` functions to go over in one lecture; we will see many over the course of the class.
+
+-   Helpful arguments you can pass into `scale` functions include:
+
+    -   `breaks`, a vector of locations to draw grid lines and labels at.
+    -   `labels`, a vector of names to use as the label of each break-point.
+    -   `limits`, a vector of two numbers specifying the left and right limit of how wide/tall you want the plot to be
+    -   `trans`, standing for "transformation", which allows you to do some numeric transformation of the axis; including "reverse", "sqrt", and "log".
+
+```{r}
+# Notice ggplot's default x-axis choices
+ggplot(mendota, aes(duration)) +
+  geom_histogram(
+    color = "steelblue4",
+    fill = "skyblue1"
+  )
+```
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_histogram(
+    color = "steelblue4",
+    fill = "skyblue1"
+  ) +
+  scale_x_continuous(
+    breaks = c(30, 90, 150),
+    labels = c("1 month", "3 months", "5 months"),
+    limits = c(15, 165),
+    minor_breaks = NULL, # This specifies not to draw any vertical axis lines between the labeled points; not necessarily something you have to memorize, just an example of how far you can customize!
+  )
+```
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_histogram(
+    color = "steelblue4",
+    fill = "skyblue1"
+  ) +
+  scale_x_continuous(
+    breaks = c(30, 90, 150),
+    labels = c("1 month", "3 months", "5 months"),
+    limits = c(-100, 300),
+    minor_breaks = NULL
+  ) +
+  # Can you figure out what this addition is doing to the y-axis?
+  scale_y_continuous(
+    expand = expansion(mult = c(0,0.1)),
+    limits = c(-10, 100)
+  )
+```
+
+### $\cdot$ Color Scales:
+
+> When color is mapped to a variable aesthetic, you can use the `viridis` color scales for accessible preset options, or use the `manual` functions to set a custom color scale.
+
+Recall the following plot from a previous exercise:
+
+```{r}
+ggplot(mendota, aes(x= duration, fill = century)) +
+  geom_density(alpha = 0.3)
+```
+
+`ggplot`'s default color schemes can be hard to distinguish for people with common forms of color blindness. The "viridis" color scales are designed to remedy this. Depending on whether your variable is continuous (`c`) or discrete (`d`), and whether you used `color` or `fill` as the aesthetic, you can use one of the following four commands:
+        -   `scale_color_viridis_c()`
+        -   `scale_color_viridis_d()`
+        -   `scale_fill_viridis_c()`
+        -   `scale_fill_viridis_d()`
+
+For example, in the plot above, we use `fill` as the aesthetic controlling color, with `century` a discrete/categorical variable, so we use `scale_fill_viridis_d()`.
+
+Examples: 
+
+```{r}
+ggplot(mendota, aes(x= duration, fill = century)) +
+  geom_density(alpha = 0.3) +
+  scale_fill_viridis_d()
+```
+
+```{r}
+ggplot(mendota, aes(x= duration, fill = century)) +
+  geom_density(alpha = 0.3) +
+  scale_fill_viridis_d(option = "inferno")
+```
+
+Alternatively, you might have a custom color scheme in mind. `scale_color_manual` and `scale_fill_manual` exist to help you; the `values` argument accept a vector of pairs, where you map values of the categorical variable to colors.
+
+```{r}
+ggplot(mendota, aes(x= duration, fill = century)) +
+  geom_density(alpha = 0.3) +
+  scale_fill_manual(
+    values = c("19th" = "dodgerblue", "20th" = "peachpuff", "21st" = "mediumorchid")
+    )
+```
+
+There are many options within viridis, see [here (scroll a little down)](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) for more details.
+
+### $\cdot$ Plot Labels:
+
+> All plot labeling can be done with the `labs()` (standing for labels) function.
+
+`labs()` can be used to add a title, subtitle, and caption; see placement examples below. It can also be used to adjust the axes labels and legend titles. The legend title can be changed through `labs()` by using the name of whatever aesthetic you used to create the legend.
+
+For example, in this plot we create the legend with `fill = century`, so the legend title is adjusted with `fill = "intended legend title"`.
+
+```{r}
+densityPlot = ggplot(mendota, aes(x= duration, fill = century)) +
+  labs(
+    title = "Distribution of Freeze Duration by Century",
+    subtitle = "Lake Mendota, 1855-2023",
+    caption = "STAT 240",
+    
+    x = "Duration (in days)",
+    y = "Density",
+    fill = "Century" # If you created your legend with the size aesthetic, this would be size = "legend title", or color would be color = "legend title", et cetera
+  ) +
+  geom_density(alpha = 0.3) +
+  scale_fill_manual(
+    values = c("19th" = "dodgerblue", "20th" = "peachpuff", "21st" = "mediumorchid")
+    )
+
+densityPlot
+```
+
+### $\cdot$ Themes:
+
+> `ggplot2` comes with many built-in themes to improve the appearance of the graph over the default theme, such as `theme_minimal()`.
+
+```{r}
+densityPlot +
+  theme_minimal()
+```
+
+```{r}
+densityPlot +
+  theme_classic()
+```
+
+This [link](https://ggplot2.tidyverse.org/reference/ggtheme.html) contains a complete list of themes.
+
+### $\cdot$ Shortcut Functions:
+
+The "general" form of all the customization functions are discussed above. Many of the more common tasks have shortcut functions; they are useful if you only need to make one change. *Note:* The general form because they can accomplish everything these shortcuts can do and more, and you have less functions to memorize.
+
+Examples of shortcut functions include:
+
+-   `xlim(c(a, b))` is the same as `scale_x_continuous(limits = c(a, b))`, and similarly for `y`.
+
+-   `scale_x_reverse()` is the same as `scale_x_continuous(trans = "reverse")`, and similarly for `y`.
+
+-   `ggtitle("my title")` is the same as `labs(title = "my title")`.
+
+-   `xlab("x axis title")` is the same as `labs(x = "x axis title")`, and similarly `ylab()` can be used for `y`.
+
+------------------------------------------------------------------------
+
+##### Another EXERCISE: This uses all the topics we have covered in the lecture note.
+
+> Interpreting a Faceted Plot: Consider the graph below and choose from the given options to correctly interpret the plot:
+
+```{r, fig.height = 5, fig.width = 6}
+ggplot(mendota, aes(x = duration)) +
+  geom_density() +
+  facet_grid(rows = vars(century), cols = vars(leap_year))
+```
+
+
+-   The top left panel shows the distribution of `duration` among **(leap years/non-leap years)** in the **(19th/20th/21st)** century.
+
+-   The bottom right panel shows the distribution of `duration` among **(leap years/non-leap years)** in the **(19th/20th/21st)** century.
+
+-   We don't expect there to be a difference in average duration between non-leap years and leap years. This is illustrated by the fact that each **(row of panels/column of panels)** has roughly the same center across each of its panels.
+
+-   We do expect there to be a difference in average duration across centuries. This is illustrated by the fact that each **(row of panels/column of panels)** has different centers across each of its panels.
+
+> Technical takeaway: The subgroup represented in an individual faceted panel can be defined by one OR two variables; the faceting commands do a decent but not perfect job of labeling them.
+
+> Philosophical takeaway: Faceting is another valuable tool for showing two-variable relationships. It is especially helpful when we have too many subgroups to overlay on a single panel.
+
+-   Philosophical takeaway continued: Notice how difficult it is to encode `leap_year` AND `century` with just aesthetics.
+
+```{r}
+ggplot(mendota, aes(x = duration, fill = century, linetype = leap_year)) +
+  geom_density(alpha = 0.5, size = 1)
+```
+
+> In the `mpg` dataset use the variables `cty`, `hwy` `displ`, `drv` and `year` to recreate the graph below. Use all the concepts we have learned so far.
+
+![image](https://ggplot2.tidyverse.org/articles/ggplot2_files/figure-html/cake-1.png)
+
+```{r}
+ggplot(mpg, aes(cty, hwy, col = displ)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(rows = vars(year), cols = vars(drv)) +
+  theme_minimal() +
+  scale_color_viridis_c()
+```
+
+
+------------------------------------------------------------------------
+
+# THE END
