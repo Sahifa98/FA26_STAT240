@@ -1,0 +1,111 @@
+---
+title: "ggplot_002"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+```
+
+```{r}
+# Assuming your working directory is set to STAT240/Lecture Notes
+
+library("tidyverse")
+mendota = read_csv("../data/lake-mendota-winters-2025.csv")
+glimpse(mendota)
+```
+
+# GGPlot - Grammar of Graphics
+
+## Step- by - step process
+
+```{r}
+# creating a ggplot using mendota dataset and columns
+ggplot(data = mendota) # step 1
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) # step 2
+```
+
+
+- step 3 of ggplot: layers go on the ggplot
+
+geom_functions
+
+Examples:
+
+- geom_point(): point graph
+- geom_line(): line graph
+- geom_bar(): bar graphs
+- geom_histogram(): creates histograms
+- geom_density(): creates density plots
+
+
+
+```{r}
+# step 3
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) +
+  geom_point(col = "green") + 
+  geom_line(color = "seagreen") + 
+  geom_smooth(col = "red")
+```
+
+
+# Aesthetics:
+
+- Aes depending on the location of the input
+
+### Global aesthetic: 
+
+Any plot informtaion that goes inside of `ggplot()` is called a global aes and gets applied to all following `geom_` functions.
+
+
+### Local aesthetic:
+
+Any plot information inside of individual `geom_` functions is called a local aes and gets applied to only that `geom`
+
+
+- Aes depending on the source of information
+
+### Variable aesthetic: 
+
+Anytime the informatin displayed on the graph is varying from point to point we cal it a variable aes
+
+### Constant aesthetic
+
+Information that doesn't change from point to point is what we call a constant aesthetic
+
+
+```{r}
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) +
+  geom_point(mapping = aes(col = intervals)) + 
+  geom_line(col = "seagreen")
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) +
+  geom_point(mapping = aes(col = as.factor(intervals))) + 
+  geom_line(col = "seagreen")
+
+x_axis = mendota$year1
+y_axis = mendota$duration
+col = mendota$intervals
+ggplot(mapping = aes(x = x_axis, y = y_axis)) +
+  geom_point(mapping = aes(col = col)) + 
+  geom_line(col = "seagreen")
+```
+
+# Two variable plots
+
+- `geom_point()` and `geom_line()`
+
+- `geom_smooth()`:
+
+
+
+
+
+
+
+
+
