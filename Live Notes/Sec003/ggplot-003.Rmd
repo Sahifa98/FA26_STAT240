@@ -1,0 +1,114 @@
+---
+title: "ggplot_003"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+```{r}
+# Assuming that working directory is set to STAT240/Lecture Notes 
+
+library(tidyverse)
+mendota = read_csv("../data/lake-mendota-winters-2025.csv")
+glimpse(mendota)
+```
+
+# GGplot2
+
+GG: Grammar of Graphics
+
+### Step - by - step process
+
+```{r}
+# Step 1
+
+ggplot()
+
+# Step 2
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration))
+```
+
+- step 3: `geom_` functions
+
+`geom_point()`: point graph
+`geom_line()`: line graph
+`geom_histogram()`: create histograms
+`geom_density()`: creates a density curve
+`geom_bar()`: bar graph
+
+
+```{r}
+# Step 3: layers
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) + 
+  geom_point(col = "red") + 
+  geom_line(col = "blue")
+```
+
+
+```{r}
+ggplot() + 
+  geom_point(data = mendota, mapping = aes(x = year1, y = duration), col = "red") + 
+  geom_line(col = "blue")
+```
+
+
+# Aesthetic
+
+- classifictation depending on location of the information provided
+### Global aesthetic: 
+any info provided to `ggplot()` is called a global aesthetic and will affect all `geom_`functions following it.
+
+
+### Local aesthetic:
+
+any info provided to individual `geom_` functions will only be displayed in that geom_ output.
+
+- depending on type of information
+
+```{r}
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) + 
+  geom_point(mapping = aes(col = intervals)) + 
+  geom_line(col = "blue")
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) + 
+  geom_point(mapping = aes(col = as.factor(intervals))) + 
+  geom_line(col = "blue")
+```
+
+### Variable aesthetic: 
+
+any information that changes from one point to the other is called a variable aesthetic
+
+### Constant aesthetic:
+
+any information that remains constant throughout the graph is called a constant aesthetic
+
+
+# Two Variable plots
+
+- `geom_point()` and `geom_line()`
+
+- `geom_smooth()`:
+
+```{r}
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) + 
+  geom_point(mapping = aes(col = as.factor(intervals))) +
+  geom_smooth(method = "lm", se = F)
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) + 
+  geom_point(mapping = aes(col = as.factor(intervals))) +
+  geom_smooth(method = "lm", se = F, mapping = aes(col = as.factor(intervals)))
+``` 
+
+
+
+
+
+
+
