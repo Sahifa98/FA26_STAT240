@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error = T)
 ```
+# Wednesday 09/16
 
 ```{r}
 # Assuming your working directory is set to STAT240/Lecture Notes
