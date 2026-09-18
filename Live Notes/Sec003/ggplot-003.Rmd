@@ -106,7 +106,63 @@ ggplot(data = mendota, mapping = aes(x = year1, y = duration)) +
   geom_smooth(method = "lm", se = F, mapping = aes(col = as.factor(intervals)))
 ``` 
 
+# Friday 09/18
 
+- `geom_col()`: Column/bar graphs uses both the x and y variable where the second variable is usually a summary of the data (first variable).
+
+```{r}
+decade_count = count(mendota, decade)
+decade_count
+
+ggplot(decade_count, aes(decade, n)) +
+  geom_col(fill = "yellow", col = "red")
+
+# an example that you can not recreate with geom_bar()
+
+decade_summary = mendota %>% group_by(decade) %>% summarise(avg_duration = mean(duration))
+
+decade_summary
+
+ggplot(decade_summary, aes(decade, avg_duration)) +
+  geom_col()
+```
+
+# One variable plots
+
+- `geom_bar()`: bar graphs for a categorical varioable that displays the *count* of the variable
+
+
+```{r}
+ggplot(mendota, aes(decade)) +
+  geom_bar()
+```
+
+- `geom_histogram()`: 
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_histogram(fill = "yellow", col = "red") # add bins = 10 to create thicker bars
+```
+
+
+- `geom_density()`: gives the density curve or the (approximated) pdfs.
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_density()
+
+ggplot(mendota, aes(duration)) +
+  geom_density(col = "red", fill = "pink") +
+  geom_histogram(mapping = aes(y = after_stat(density)), fill = "yellow", alpha = 0.5)
+```
+
+- `geom_boxplot()`: this gives you a distribution and quartile, maxi/min s and outliers
+
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_boxplot(fill = "yellow", col  ="red")
+```
 
 
 
