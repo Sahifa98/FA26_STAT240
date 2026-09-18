@@ -102,6 +102,79 @@ ggplot(mapping = aes(x = x_axis, y = y_axis)) +
 
 - `geom_smooth()`:
 
+# Friday 09/18
+
+- `geom_smooth()`: trend line for your dataset
+
+In this class, we are interested in linear regression
+
+```{r}
+# make sure you run the `library(tidyverse)` and mendota dataset line of code before starting
+
+ggplot(data = mendota, mapping = aes(x = year1, y = duration)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F)
+```
+
+- `geom_col()`: column graph
+
+```{r}
+decade = count(mendota, decade)
+decade
+
+ggplot(decade, aes(decade, n)) +
+  geom_col(fill = "yellow", col = "pink")
+
+# another example of a column graph which cannot be recreated with geom_bar()
+
+summary_decade = mendota %>% group_by(decade) %>% summarise(avg = mean(duration)) # calculating the avg duration the lake was closed in each decade
+
+summary_decade
+
+ggplot(summary_decade, aes(decade, avg)) +
+  geom_col()
+```
+
+
+# One variable plots
+
+- `geom_bar()`: bar graph for categorical variables
+
+
+```{r}
+ggplot(mendota, aes(decade)) + 
+  geom_bar(fill = "yellow", col = "pink")
+```
+
+- `geom_histograms()`:
+
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_histogram(fill = "skyblue", col = "purple")
+```
+
+- `geom_density()`: density curve of the distribution of the variable
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_density()
+```
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_density(col = "red", fill = "yellow") +
+  geom_histogram(mapping = aes(y = after_stat(density)), alpha = 0.5)
+```
+
+- `geom_boxplot()`: this is a one- dimensional graph that displays the distribution of the variable
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_boxplot(fill = "yellow")
+```
+
+
 
 
 
