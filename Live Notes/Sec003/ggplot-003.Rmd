@@ -163,6 +163,56 @@ ggplot(mendota, aes(duration)) +
 ggplot(mendota, aes(duration)) +
   geom_boxplot(fill = "yellow", col  ="red")
 ```
+# Monday 09/21
+
+# Introducing other variables from dataset using the variable aesthetics:
+
+- color or fill
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_boxplot(mapping = aes(fill = as.factor(decade)))
+```
+
+- shapes or sizes for point (linetype and size for line):
+
+```{r}
+ggplot(mendota, aes(year1, duration)) + 
+  geom_point(mapping = aes(size = as.factor(decade)))
+```
+
+```{r}
+mpg
+```
+
+
+# Customizations:
+
+### Labeling 
+
+```{r}
+ggplot(mendota, aes(year1, duration, col = as.factor(decade))) +
+  geom_point() +
+  labs(title = "Scatterplot for the duration of lake Mendota closure over the years",
+       x = "Year",
+       y = "Duration",
+       col = "Decade"
+       )
+```
+
+
+### Adding reference lines on to plots
+
+- geom_hline(): this adds a horizontal line at the given y-intercept
+- geom_vline(): this adds a vertical line at the given x-intercept
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_histogram() +
+  geom_vline(xintercept = mean(mendota$duration), col = "red")
+```
+
+
 
 
 
