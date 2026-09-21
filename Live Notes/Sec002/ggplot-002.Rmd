@@ -174,7 +174,59 @@ ggplot(mendota, aes(duration)) +
   geom_boxplot(fill = "yellow")
 ```
 
+# Monday 09/21
 
+# Using a third or fourth variables into our graphs as variable aesthetics
+
+- as color or fill
+- as shapes or sizes of points in geom_point
+
+```{r}
+ggplot(mendota, aes(year1, duration, size = as.factor(decade))) +
+  geom_point()
+```
+
+
+```{r}
+mpg
+
+ggplot(mpg, aes(hwy, cty)) +
+  geom_point(aes(col = fl, shape = as.factor(cyl), size = class))
+
+
+```
+
+# Customization
+
+### Labeling
+
+```{r}
+ggplot(mpg, aes(hwy, cty)) +
+  geom_point(aes(col = fl, shape = as.factor(cyl), size = class)) +
+  labs(
+    title = "A plot to show hwy vs cty mileages",
+    x = "hwy mileages",
+    y = "cty mileages",
+    shape = "Cyl"
+  )
+```
+
+### adding reference lines
+
+- geom_vline: give it the x-intercept 
+- geom_hline: give it the y-intercept
+
+```{r}
+ggplot(mendota, aes(year1, duration)) +
+  geom_point() +
+  geom_hline(yintercept = mean(mendota$duration), col = "red")
+```
+
+
+```{r}
+ggplot(mendota, aes(duration)) +
+  geom_density(mapping = aes(col = as.factor(decade)))
+```
 
 
 
