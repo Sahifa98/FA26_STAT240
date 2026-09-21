@@ -1,0 +1,584 @@
+---
+title: "STAT 240: Chapter 2 dplyr"
+author: "Sahifa Siddiqua"
+date: "`r Sys.Date()`"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T, warning = T)
+
+library(tidyverse)
+
+# install.packages("magrittr") # run this code once before you run this file
+library(magrittr)
+```
+
+## Overview
+
+Manipulate and modify data set using grammar of data manipulation package dplyr from tidyverse.
+
+## Learning Outcomes:
+
+These lectures will teach you how to:
+
+- Use appropriate vocabulary to describe the form of data
+
+- Execute basic manipulations on dataframes, such as rearranging and creating new columns
+
+- Execute more complex manipulations of dataframes, such as summarizing by groups.
+
+- Combining two different datasets, and filtering with respect to a second dataset.
+
+
+## Introduction
+
+`dplyr` is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges such as
+
+- add new variables that are functions of existing variables,
+- pick variables based on their names,
+- pick cases/rows based on their values,
+- reduce multiple values down to a single summary,
+- change the ordering of the rows,
+- perform any operation “by group”,
+- join two datasets 
+
+and many more operations like these. Just like `ggplot`, `dplyr` also enhances already existing base R functions (see [here](https://dplyr.tidyverse.org/articles/base.html)) by providing simple “verbs” as functions that correspond to the most common data manipulation tasks, to help you translate your thoughts into code. Like `ggplot2`, `dplyr` is a powerful package because **the intelligent combination of a small set of simple functions which supports a wide range of actions**.
+
+More in depth information on `dplyr` can be found [here](https://dplyr.tidyverse.org/articles/dplyr.html). 
+
+## Installation
+
+The `dplyr` package is also a part of the `tidyverse` package. If you have the tidyverse package, you don’t have to reinstall `dplyr` but you can always reinstall individually by using the following code.
+
+```{r, eval = F, include = T}
+# The easiest way to get dplyr is to install the whole tidyverse:
+install.packages("tidyverse") # run this only once
+library(tidyverse) # run this every time you open a new session of RStudio
+
+# Alternatively, install just dplyr:
+install.packages("dplyr") # run this only once
+library(dplyr) # run this every time you open a new session of RStudio
+```
+
+
+## Pipe operator (`%>%`):
+
+> The pipe operator, %>%, is an operator from the `magrittr` package, that is read as `then`. It reduces the hassle of multiple, complicated nesting and helps write the functions from left-to-right.
+
+All of the `dplyr` functions take a data frame (or tibble) as the first argument. Rather than forcing the user to either save intermediate objects or nest functions, `dplyr` provides the `%>%` operator from `magrittr`. 
+
+`x %>% f(y)` turns into `f(x, y)` so the result from one step is then “piped” into the next step. 
+
+You can use the pipe to rewrite multiple operations that you can read left-to-right (or top-to-bottom if written over multiple lines), such as: 
+
+- `x %>% g() %>% f(y) = g(x) %>% f(y) = f(g(x), y).`
+- `x %>% g(y) %>% f(z, w) = g(x, y) %>% f(z) = f(g(x,y), z, w)`
+
+Shortcut for the pipe operator: MAC users `cmd+shift+m` and windows users `ctrl+shift+m`.
+
+Example: We will use the `magrittr` package's named mathematical operations to demonstrate the idea of the pipe operator.
+
+$$\sqrt{3x^2+5}$$
+
+```{r}
+# if x =2, then writing the above equation with nested function will look like
+sqrt(add(multiply_by(raise_to_power(2, 2), 3), 5))
+
+2 %>% raise_to_power(2) %>% multiply_by(3) %>% add(5) %>% raise_to_power(1/2)
+```
+
+```{r}
+#consider the nested operation below and try piping instead
+sqrt(add(divide_by(30, 10), 6))
+
+
+```
+
+## Dataset
+
+In this lecture note, we will demonstrate all the `dplyr` functions using the datasets: grocery-prices and grocery-list. To make sure the code below runs without an error, follow these following steps:
+
+1. Download the file `Lecture2-dplyr.Rmd` into `STAT240/lecture`.
+2. Download the files `grocery-list.csv` and `grocery-prices.csv` into the `STAT240/data` folder.
+
+```{r}
+grocery_list = read_csv("../data/grocery-list.csv")
+grocery_prices = read_csv("../data/grocery-prices.csv")
+```
+
+```{r}
+glimpse(grocery_list)
+glimpse(grocery_prices)
+```
+
+## Functions:
+
+The `dplyr` package is home to a vast number of functions that facilitate opertaion on rows, columns, multiple columns, groups of rows, and pair of datasets. Below are some of those functions:
+
+- `arrange()`: Order rows using column values
+- `distinct()`: Keep distinct/unique rows
+- `filter()`: Keep rows that match a condition
+- `slice()`, `slice_head()`, `slice_tail()`, `slice_min()`, `slice_max()` and `slice_sample()`: Subset rows by the conditions
+- `mutate()`: Create, modify, and delete columns
+- `pull()`: Extract a single column (same as the dollar sign, `$`, in `base R`)
+- `relocate()`: Change column order
+- `rename()`, `rename_with()`: Rename columns
+- `select()`: Keep or drop columns using their names and types
+- `drop_na()`: Removing rows with NA
+- `count()`: counts groups in a column
+- `group_by()`: Group by one or more variables
+- `summarise()`: Summarise each group down to one row
+- `bind_cols()`, `bind_rows()`: Bind multiple data frames by column or row
+- `inner_join()`, `left_join()`, `right_join()`, `full_join()`: joins two datasets and are known as mutating joins
+- `semi_join()`, `anti_join()`: filter rows from one dataset based on the presence or absence of matches in the second dataset. Also known as Filtering joins.
+- `case_when()`, `case_match()`, `if_else`: conditional functions
+
+An index of all functions in `dplyr` can be found [here](https://dplyr.tidyverse.org/reference/index.html). In this course we will go over some of these functions.
+
+## Operations for columns
+
+### $\cdot$ `mutate()`: 
+
+> Used for adding new columns in your dataset. 
+
+You can use normal mathematical operations or commonly used functions to create these new columns from existing columns of the dataset. Some of these functions can be found [here](https://dplyr.tidyverse.org/reference/mutate.html#useful-mutate-functions).
+
+The function needs the names of the new columns first and then the expression that defines the columns. You can put the column names in quotations but it's not necessary if the names are just typical names and don't have any spaces or don't start with numbers, etc. If the names of the columns are non-typical and needs to be called, there name has to be encased in backtick.
+
+Example: Using the `grocery_prices` dataset, let's calculate the tax (2%) and total_cost after tax and put these values in two different columns. Let's say there's a 5% discount, then we need another column to get the final cost
+
+```{r}
+grocery_prices %>% mutate(tax = price*0.02, "total cost" = round(price+tax,2), final_cost = `total cost`*0.95)
+```
+
+### $\cdot$ `select()`: 
+
+> Used to select a list of columns in the dataset. This is also similar to another `dplyr` function called `pull` but it can select just one column at a time.
+
+When specifying multiple column names, the column names need to be seperated by comma, you may also use colon, `:`, if some of them are together in the dataset. You can also specify what columns need to be removed to get the same result. 
+
+Example: Let's say after creating the column with total cost after taxes and discount, you just want the item and those new columns in the result.
+
+```{r}
+grocery_prices %>% mutate(tax = price*0.02, "total cost" = round(price+tax,2), final_cost = `total cost`*0.95) %>% select(item, tax:final_cost) 
+
+grocery_prices %>% mutate(tax = price*0.02, "total cost" = round(price+tax,2), final_cost = `total cost`*0.95) %>% select(-c(price, type)) 
+```
+
+### $\cdot$ `relocate()`: 
+
+> Used to rearrange the columns in the dataset.
+
+Useful arguments: .before and .after. These arguments help move the relocated columns with respect to them. Both of these arguments can not be used at the same time. The dataframe places the columns, in the order they are provided to relocate, first and then the rest of the columns of the dataset.
+
+```{r}
+grocery_prices %>% mutate("tax" = price*0.02, "total_cost" = round(price+tax,2)) %>% relocate(type, item, total_cost)
+
+grocery_prices %>% mutate("tax" = price*0.02, "total_cost" = round(price+tax,2)) %>% relocate(type, .before= price)
+
+grocery_prices %>% mutate("tax" = price*0.02, "total_cost" = round(price+tax,2)) %>% relocate(price, tax, total_cost, .after= item)
+```
+
+### $\cdot$ `rename()`: 
+
+> Used to rename existing columns in the dataset.
+
+The function needs the input of the format, new_name = old_name.
+
+```{r}
+grocery_prices_new = grocery_prices %>% mutate("tax" = price*0.05, "total_cost" = round(price+tax,2)) %>% rename("price_per_item"= price, "cost_after_tax" = total_cost)
+
+grocery_prices_new
+```
+
+## Operations for Row 
+
+### $\cdot$ `arrange()`: 
+
+> It used to arrange rows using a reference column. The column name is provided as the argument.
+
+By default, the column entries of the reference column are arranged in the ascending order which arranges the whole rows. To arrange the rows descendingly, you have to use the column name inside the `desc()` function or place a minus `-` sign infront of the column name.  
+
+Example: We need the items to be arranged in the order of increasing or decreasing price per item.
+
+```{r}
+grocery_prices_new %>% arrange(price_per_item)
+
+grocery_prices_new %>% arrange(-price_per_item)
+
+grocery_prices_new %>% arrange(desc(price_per_item))
+```
+
+### $\cdot$ `filter()`: 
+
+> It filters out rows depending on the conditions provided. These conditions are usually applied to some of the columns and only rows for which all conditions evaluate to TRUE are kept.
+
+Some useful operations to use for conditioning in filter: $<, \leq, >, \geq, \neq,$ !is.na(), etc.  More can be found [here](https://dplyr.tidyverse.org/reference/filter.html#useful-filter-functions).
+
+Example: Let's say we only want to focus on the vegetables in the dataset or items whose cost after tax exceeds 1 or rows where the price is missing.
+
+```{r}
+grocery_prices_new %>% filter(type == "vegetable") # we can also filter out fruit the same way
+
+grocery_prices_new %>% filter(cost_after_tax>1) %>% arrange(cost_after_tax) %>% relocate(cost_after_tax)
+
+grocery_prices_new %>% filter(is.na(price_per_item))
+```
+
+Let's create a dataset that contains `NA`s.
+
+```{r}
+student_grade = tibble(Students = c("Ashley", "Ryan", "Geet", "Ayan", "Brian"), letter_grade = c("A", "B", "AB", NA, "A"), HW = c(90, 85, 80, 90, 99), DIS = c(89, 89, NA, 75, 90))
+```
+
+### $\cdot$ `slice_min()`, `slice_max()`: 
+
+> Filters out rows that have the min or max in the column specified. 
+
+The slice functions also have an argument `n` which can be used to get multiple rows that satisfy the condition.
+
+Example: We can find the top 3 most expensive item.
+
+```{r}
+grocery_prices_new %>% slice_max(cost_after_tax, n = 3)
+```
+These functions can alsu be used in combination to `group_by()`, which we will be learning about next.
+
+```{r}
+# we will come back to this after learning about group_by
+grocery_prices_new %>% group_by(type) %>%  slice_max(cost_after_tax, n = 2)
+
+grocery_prices_new %>% group_by(type, cost_after_tax>2) %>%  slice_max(cost_after_tax, n = 2)
+```
+
+### EXERCISE: dplyr in Translation
+
+Real conversations with non-coders will often not use the name of the verb; you will have to take their conversational speech and "translate" it into commands. Pretend your boss is looking at your computer at the `grocery_prices_new` dataframe with you and making the following requests. **Write code** to respond to your boss's requests.
+
+> "Show me just the fruits."
+
+```{r}
+# Write your answer here!
+```
+
+
+> "Can you put whether it's a fruit or vegetable at the beginning?"
+
+```{r}
+# Write your answer here!
+```
+
+
+> "I only care about the food name and the cost after tax, can you get rid of everything else?"
+
+```{r}
+# Write your answer here!
+```
+
+
+> "Can you put the foods in alphabetical order so apple is first?"
+
+```{r}
+# Write your answer here!
+```
+
+
+> "Let's offer a 50% off sale, show me the prices for that!"
+
+```{r}
+# Write your answer here!
+```
+
+
+## Operations on groups:
+
+### $\cdot$ `summarize()`:
+
+> `summarize()` creates a new summary data. It returns one row for each combination of grouping variables; if there are no grouping variables, the output will have a single row summarising all observations in the input. It will contain one row for each group and one column for each of the summary statistics that you have specified.
+
+The summary statistics can be made with functions like `mean()`, `median()`, `sd()`, `iqr()`, `min()`, and `max()` to name a few. More such functions are listed [here](https://dplyr.tidyverse.org/reference/summarise.html#useful-functions). 
+
+```{r}
+grocery_prices %>% mutate("tax" = price*0.05, "total_cost" = round(price+tax,2)) %>% summarise(mean = mean(price), sd = sd(price), median = median(price), total_price = sum(total_cost))
+```
+
+If you use any function inside `summarize()` that doesn't generate one number as answer for the whole column, such as `sqrt()`, then it repeats the other summary statistics for all the rows of the dataset.
+
+```{r}
+grocery_prices %>% mutate("tax" = price*0.05, "total_cost" = round(price+tax,2)) %>% summarise(mean = mean(price), sqrt = sqrt(price))
+```
+
+
+### $\cdot$ `group_by()`: 
+
+> `group_by()` takes columns from existing dataset and converts it into a groups (pre-existing or using one simple logical argument) where operations are performed "by group". These operations are done by the next dplyr function in the pipe. 
+
+```{r}
+grocery_prices_new %>% group_by(type) %>% summarise(total_price_per_item = sum(price_per_item), total_tax = sum(tax), total_cost = sum(cost_after_tax))
+
+grocery_prices_new %>% group_by(price_per_item<1) %>% summarise(total_price_per_item = sum(price_per_item), total_tax = sum(tax), total_cost = sum(cost_after_tax))
+
+grocery_prices_new  %>% group_by(type) %>% summarise(n = n(), max_cost = max(cost_after_tax), min_cost = min(cost_after_tax))
+```
+
+Functions like mutate after group_by creates a column with repeated summary numbers with respect to the group. A similar thing happens for any function inside `summarize()` that doesn't generate one number as answer for the whole column, such as `sqrt()`.
+
+```{r}
+grocery_prices_new %>% group_by(type) %>% mutate(total_tax = sum(tax), total_cost = sum(cost_after_tax)) %>% relocate(total_tax, total_cost)
+```
+
+- `n()`: 
+
+> `n` gives total number of rows in a group. It will return total number of rows if there are no groups. It is always used inside other functions and best used inside `summarize()`.
+
+```{r}
+grocery_prices_new %>% summarise(n = n()) # this will give the number of rows in the dataset
+
+grocery_prices_new %>% group_by(type) %>% summarise(n = n()) # this will give the number of rows in each category of type.
+```
+
+### $\cdot$ `count()`: 
+
+> It counts the number of rows in each group in the given column. It is equivalent to using `n()` inside `summarize()`.
+
+Example: Let's say you want to calculate number of veggies and fruits in the grocery_prices dataset.
+
+```{r}
+grocery_prices %>% count(type)
+```
+
+
+### $\cdot$ `case_when()`: 
+
+> This is function defines customized groups in a seperate column inside mutate().
+
+Example: Consider the following dataset which contains the age of students.
+
+```{r}
+student_age = tibble(
+  name = c("A", "B", "C", "D", "E", "F"),
+  age = 17:22
+) %>% 
+  slice_sample(n = 6)
+
+student_age
+```
+
+Let's say you want to add a column to distinguish which student can vote or drink depending on their age. We will be using 18 as the age for voting and 21 as the age for drinking.
+
+```{r}
+student_age %>% 
+  mutate(legalStatus = case_when(
+  age >= 21 ~ "Can vote and drink",
+  age >= 18 & age <= 20 ~ "Can vote, can't drink",
+  age <= 17 ~ "Cannot vote nor drink"
+  ))
+```
+
+Next we will look at the dplyr functions that are used for operations on two datasets, specifically for joining two sets.
+
+### EXERCISE: Will it Group?
+
+> Each of the following code chunks contains some code, which has `group_by(type)` commented out. For each of the following code chunks:
+    Step 1) *Run the chunk* with `group_by` commented out; 
+    Step 2) *Predict* what, if anything, will change if you include `group_by`; and
+    Step 3) *Uncomment* `group_by` by removing the hashtag ('#'), run the chunk, and reflect on if you were right!
+
+```{r, eval=FALSE}
+grocery_prices_new %>% 
+  #group_by(type) %>% 
+  filter(cost_after_tax > 2)
+```
+
+Write your prediction for including `group_by()` here!
+
+```{r, eval=FALSE}
+grocery_prices_new %>% 
+  #group_by(type) %>% 
+  mutate(numberOfItems = n()) %>% 
+  relocate(numberOfItems)
+```
+
+Write your prediction for including `group_by()` here!
+
+```{r, eval=FALSE}
+grocery_prices_new %>%
+  #group_by(type) %>% 
+  summarize(medianCost = median(cost_after_tax))
+```
+
+Write your prediction for including `group_by()` here!
+
+```{r, eval=FALSE}
+grocery_prices_new %>% slice_sample(n=5) %>% 
+  #group_by(type) %>% 
+  slice_max(cost_after_tax, n = 2)
+```
+
+Write your prediction for including `group_by()` here!
+
+## Joins (Operations on pair of data):
+
+All join functions use two datasets, refered to as `x` (first dataset) and `y` (second dataset). There are two types of joining functions: mutating and filtering joins. Mutating joins add columns from `y` to `x`, matching observations based on the keys. There are four mutating joins: the inner join, and the three outer joins (listed below). Filtering joins filter rows from `x` based on the presence or absence of matches in `y` . In all the joins you need provide the two datasets and the column you wish to use as the reference column. Reference columns are columns tha have the same information in both the datasets, for example the `item` column in the `grocery_prices` and `grocery_list`. The column needn't have all common entries, as long as you are using the correct join, any two dataset can be joined.
+
+A reference column can be specified in the `by` argument or using the `join_by()` function. By default, all of the joins will perform a natural join, using all common columns (names being same) across `x` and `y`. To join on different named columns between `x` and `y`, use a join_by() specification. For example, join_by(a == b) will match `x$a` to `y$b`.
+
+More details on the joins [see](https://dplyr.tidyverse.org/reference/filter-joins.html#arguments).
+
+## Mutating joins
+
+### $\cdot$ `left_join()`:
+
+> This function joins `x` and `y` side-by-side, while keeping all observations in `x`.
+
+Example: Let's combine the `grocery_list` with the `grocery_prices`, keeping all the `items` from `grocery_list`.
+
+```{r}
+left_join(grocery_list, grocery_prices) # it by default uses the `item` column
+# we can specify the `item` column by providing it to the `by` argument or `join_by()`.
+left_join(grocery_list, grocery_prices, by = "item")
+left_join(grocery_list, grocery_prices, join_by("item"))
+```
+
+### $\cdot$ `right_join()`:
+
+> This function joins `x` and `y` side-by-side, in that specific order, while keeping all observations in `y`.
+
+Example: Let's combine the `grocery_list` with the `grocery_prices`, keeping all the `items` from `grocery_prices`. Here, we see the appearance of `NA`s for all the rows where `grocery_list` doesn't have values for those items.
+
+```{r}
+right_join(grocery_list, grocery_prices) 
+```
+
+### $\cdot$ `inner_join()`:
+
+> This function joins `x` and `y` side-by-side, while keeping only observations from `x` that have a match in `y`.
+
+Example: Let's combine the `grocery_list` with the `grocery_prices`, only keeping matching things from `x` in `y`.
+
+```{r}
+inner_join(grocery_list, grocery_prices)
+```
+
+### $\cdot$ `full_join()`:
+
+> This function joins `x` and `y` side-by-side, while keeps all observations in `x` and `y`.
+
+Example: Let's combine the `grocery_list` with the `grocery_prices` and create an exhaustive list of all the items in the two.
+
+```{r}
+full_join(grocery_list, grocery_prices)
+```
+
+### Exercise
+
+> What are the commonalities between all the four mutating joins using `x` as `grocery_list` and `y` as `grocery_prices`?
+
+Write your answer here!
+
+> What are the differences between all the four mutating joins using `x` as `grocery_list` and `y` as `grocery_prices`?
+
+Write your answer here!
+
+> Try using other mutating joins to obtain the result of `left_join(grocery_list, grocery_prices)` and list down the differences in the output.
+
+```{r}
+left_join(grocery_list, grocery_prices)
+
+# Write your code here!
+```
+
+
+## Filtering joins
+
+### $\cdot$ `semi_join()`:
+
+> The `semi_join()` return all rows from x with a match in y.
+
+Example: Let's say you have a dataset for your grocery list (`grocery_list`) and you want the cost_after_tax (from `grocery_prices_new`) for only those items.
+
+```{r}
+grocery_list
+# all of the codes below create the same output, which uses the item column to join
+grocery_prices_new %>% semi_join(grocery_list, join_by("item"))
+grocery_prices_new %>% semi_join(grocery_list, by="item")
+grocery_prices_new %>% semi_join(grocery_list) # this creates a warning for which column it is using for joining the dataset
+```
+
+### $\cdot$ `anti_join()`:
+
+> This returns all rows from x without a match in y.
+
+Example: Let's say you want to know what items you don't in your grocery list (`grocer_list`) but are present in grocery prices.
+
+```{r}
+grocery_list
+# all of the codes below create the same output (10 rows), which uses the item column to join
+grocery_prices_new %>% anti_join(grocery_list, join_by("item"))
+grocery_prices_new %>% anti_join(grocery_list, by="item")
+grocery_prices_new %>% anti_join(grocery_list) # this creates a warning for which column it is using for joining the dataset
+```
+
+### Exercise: 
+
+> Which of the mutating joins can be used to mimic the output of `semi_join(grocery_list, grocery_prices_new)`? Since the mutating joins give all the columns from both the datasets but filtering joins don't, use the dplyr functions listed in this lecture notes to only get the columns that will be in the `semi_join()`.
+
+```{r}
+# Write your code here!
+```
+
+
+> `band_instruments` and `band_members` are two dataframes built into `dplyr` specifically for you to practice joining. Sketch out what you think the result of each of the following commands will be; then uncomment and run them to see if you were right!
+
+```{r}
+#left_join(band_instruments, band_members)
+
+#full_join(band_instruments, band_members)
+
+#inner_join(band_instruments, band_members)
+
+#anti_join(band_members, band_instruments, join_by(name))
+```
+
+
+> Use the datasets defined below, and explain the output created in the third chunk.
+
+```{r}
+# drinks dataset
+
+drinks = tibble(
+  Row = 1:4,
+  Drink = c("Milk Tea", "Espresso", "Latte", "Espresso"),
+  Cafe = c("Happy Tea", "Daily Grind", "Daily Grind", "Bev's Beverages"),
+  Price = c(4, 2, 3, 2)
+)
+
+drinks
+```
+
+```{r}
+# discounts dataset
+
+discounts = tibble(
+  Row = 1:3,
+  Coupon = c("25%", "50%", "5%"),
+  Cafe = c("Happy Tea", "Daily Grind", "The Roast")
+)
+
+discounts
+```
+
+
+```{r}
+left_join(x = drinks, y = discounts, by = join_by(Cafe))
+```
+
+Write your answer here!
+
+> What happens if you don't use the by argument here?
+
+Write your answer here!
+
+
+
