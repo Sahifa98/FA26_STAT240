@@ -1,0 +1,311 @@
+---
+title: "Homework 1"
+author: "Student's Name Here"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, error = TRUE)
+library(tidyverse)
+```
+
+# Preliminaries
+
+- This file should be in `STAT240/homework` on your local computer.
+
+While you should create your answers in the .Rmd file, homework problems are better formatted and therefore easier to read in the .html file. We recommended frequently knitting and switching between the two as you read and solve problems.
+
+# Problem 1
+
+This question deals with basic R stuff. Evaluate the following questions:
+
+### Part a) 
+What is the square root of the base 10 log of 2025?
+
+```{r}
+sqrt(log10(2025))
+```
+
+
+### Part b) 
+What are the remainders of 2025 when divided by each of the numbers 2 to 9? The output must be displayed as one output.
+
+```{r}
+2025 %% 2:9
+```
+
+
+### Part c) 
+Come up with ways of producing NaN or ±Inf as an output (without using them in the input)? Hint: You may use the examples in section 2.3.4 as reference.
+
+```{r}
+0/0
+log(-1) 
+-1/0
+```
+
+
+### Part d)
+
+Write two logical statement using both & and | as well as at least a few mathematical operations, one of which evaluates to TRUE and the other to FALSE.
+
+```{r}
+(3>4) & (3 == 3)
+(3 > 4) | (3 == 3)
+```
+
+
+### Part e)
+Give 4 examples of invalid variable names (you can just write these out instead of putting them in a chunk).
+
+> 2x, x*, f(y), x-y
+
+# Problem 2
+
+Consider a vector `a` which has three numeric elements, a vector `b` which has two numeric elements, and a single number on its own, `c`.
+
+For each of the following operations, write down how many elements long the output will be.
+
+Think through the question first and make an initial guess, then check your work in the console. Also try to figure out which command will throw a warning message.
+
+(a) `a + c`
+
+> 3
+
+(b) `sum(a)`
+
+> 1
+
+(c) `sum(a * c)`
+
+> 1
+
+(d) `a + b`
+
+> 3
+
+(e) `sum(a) + b`
+
+> 2
+
+```{r}
+a <- 1:3
+b <- 1:2
+c <- 1
+
+a + c
+sum(a)
+sum(a * c)
+a + b
+sum(a) + b
+```
+
+
+# Problem 3
+
+(a) Create a vector of all the whole numbers from 1 to 50 (including the endpoints), and **save** it in a new variable called `firstFifty`.
+
+(b) First compute the mean of `firstFifty`.
+
+    Then, create a new vector which is the result of subtracting that mean from each value in `firstFifty`.
+
+    Finally, take the sum of that resulting vector.
+
+    Let that sum be **printed as output**, do not save it as a variable.
+
+    *Note: This result is not just a special case with these specific numbers, this process will return that sum for any vector!*
+    
+```{r}
+firstFifty <- 1:50
+
+sum(firstFifty - mean(firstFifty))
+```
+
+
+
+# Problem 4
+
+Compute the **standard deviation** of `firstFifty` without using the `sd` command. Let this single number be printed as output.
+
+To compute the standard deviation, execute the following steps in this order:
+
+- Compute the mean of `firstFifty` and subtract it from every element in `firstFifty`, as in the previous question.
+
+- Square every element in that vector.
+
+- Take the sum of that new squared vector; this should be close to 10,400.
+
+- Divide that number by (the length of the vector minus 1). You can obtain the length of firstFifty with `length(firstFifty)`. Don't forget parentheses & order of operations!
+
+- Finally, take the square root (`sqrt()`) of the number you got from the previous step.
+
+    The mathematical notation for this is: 
+    
+$$\sqrt{\frac{\sum_{i=1}^n{(x_i - \bar{x})^2}}{n-1}}$$ 
+    
+    where $x$ is your vector of interest, in this case `firstFifty`, $n$ is the length of $x$, and $\bar{x}$ is the mean of $x$. 
+
+    We encourage you to use `sd(firstFifty)` to check your work.
+
+```{r}
+# Step by step answer
+deviations <- firstFifty - mean(firstFifty)
+
+sumSquaredDeviations <- sum(deviations^2)
+
+insideFraction <- sumSquaredDeviations/(length(firstFifty) - 1)
+
+finalAnswer <- sqrt(insideFraction)
+
+finalAnswer
+
+
+# Single line answer
+sqrt(sum((firstFifty - mean(firstFifty))^2)/(length(firstFifty)-1))
+
+# Check work with sd()
+sd(firstFifty)
+```
+
+
+# Problem 5
+
+We have provided you below with a vector containing all of the prime numbers from 1 to 50.
+
+```{r}
+# We have written this code for you, do not edit it
+primes <- c(2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47)
+```
+
+Create a vector of logical elements - that is, `TRUE`s and `FALSE`s; which indicates whether each of the elements in `firstFifty` is a prime number.
+
+Let this vector be **printed as output**, do not save it as a variable.
+
+```{r}
+firstFifty %in% primes
+```
+
+
+# Problem 6
+
+Below we demonstrate the base R function `substr()`.
+
+```{r}
+substr("abcde", 2, 4)
+```
+
+Use help page for `substr()` (which you can access with `?substr`) to answer the following questions.
+
+(a) What does the `substr()` function do?
+
+> Extracts a substring of characters from a character vector.
+
+(b) What does `substr()` do to a non-character input?  Answer this by reading the help file, then test out the behavior with an example in R.
+
+```{r}
+# It is converted to a character string automatically.
+
+substr(134012, 3, 5)
+```
+
+
+(c) Use the `substr()` function and the vector defined below to create a new vector of three-letter abbreviations for all twelve months of the year.  Let this be printed as output.
+
+```{r}
+months <- c("January", "February", "March", "April",
+            "May", "June", "July", "August",
+            "September", "October", "November", "December")
+
+abbreviations <- substr(months, 1, 3)
+
+abbreviations
+```
+
+
+# Problem 7
+
+Create a dataframe using the `tibble()` command with five columns:
+
+- The first column should be called `char`, and contain the 26 values of `letters`,
+    
+- The second column should be called `pos`, and contain the whole number values 1, 2, ..., 25, 26.
+    
+- The third column should be called `isVowel`, and should contain 26 logical values according to whether `char` in that row is one of "a", "e", "i", "o", or "u" or not. We won't consider "y" as a vowel for simplicity.
+     
+- The fourth column should be called `isPrime`, and should contain 26 logical values according to whether `pos` in that row is a prime number (or not).
+
+- The fifth column should be called `vowelAndPrime`, and should contain 26 logical values; `TRUE` when that row has both a vowel and a prime number, and `FALSE` otherwise.
+
+Save this dataframe in a new variable called `alphanumeric`.
+
+```{r}
+alphanumeric <- tibble(
+  char = letters,
+  pos = 1:26,
+  isVowel = char %in% c("a", "e", "i", "o", "u"),
+  isPrime = pos %in% primes,
+  vowelAndPrime = isVowel & isPrime
+)
+```
+
+
+# Problem 8
+
+The five lines of code below all return an error message.  Read the error messages, fix each line of code, and briefly describe how you resolved each error.
+
+(a) We want to get the first element of the `primes' vector.
+
+```{r}
+primes(1)
+
+primes[1] #fix
+```
+
+(b) We want to define a character vector with two elements, `apple` and `banana`.
+
+```{r}
+fruits <- c("apple, " "banana")
+
+fruits <- c("apple", "banana") # fix
+```
+
+(c) We want to set `notAPrimeNumber` equal to 51.
+
+```{r}
+notAPrimeNumber == 51
+
+notAPrimeNumber = 51 # fix
+```
+
+(d) We want to get the first column of the built-in `mtcars` dataset.
+
+```{r}
+mtcars$1
+
+mtcars[,1] # fix 1
+mtcars$mpg # fix 2
+```
+
+(e) We want to take a vector of ages in years and multiply each element by 12 to get a vector of ages in months.
+
+```{r}
+ages <- c("21", "8", "14", "35", "41")
+
+ages * 12
+
+# fix 1
+ages <- c(21, 8, 14, 35, 41)
+
+ages * 12
+
+# fix 2
+
+as.numeric(ages)*12
+```
+
+
+# Submission
+
+Once you have finished all the problems above, **knit** this file and submit **BOTH the .Rmd and .html files on Canvas!**
+
