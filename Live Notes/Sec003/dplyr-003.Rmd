@@ -1,0 +1,110 @@
+---
+title: "dplyr-003"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# dplyr
+
+- Pipe operator: ` %>% `
+
+or `|>`
+
+Keyboard shortcuts:
+MAC: cmd+shift+M
+Windows: ctrl+shift+M
+
+log(sqrt(sum((c(1, 2, 4, 7))^2)))
+
+```{r}
+log(sqrt(sum((c(1, 2, 4, 7))^2)))
+
+(c(1, 2, 4, 7))^2 %>% sum() %>% sqrt() %>% log()
+```
+
+logb(sqrt(sum((c(1, 2, 4, 7))^2)), base = 10)
+
+```{r}
+logb(sqrt(sum((c(1, 2, 4, 7))^2)), base = 10)
+
+(c(1, 2, 4, 7))^2 %>% sum() %>% sqrt(2) %>% logb(base = 10)
+```
+
+
+x %>% f(y) %>% g(a, b, c) %>% h(p)
+
+f(x, y) %>% g(a, b, c) %>% h(p)
+
+g(f(x, y), a, b, c) %>% h(p)
+
+h(g(f(x, y), a, b, c), p)
+
+# dplyr functions
+
+```{r}
+# assuming that you have set your STAT240/lecture notes as your directory and those datasets are in STAT240/data
+
+grocery_data = read_csv("../data/grocery_data.csv")
+grocery_list = read_csv("../data/grocery_list.csv")
+```
+
+
+### column-wise functions
+
+- `mutate()`: adds columns to your existing dataset
+
+```{r}
+(updated_grocery = grocery_data %>% mutate(tax = price*0.02, final_price = price+tax))
+```
+
+- `select()`: will choose/keep only the columns mentioned
+
+
+```{r}
+updated_grocery %>% select(item, final_price, type)
+
+updated_grocery %>% select(item:tax)
+
+
+# c(c1, c3, c7:c15, c20, c50)
+```
+
+- `relocate()`: 
+
+```{r}
+updated_grocery %>% relocate(item, type, price, tax)
+updated_grocery %>% relocate(type, .after = item) 
+updated_grocery %>% relocate(c(tax, final_price), .before = type)
+
+?relocate
+```
+
+- `rename()`: rename pre-existing columns, format of arg: `new name` = `old name`
+
+```{r}
+updated_grocery %>% rename("final price" = final_price, Item = item)
+```
+
+### Row-wise functions
+
+- `arrange()`: sort() equivalent for columns in a dataset
+
+```{r}
+updated_grocery %>% arrange(price)
+
+updated_grocery %>% arrange(item)
+
+updated_grocery %>% arrange(-price)
+
+updated_grocery %>% arrange(desc(item))
+```
+
+
+
+
