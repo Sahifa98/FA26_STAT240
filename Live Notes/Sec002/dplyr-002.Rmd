@@ -1,0 +1,100 @@
+---
+title: "dplyr-002"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+library(tidyverse)
+```
+
+#dplyr
+
+- Pipe operator:`%>%`
+
+`|>`
+
+Windows: ctrl+shift+M
+Mac: cmd+shift+M
+
+$$log(sqrt(100^3))$$
+
+```{r}
+log(sqrt(100^3))
+
+logb(sqrt(100^3), base = 10)
+
+100^3 %>% sqrt() %>% logb(base = 10)
+```
+
+h(g(f(x, y), z, p), a, c)
+
+x %>% f(y) %>% g(z, p) %>% h(a,c)
+
+p %>% g(z) = g(p,  z) not equal to g(z, p)
+
+# dplyr functions
+
+```{r}
+grocery_data = read_csv("../data/grocery_data.csv")
+grocery_list = read_csv("../data/grocery_list.csv")
+```
+
+### column-wise functions:
+
+- `mutate()`: add a column to your dataset. arguments will follow tibble format, `column name` = values that go in given as a vector
+
+```{r}
+updated_grocery = grocery_data %>% mutate(tax = price*0.02, final_price = price+tax)
+```
+
+- `select()`: this functions will create a dataset with only the lsited columns
+
+```{r}
+updated_grocery %>% select(item, type, final_price)
+
+updated_grocery %>% select(item:tax)
+```
+
+- `relocate()`: moves around columns in your dataset
+
+```{r}
+updated_grocery %>% relocate(item, type, price, tax)
+
+
+updated_grocery %>% relocate(type, .after = item)
+updated_grocery %>% relocate(type, .before = price)
+```
+
+- `rename()`: renames existing columns in the dataset. Argument: `new name` = `old name`
+
+```{r}
+updated_grocery %>% rename("final price" = final_price) %>% select(item, `final price`)
+
+updated_grocery %>% rename("final price" = final_price, ITEM = item)
+```
+
+### Row-wise functions
+
+- `arrange()`: same as the sort function
+
+
+```{r}
+updated_grocery %>% arrange(price) %>% arrange(item)
+
+updated_grocery %>% arrange(-price)
+
+updated_grocery %>% arrange(desc(item))
+```
+
+
+
+
+
+
+
+
+
+
