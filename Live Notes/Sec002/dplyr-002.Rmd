@@ -89,6 +89,71 @@ updated_grocery %>% arrange(-price)
 updated_grocery %>% arrange(desc(item))
 ```
 
+# Friday 09/25
+
+- `filter()`: filters out rows that satisfy a given condition. You provide this function with logical statements and then the output only contains the rows that were TRUE for that logical statement
+
+```{r}
+updated_grocery %>% filter(type == "vegetable") # gives rows where type is a vegetable
+
+updated_grocery %>% filter(type == "fruit")
+
+# get columns for all the items whose price is more than $3.
+
+updated_grocery %>% filter(price > 3)
+
+# filter function is the best to filter out NA values
+
+updated_grocery[3, 2] = NA
+
+updated_grocery
+
+updated_grocery %>% filter(price == NA) # this one will not extarct NA because that logical statement returning NAs and not T or F
+
+
+updated_grocery %>% filter(is.na(price))
+
+x = NA
+
+x == NA
+
+updated_grocery$price == NA
+is.na(updated_grocery$price)
+
+updated_grocery %>% filter(!is.na(price))
+
+# get columns for all the items whose price is not $3.
+
+updated_grocery %>% filter(price != 3)
+
+
+# assuming type which has NA values, and we already have price column with an NA, to remove both of those NAs we have to combine two differnt logical statemnets with `&` operator
+
+updated_grocery %>% filter(!is.na(price) & !is.na(type))
+```
+
+- `slice_max()` and `slice_min()`
+
+```{r}
+updated_grocery %>% slice_min(price, n= 2)
+```
+
+### Group-wise functions
+
+- `summarize()`: creates a summary table. This function needs to you use to other summary functions, for example: sd(), mean(), sum(), etc. Format of the argumnet: `name of col` = description of the col
+
+```{r}
+updated_grocery %>% summarise(max_price = max(price, na.rm = T), avg_price = mean(price, na.rm = T), min_price = min(price, na.rm = T), log_price = log(price)) # will not work with the later R versions because they have updated the tidyverse summarize to only work with summary functions.
+```
+
+
+- `group_by()`:
+
+```{r}
+updated_grocery %>% group_by(type) %>% slice_max(price, n = 2)
+
+updated_grocery %>% group_by(type) %>% summarise(avg_price = mean(price, na.rm = T), sd_price = sd(price, na.rm = T))
+```
 
 
 
