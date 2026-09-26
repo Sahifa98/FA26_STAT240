@@ -104,7 +104,76 @@ updated_grocery %>% arrange(-price)
 
 updated_grocery %>% arrange(desc(item))
 ```
+# Friday 09/25
+
+- `filter()`: filter out the rows depending on the logical statements.
+
+```{r}
+# filter out only the rows corresponding to "vegetable"
+updated_grocery %>% filter(type == "vegetable")
+updated_grocery %>% filter(type != "fruit")
+
+# filter out items that priced more than $3.
+
+updated_grocery %>% filter(price > 3)
+
+updated_grocery[3,2] = NA
+
+updated_grocery
+
+# filter out the row that has missing value using dplyr
+
+updated_grocery %>% filter(price == NA)
+
+updated_grocery %>% filter(price > 0)
+
+updated_grocery$price == NA
+
+is.na(updated_grocery$price)
+
+updated_grocery %>% filter(is.na(price))
+
+# filter out the row that do not have missing value using dplyr
+
+updated_grocery %>% filter(is.na(price) == FALSE)
+updated_grocery %>% filter(!is.na(price))
+
+updated_grocery[4, 5] = NA
+
+updated_grocery
+
+updated_grocery %>% filter(!is.na(price) & !is.na(final_price)) %>%  filter(price > 3)
+```
+
+- `slice_min()` and `slice_max()`:
+
+```{r}
+updated_grocery %>% slice_min(price) # least priced item
+
+updated_grocery %>% slice_min(price, n = 3)
+```
+
+### Group-wise functions
+
+- `summarize()`: create summary tables/datasets. Uses summary functions: sum(), mean(), sd(), median(), etc. Format of the arguments: `column name` = column description
+
+```{r}
+updated_grocery %>% summarise(min_price = min(price, na.rm = T), max_price = max(price, na.rm = T), avg_price = mean(price, na.rm = T))
+
+updated_grocery %>% summarise(min_price = min(price, na.rm = T), max_price = max(price, na.rm = T), avg_price = mean(price, na.rm = T), log = log(price)) # will create error
+```
+
+- `group_by()`: 
+
+```{r}
+updated_grocery %>% group_by(type)
+
+updated_grocery %>% select(-type) %>% filter(!is.na(price)) %>% group_by(price > 2) %>% summarise(total_price = sum(final_price, na.rm = T))
 
 
+updated_grocery %>% group_by(type) %>% summarise(total_price = sum(final_price, na.rm = T))
 
+# try group_by with all the function we have learned up until now
+
+```
 
