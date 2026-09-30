@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 library(tidyverse)
 ```
-
+# Wednesday 09/30
 
 A = grocery_list
 B = grocery_data
@@ -21,16 +21,110 @@ B = grocery_data
 A; B
 ```
 
+### Mutating joins
+
 name_join(A, B, by = join_by())
 
-- left_join()
+- left_join(): give all rows from the first daatset or dataset A and onlyu the matching (with A) rows from B.
 - right_join()
 - inner_join()
 - full_join()
 
+
+A: 15 rows and 2 columns (1 column was `item`)
+B: 12 rows and 3 columns (1 column was `item`)
+
+Common rows in A and B is 9, extra rows in A is 6 (15-9), extra rows in B is 3 (12-9)
+
+Output dataset: Columns: common column + leftover columns of dataset A + leftover columns of dataset B = 1 + 1 + 2 = 4 columns in total
+
+Rows: 15 rows for all the entries in the common column in dataset A, 
+
 ```{r}
-left_join(A, B)
+left_join(A, B) # rows = 15, columns = 4
 ```
+
+```{r}
+dim(A); dim(B)
+
+right_join(A, B) # Rows = 12, columns = 4
+
+left_join(B, A)
+```
+
+```{r}
+# gives rows that are common in both the A and B 
+inner_join(A, B) # rows = 9 (those are common items in both the A and B datsaets), columns = 4
+```
+
+```{r}
+# gives all the rows from both the datasets
+
+full_join(A, B) # rows = 18 (9+6+3), columns = 4
+
+full_join(B, A)
+```
+
+### Filtering Joins: These joins only give you columns from the first dataset (dataset A).
+
+- `semi_join()`: Gives you all rows from the first dataset that match the commom column entries in the second dataset and only give columns from the first dataset
+
+- `anti_join()`: Gives you all rows from the first dataset that match the uncommom column entries in the second dataset and only give columns from the first dataset
+
+
+```{r}
+semi_join(A, B) # rows = 9, columns = 2
+```
+
+```{r}
+anti_join(A, B)
+```
+
+```{r}
+drinks = tibble(
+  Row = 1:4,
+  Drink = c("Milk Tea", "Espresso", "Latte", "Espresso"),
+  Cafe = c("Happy Tea", "Daily Grind", "Daily Grind", "Bev's Beverages"),
+  Price = c(4, 2, 3, 2)
+)
+
+drinks
+```
+
+
+```{r}
+discounts = tibble(
+  Row = 1:3,
+  Coupon = c("25%", "50%", "5%"),
+  Location = c("Happy Tea", "Daily Grind", "The Roast")
+)
+
+discounts
+```
+
+
+Dataset A: Columns = 4, Rows = 4
+Dataset B: Columns = 3, Rows = 3
+
+Common columns: 2 (Row, Cafe == Location)
+Common entries/rows: 2 daily grind and happy tea (but dataset A has daily grind twice)
+Uncommon rows: 1 in both
+
+```{r}
+left_join(drinks, discounts)
+
+left_join(drinks, discounts, by = join_by(Cafe == Location))
+
+left_join(drinks, discounts, join_by(Cafe == Location, Row))
+```
+
+```{r}
+band_instruments
+band_members
+```
+
+
+
 
 
 
