@@ -1,0 +1,380 @@
+---
+title: "STAT 240: Chapter 3 tidyr and stringr"
+author: "Sahifa Siddiqua"
+date: "`r Sys.Date()`"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T, warning = T)
+
+library(tidyverse)
+```
+
+# `tidyr`
+
+## Overview
+
+Tools to help to create tidy data, where each column is a variable, each row is an observation, and each cell contains a single value. 'tidyr' contains tools for changing the shape (pivoting) and hierarchy (nesting and 'unnesting') of a dataset, turning deeply nested lists into rectangular data frames ('rectangling'), and extracting values out of string columns. It also includes tools for working with missing values (both implicit and explicit). 
+
+## Learning Outcomes:
+
+These lectures will teach you how to:
+
+- Dealing with `NA`s
+- Pivoting datasets
+
+## Introduction
+
+`tidyr` is a package that makes it easy to “tidy” your data, by providing simple “verbs” as functions that correspond to the most common data cleaning tasks. Tidy data is data that’s easy to work with: it’s easy to munge (with `dplyr`), visualise (with `ggplot2`) and model (with R’s hundreds of modelling packages). The two most important properties of tidy data are:
+
+- Each column is a variable.
+- Each row is an observation.
+
+Arranging your data in this way makes it easier to work with because you have a consistent way of referring to variables (as column names) and observations (as row indices). When use tidy data and tidy tools, you spend less time worrying about how to feed the output from one function into the input of another, and more time answering your questions about the data. To learn more about `tidyr` (see [here](https://tidyr.tidyverse.org/)), [here](https://posit.co/blog/introducing-tidyr/) and [here](https://tidyr.tidyverse.org/articles/programming.html).
+
+## Installation
+
+The `tidyr` package is also a part of the `tidyverse` package. If you have the tidyverse package, you don’t have to reinstall `tidyr` but you can always reinstall individually by using the following code.
+
+```{r, eval = F, include = T}
+# The easiest way to get tidyr is to install the whole tidyverse:
+install.packages("tidyverse")
+
+# Alternatively, install just tidyr:
+install.packages("tidyr")
+```
+
+
+## Dataset
+
+In this lecture note, we will demonstrate all the `tidyr` functions using a mock dataset `players` and the `smiths` dataset.
+
+```{r}
+players = tibble(
+  player = c("Erling Haaland", "Kevin De Bruyne"),
+  goals = c(36, 7),
+  assists = c(8, 16),
+  games = c(35, 32)
+)
+
+players
+```
+
+
+## Functions:
+
+The `tidyr` package is home to few functions that facilitate cleaning and reorganiztion of datasets. Below are some of those functions:
+
+- `pivot_longer()`: Pivot data from wide to long
+- `pivot_wider()`: Pivot data from long to wide
+- `drop_na()`: Removing rows with NA
+- `replace_na()`: Replace NAs with specified values
+- `expand()`, `crossing()`, and `nesting()`: Expand data frame to include all possible combinations of values
+- `fill()`: Fill in missing values with previous or next value
+
+
+An index of all functions in `tidyr` can be found [here](https://tidyr.tidyverse.org/reference/index.html). In this course we will go over some of these functions.
+
+
+## Pivoting
+
+Pivoting, with `pivot_longer()` or `pivot_wider()`, changes the SHAPE of the dataframe, but does not add or take away any information; it is just a restructuring. The two pivot functions, `pivot_longer()` and `pivot_wider()`, are inverses of each other, like addition and subtraction. To understand pivoting, let's look at the animation below:
+
+![](https://fromthebottomoftheheap.net/assets/img/posts/tidyr-longer-wider.gif)
+
+
+### $\cdot$ `pivot_longer()`: 
+
+> Used to convert a wide data into a long data.
+
+The function first requires a dataframe, and then a vector of names of columns as the second argument, which will be pivoted into just two longer columns. By default, in the pivoted dataset, the column that contain the column names is called `name` and the column the contains those column values is called `value`. The `names_to` and `values_to` arguments can be used to name the columns if you want to name them differently.
+
+Example:
+
+```{r}
+# the details of which columns to use for pivoting can be provided in different ways. As a list of the columns to be pivoted, the list of columns not to be used, using colon
+
+players %>% 
+  pivot_longer(c(goals, assists, games))
+
+players %>% 
+  pivot_longer(goals:games, names_to = "game attributes", values_to = "scores") # this saves the column names in the `game attributes` column and the values in the `scores` column.
+
+players %>% pivot_longer(-player) # this gives the column not to be used for pivoting
+
+players_long = players %>% 
+  pivot_longer(c(goals, assists, games))
+```
+
+### $\cdot$ `pivot_wider()`: 
+
+> Used to convert a long data into a wide data.
+
+The function requires a dataframe, a vector of names which will each become a new column in the `names_from` argument (by default, it takes it from the `name` column), and a column of values which will populate those new columns in the `values_from` argument (by default, it takes it from the `value` column).
+
+Example:
+
+```{r}
+players_long %>% 
+  pivot_wider()
+
+players_long %>% 
+  pivot_wider(names_from = name, values_from = value)
+```
+
+The only other two functions we need to discuss in this course, are the `drop_na()` and `replace_na()`.
+
+### $\cdot$ `drop_na()`:
+
+> `drop_na()` drops rows where any column specified by ... contains a missing value.
+
+If no column is provided, then it drops all NAs from the whole dataset.
+
+Example: We will use the `smiths` dataset.
+
+```{r}
+smiths %>% drop_na() # this drops all NAs from the dataset
+smiths %>% drop_na("age")
+```
+
+### $\cdot$ `replace_na()`:
+
+> `replace_na()` drops rows where any column specified by ... contains a missing value.
+
+A list of replacement can be provided for different columns. This function replaces all NA`s in the column/dataset with the same values.
+
+Example: We will use the `smiths` dataset and insert Mary's age as 30 and weight as 59.
+
+```{r}
+smiths %>% replace_na(list(age = 30, weight = 59))
+```
+
+There are other `tidyr` functions that can be used to tidy your datasets but we will stop here.
+
+### Example
+
+Consider `table1` and `table2`, two built-in dataframes on tuberculosis cases from the World Health Organization.
+
+> Which dataset is the wider one? Which dataset is the longer one?
+
+```{r}
+table1
+table2
+```
+
+Write your answer here!
+
+> Use the pivot functions to get `table2` from `table1`. Also, try matching the column names.
+
+```{r}
+# write your code here!
+```
+
+> In the example for `drop_na()`, use `dplyr` functions to recreate the same results.
+
+```{r}
+# write your code here!
+```
+
+
+------------Will not be tested-----------------------
+
+# `stringr`
+
+## Overview
+
+Strings may not be the most eye-catching or celebrated feature of R, but they are essential in data cleaning and preparation. The stringr package offers a consistent and user-friendly collection of functions that simplify working with text, making common string operations more intuitive and efficient.
+
+Here's a cheatsheet to stringr:
+
+![](https://raw.githubusercontent.com/rstudio/cheatsheets/main/pngs/thumbnails/strings-cheatsheet-thumbs.png)
+
+## Learning Outcomes
+This lecture will give examples of working with strings and regular expressions. Strings are a bunch of character variables. It is a one-dimensional array of characters. One or more characters enclosed in a pair of matching single or double quotes can be considered a string in R.
+
+## Installation
+
+```{r, eval=F}
+# The easiest way to get stringr is to install the whole tidyverse:
+install.packages("tidyverse")
+
+# Alternatively, install just stringr:
+install.packages("stringr")
+```
+
+
+## Functions:
+
+The `stringr` package is home to numerous functions that facilitate string manipulation. All function in `stringr` starts with `str_` and followed by the verb of action. A chapter in the '[R for Data Science](https://r4ds.hadley.nz/strings#creating-a-string)' book explains strings really well and also demonstrates the use of some of the `stringr` function. Below are some of the functions that we will cover in these lecture notes and the ones you will find most useful:
+
+
+- str_c()
+
+- str_count()
+
+- str_detect()
+
+- str_length()
+
+- str_locate()
+
+- str_to_lower()/str_to_upper()/str_to_sentence()
+
+- str_sub()
+
+- str_extract()
+
+- str_which()
+
+- str_replace()
+
+- str_split()
+
+- str_remove()
+
+
+
+We will demonstrate some these functions by using the dataset below: bellow.
+
+```{r}
+Student = tibble(name = c("Olivia Novak",
+           "Bishop Bentley",
+           "Jaylin Archer",
+           "Ephraim Proctor",
+           "Chandler O’Neill",
+           "Marcel Morris",
+           "Genesis Fisher",
+           "Gael Brandt",
+           "Loretta Bradford",
+           "Ander Bradley",
+           "Vanessa Best",
+           "Harlem O’brien"), age = sample(22:25, 12, replace = T), major = c("Computer Science", "Biology", "Business Administration", "Psychology", "Computer Science", "Mechanical Engineering", "Economics", "Biology", "Mathematics", "Nursing", "Political Science", "Computer Science"), GPA = c(
+  3.45, 2.78, 3.92, 3.10, 2.65, 3.33, 3.80, 2.95, 3.21, 3.67,
+  3.48, 3.05))
+```
+
+
+- `str_c()`: combines multiple character vectors into a single character vector. Great for adding sentences or text to your vector.
+
+```{r}
+str_c("The student's name is ", Student$name) # the text "The student's name is " is added to the front because it was the first argument
+```
+
+```{r}
+# This can also be used to get the whole summary of the student
+str_c("The student ", Student$name, " majoring in ", Student$major, " has earned a GPA of ", Student$GPA, ".")
+```
+
+```{r}
+str_c(Student$name, collapse = ", ") # converts the vector of size n to a size 1.
+```
+
+
+- `str_length()` returns the number of codepoints in a string. These are the individual elements (which are often, but not always letters) 
+
+```{r}
+str_length(Student$name)
+```
+
+- `str_sub()`: extracts or replaces the elements at a single position in each string which will be specified by using the start and end point.
+
+```{r}
+str_sub(Student$major, start = 1, end = 3) # this created short forms for my majors, by extracting letters from position 1 till position 3.
+```
+
+
+- `str_count()`: Counts the number of times pattern (pr elements of another vector) is found within each element of string.
+
+
+```{r}
+str_count(Student$name, pattern = " ") # counts how many spots there is space in each name 
+
+str_count(Student$name, pattern = "[aeiou]") # counts number of vowels by creating a regular expression for all the vowels. You can find more about regular expression here (https://stringr.tidyverse.org/articles/regular-expressions.html#matching-multiple-characters)
+
+str_count(Student$name, pattern = "la") 
+```
+
+
+- `str_detect()`: detects match for each element of string to the pattern. Returns TRUE if it finds a match and FALSE if it doesn't. It can also detect absence of match
+
+
+```{r}
+str_detect(Student$major, "Math") # looking for Math in the major column
+```
+
+```{r}
+str_detect(Student$major, "Math", negate = T) # looking for not Math in the major column
+```
+
+- `str_locate()`: returns the start and end position of the first match; `str_locate_all()` returns the start and end position of each match.
+
+```{r}
+str_locate(Student$major, "Science") # Looking for science in the major column
+```
+
+- `str_to_upper()` converts to upper case.
+
+`str_to_lower()` converts to lower case.
+
+`str_to_title()` converts to title case, where only the first letter of each word is capitalized.
+
+`str_to_sentence()` convert to sentence case, where only the first letter of sentence is capitalized.
+
+
+
+```{r}
+str_to_lower(Student$major)
+```
+
+- `str_extract()`: extracts the first complete match from each string, `str_extract_all()` extracts all matches from each string.
+
+
+```{r}
+str_extract(Student$name, "[a-z]+") # extracts all lower case letters from a-z, [a-z]+ means all letters between a-z and everything after
+
+str_extract(str_to_lower(Student$name), "[a-z]+") #this will extract the whole first name
+```
+
+- `str_which()`: returns the indices of vector (or string) where there's at least one match to pattern (similar to the base R which() function but for strings).
+
+```{r}
+str_which(Student$name, "[aeiou]")
+
+str_which(Student$major, "Science") 
+```
+
+
+- `str_replace()` replaces the first match; `str_replace_all()` replaces all matches; `str_replace_na()` replaces the NA.
+
+
+```{r}
+str_replace(Student$name, "[aeiou]", "_")
+str_replace_all(Student$name, "[aeiou]", "_")
+str_replace_all(Student$name, " ", "_")
+```
+
+```{r}
+# best for replacing NA
+
+str_replace_na(c(1, 2, 3, NA, 4), "0")
+```
+
+
+- `str_split()`: splits each string in a character vector into a varying number of pieces, returning a list of character vectors
+
+```{r}
+str_split(Student$name, " ")
+```
+
+The amount of split can also be limited by using the argument `n`.
+
+```{r}
+str_split(c("The student Olivia Novak majoring in Computer Science has a GPA of 3.45."), " ", n = 5)
+```
+
+- `str_remove()`: Remove matches, i.e. replace them with "".
+
+```{r}
+str_remove(Student$name, " ")
+```
