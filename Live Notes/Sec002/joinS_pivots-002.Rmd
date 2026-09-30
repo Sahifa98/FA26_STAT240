@@ -1,0 +1,39 @@
+---
+title: "Join and pivots (last topic for midterms)"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+library(tidyverse)
+```
+
+
+A = grocery_list
+B = grocery_data
+
+```{r}
+A = grocery_list
+B = grocery_data
+
+A; B
+```
+
+name_join(A, B, by = join_by())
+
+- left_join()
+- right_join()
+- inner_join()
+- full_join()
+
+```{r}
+left_join(A, B)
+```
+
+
+
+
+
+
