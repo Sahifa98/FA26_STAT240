@@ -155,6 +155,48 @@ updated_grocery %>% group_by(type) %>% slice_max(price, n = 2)
 updated_grocery %>% group_by(type) %>% summarise(avg_price = mean(price, na.rm = T), sd_price = sd(price, na.rm = T))
 ```
 
+- `n()`: this function gives you the number rows in the dataset or if used with `group_by()` will give you the number of rows in each group.
+
+```{r}
+updated_grocery %>% group_by(type) %>% summarise(no_rows = n())
+```
+
+- `count()`: counts distinct elements in a given column
+
+```{r}
+updated_grocery %>% count(type)
+
+updated_grocery %>% count(price)
+
+updated_grocery[6, 2] = 0.27
+
+updated_grocery %>% count(price)
+```
+
+- `case_when()`: creates groups in the dataset using several logical statements.
+
+Format: Used inside of mutate, `column name` = case_when(
+logical statement for 1st category ~ "name of 1st category" or any operation you wish to do to that category,
+logical statement for 2nd category ~ "name of 2nd category" or any opeartion,
+.
+.
+.
+)
+
+Let's say price 0-1 is cheap, 1-2 is less expensive, 2-7 is expensive
+
+```{r}
+updated_grocery %>% mutate(status = case_when(
+  price >= 0 & price < 1 ~ "Cheap items",
+  price >= 1 & price < 2 ~ "Less expensive items",
+  price >=2 ~ "Expensive"
+))
+```
+
+
+------
+
+
 
 
 
