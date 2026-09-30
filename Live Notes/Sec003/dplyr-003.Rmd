@@ -177,3 +177,47 @@ updated_grocery %>% group_by(type) %>% summarise(total_price = sum(final_price, 
 
 ```
 
+# Monday 09/28
+
+- `n()`: gives you the no of rows or if it's used with `group_by()` then it gives the no. of rows in each category.
+
+```{r}
+updated_grocery %>% group_by(type) %>% n()
+updated_grocery %>% group_by(type) %>% summarise(no_of_rows = n())
+```
+
+- `count()`: gives you the count of distinct elements in a column
+
+```{r}
+updated_grocery %>% count(type)
+
+updated_grocery %>% count(price)
+
+updated_grocery[6, 2] = 0.27
+
+updated_grocery %>% count(price)
+```
+
+- `case_when()`: creates groups using the logical statements that is provided.
+
+Format: use with `mutate()` -  `column_name` = case_when(
+logical statement for group 1 ~ label 1 ("name for group 1" or operation),
+logical statemnet for group 2 ~ label 2,
+.
+.
+.
+logical statemnet form last group  ~ label for last group
+)
+
+Categorize my items into cheap (0-1), less expensive (1-2) and expensive (>2)
+
+```{r}
+updated_grocery %>% mutate(class = case_when(
+ price >=0 & price <1 ~ "Cheap items",
+ price >= 1 & price < 2 ~ "Less expensive items",
+ price >= 2 ~ "Expensive items"
+)) %>% arrange(price) %>% group_by(type, class) %>% summarise(n = n())
+```
+
+-------
+
