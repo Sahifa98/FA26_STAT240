@@ -52,7 +52,8 @@
 
 |Function name|Description|Syntax|
 |---|---|---|
-|pivot_longer()<br>pivot_wider()|Pivot data from wide<br>to long<br>Pivot data from long<br>to wide|pivot_longer(data,<br>vector of column<br>names, names_to =<br>…, values_to = …,<br>… )<br>pivot_wider(data,<br>names_from = …,<br>values_from = …,<br>…)|
+|pivot_longer()<br>|Pivot data from wide<br>to long<br>|pivot_longer(data,<br>vector of column<br>names, names_to =<br>…, values_to = …,<br>… )<br>|
+|pivot_wider()|Pivot data from long<br>to wide|pivot_wider(data,<br>names_from = …,<br>values_from = …,<br>…)|
 |drop_na()|Drop rows<br>containing missing<br>values|drop_na(data, …)|
 
 
