@@ -4,17 +4,17 @@
 
 |Function Name|Description|Syntax|
 |---|---|-------------|
-|ggplot()|Create a new<br>ggplot|<br>ggplot(data, mapping,…)|
-|aes()|Defines variable<br>aesthetics|aes(x = …, y = …, …)|
-|geom_point()|Creates a<br>scatterplot|geom_point(mapping,<br>col,….)|
-|geom_line()|Creates a line<br>graoh|geom_line(mapping,<br>col,…)|
-|geom_smooth()|Creates a<br>smooth<br>trendline|geom_smooth(mapping,<br>method,…)|
-|geom_col()|Creates a bar<br>graph with x<br>and y variable|geom_col(mapping,<br>col,…)|
-|geom_bar()|Creates a bar<br>graph with a<br>variable|geom_bar(mapping, fill,<br>…)|
-|geom_histogram()|Creates a<br>histogram for a<br>variable|geom_histogram(mapping,<br>fill, …)|
-|geom_density()|Creates a<br>density plot for<br>a variable|geom_density(mapping,<br>fill, …)|
-|geom_boxplot()|Creates a<br>boxplot for a<br>variable|geom_boxplot(mapping,<br>fill, …)|
-|labs()|Creates labels<br>for a ggplot|labs(title, subtitle, …)|
+|ggplot()|Create a new ggplot|ggplot(data, mapping,…)|
+|aes()|Defines variable aesthetics|aes(x = …, y = …, …)|
+|geom_point()|Creates a scatterplot|geom_point(mapping, col,….)|
+|geom_line()|Creates a line graoh|geom_line(mapping, col,…)|
+|geom_smooth()|Creates a smooth trendline|geom_smooth(mapping, method,…)|
+|geom_col()|Creates a bar graph with x and y variable|geom_col(mapping, col,…)|
+|geom_bar()|Creates a bar graph with a variable|geom_bar(mapping, fill, …)|
+|geom_histogram()|Creates a histogram for a variable|geom_histogram(mapping, fill, …)|
+|geom_density()|Creates a density plot for a variable|geom_density(mapping, fill, …)|
+|geom_boxplot()|Creates a boxplot for a variable|geom_boxplot(mapping, fill, …)|
+|labs()|Creates labels for a ggplot|labs(title, subtitle, …)|
 
 
 
@@ -22,25 +22,25 @@
 
 |Function name|Description|Syntax|
 |---|---|-------------|
-|mutate()|Create, modify, and<br>delete columns|mutate(data, col1 =<br>vector1, …)|
-|relocate()<br>|Change column order<br>|relocate(data, col1,<br>col2, …)<br>|
-|rename()|Rename columns|rename(data,<br>new_name =<br>old_name,…)|
-|select()|Keep or drop columns<br>using their names|select(data, list of<br>column names)|
-|arrange()|Order rows using a<br>column’s values|arrange(data,<br>column name)|
+|mutate()|Create, modify, and delete columns|mutate(data, col1 = vector1, …)|
+|relocate() |Change column order |relocate(data, col1, col2, …) |
+|rename()|Rename columns|rename(data, new_name = old_name,…)|
+|select()|Keep or drop columns using their names|select(data, list of column names)|
+|arrange()|Order rows using a column’s values|arrange(data, column name)|
 |desc()|Sort in descending order|desc(column name)|
-|filter()|Keep or drop rows that<br>match a condition|filter(data, logical<br>statements dealing<br>with one or more<br>columns)|
-|slice_min()/<br>slice_max()|Subset rows using the<br>mins/maxs of a given<br>column|slice_...(data,<br>column name, n =<br>…)|
-|summarize()|Summarizes the dataset<br>or each group down to<br>one row|summarize(data,<br>col_name =<br>summary function,<br>…)|
-|group_by()|Create groups inside<br>one or more columns|group_by(data,<br>column names)|
-|n()|No. of rows in the<br>"current" group or<br>variable|n()|
-|count()|Count the observations<br>in each group|count(column<br>names)|
+|filter()|Keep or drop rows that match a condition|filter(data, logical statements dealing with one or more columns)|
+|slice_min()<br>slice_max()|Subset rows using the mins/maxs of a given column|slice_...(data, column name, n = …)|
+|summarize()|Summarizes the dataset or each group down to one row|summarize(data, col_name = summary function, …)|
+|group_by()|Create groups inside one or more columns|group_by(data, column names)|
+|n()|No. of rows in the "current" group or variable|n()|
+|count()|Count the observations in each group|count(column names)|
 |case_when()|Creates customized groups in a seperate column|case_when(logical statements ~ label of groups|
-|left_join()|A mutating join that<br>keeps all observations<br>in A|left_join(A, B, by =<br>…)|
-|right_join()|A mutating join that<br>keeps all observations<br>in B|right_join(A, B, by =<br>…)|
-|inner_join()|A mutating join that<br>keeps matching<br>observations from x and<br>y|inner_join(A, B, by =<br>…)|
-|full_join()|A mutating join that<br>keeps all observations<br>in x and y.|full_join(A, B, by =<br>…)|
-|semi_join()|A filtering join that<br>returns all rows from x<br>with a match in y|semi_join(A, B, by =<br>…)|
-|anti_join()|A filtering join that<br>returns all rows from x<br>without a match in y|anti_join(A, B, by =<br>…)|
+|left_join()|A mutating join that keeps all observations in A|left_join(A, B, by = …)|
+|right_join()|A mutating join that keeps all observations in B|right_join(A, B, by = …)|
+|inner_join()|A mutating join that keeps matching observations from x and y|inner_join(A, B, by = …)|
+|full_join()|A mutating join that keeps all observations in x and y.|full_join(A, B, by = …)|
+|semi_join()|A filtering join that returns all rows from x with a match in y|semi_join(A, B, by = …)|
+|anti_join()|A filtering join that returns all rows from x without a match in y|anti_join(A, B, by = …)|
 
 
 
@@ -48,9 +48,9 @@
 
 |Function name|Description|Syntax|
 |---|---|-------------|
-|pivot_longer()<br>|Pivot data from wide<br>to long<br>|pivot_longer(data,<br>vector of column<br>names, names_to =<br>…, values_to = …,<br>… )<br>|
-|pivot_wider()|Pivot data from long<br>to wide|pivot_wider(data,<br>names_from = …,<br>values_from = …,<br>…)|
-|drop_na()|Drop rows<br>containing missing<br>values|drop_na(data, …)|
+|pivot_longer() |Pivot data from wide to long |pivot_longer(data, vector of column names, names_to = …, values_to = …, … ) |
+|pivot_wider()|Pivot data from long to wide|pivot_wider(data, names_from = …, values_from = …, …)|
+|drop_na()|Drop rows containing missing values|drop_na(data, …)|
 
 
 
