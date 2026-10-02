@@ -18,8 +18,8 @@ library(tidyverse)
 - You should also download `education.csv` and `obesity.csv` to `STAT240/data` on your local computer.
 
 ```{r, echo = FALSE}
-education_original <- read_csv("../../data/education.csv")
-obesity <- read_csv("../../data/obesity.csv")
+education_original <- read_csv("../data/education.csv")
+obesity <- read_csv("../data/obesity.csv")
 ```
 
 The end goal of this assignment is to compare the obesity percentage in each zip code and sex with the college educated percentage. Both dataframes contain data on Wisconsin residents.
