@@ -66,7 +66,7 @@
 |---|---|-------------|
 |`pivot_longer()`|Pivot data from wide to long |pivot_longer(data, vector of column names, names_to = …, values_to = …, … ) |
 |`pivot_wider()`|Pivot data from long to wide|pivot_wider(data, names_from = …, values_from = …, …)|
-|`drop_na()`|Drop rows containing missing values|drop_na(data, …)|
+|`drop_na()`|Drop rows containing missing values|drop_na(data)|
 
 
 
