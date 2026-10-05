@@ -1,0 +1,747 @@
+---
+title: "STAT 240: Chapter 4: Introduction to Probability"
+author: "Sahifa Siddiqua"
+date: "Spring 2026"
+output: rmdformats::readthedown
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, error = TRUE)
+```
+
+# Overview
+
+## Learning Outcome
+
+These lecture notes will make you familiar with: - Basic statistical
+terms and their definitions - Probability concepts and using those to
+solve statistical questions - Distinguish between random processes,
+their outcomes, and the values of random variables
+
+## Introduction
+
+Every researcher starts with a question that needs to be answered. For
+instance, in medical research, a question can be asked about the effect
+of a drug that is to be administered; or an economist might be concerned
+about the prices of a select number of commodities over the time; or an
+agronomist may wish to study the effect that a fertilizer has on the
+yield of a crop.
+
+The only way to elicit enough information to answer any such questions
+is to actually perform the experiments. Most experiments share the same
+characteristic, that is, if performed under the same conditions will
+more or less generate identical results. Roughly speaking, every
+research/study can be divided into three steps:
+
+-   Step 1: Identifying the research question, then designing an
+    experiment, gathering sample, and collect some data.
+-   Step 2: Clean the raw data, explore it and figure out the best way
+    to model it.
+-   Step 3: Enhancing the initial model to best fit the data and
+    interpreting the results
+
+Statistics is primarily the science of collecting, organizing,
+processing and analyzing data, in order to acquire useful information to
+answer most questions. In statistics, the group of interest is often
+vast and in most cases, it's impractical to observe every member of such
+a vast group, but luckily, this is rarely necessary; a well-drawn subset
+is sufficient to answer most questions. Information collected from the
+subset, helps answer the questions about the large group.
+
+It is often the case that we say anything is possible, yet if we want to
+know how possible an event is, then we employ ***probability*** which
+tells us the degree of the possibility. Probability and statistics are
+deeply connected because all statistical statements are, at bottom,
+statements about probability. Despite this, the two sometimes feel like
+very different subjects. Probability is logically self-contained; there
+are a few rules and all answers follow logically from the rules, though
+computations can be tricky. In statistics we apply probability to draw
+conclusions from data. This can be messy and usually involves as much
+art as science.
+
+We first start by understanding statistical and data terminologies and
+then will define probability and related ideas.
+
+# Data and statistics
+
+Before we can deal with statistics mathematically and with probability,
+we should be familiar with how data and statistics can be correlated.
+
+Statistics is most often used for studying, analyzing, and learning
+about the group of interest also called the ***population***. A
+population contains every single member of the group of interest and is
+often insanely large in size. Any numerical description of a population
+is called a ***parameter***.
+
+***Data*** are counts or measure or observation collected for a specific
+variable in the population. When the data is collected form each member
+of the population then it is called a ***census***, but most often
+obtaining is an expensive process. We usually select a subset of the
+population to study and collect information from.
+
+A subset of the population is called a ***sample***. One needs to ensure
+that the sample collected to represent the population shares all
+relevant characteristics with the population and doesn't favor a group.
+If a collected sample favors one group of the population over the other,
+it is called a ***biased*** sample. Any numerical description of a
+sample is called a ***statistic***.
+
+Usually the parameters are the quantity of interest since they describe
+a characteristic of the population, but since they are generally
+unknown, we use sample statistics to get an intuition on the parameter.
+This process of getting intuition on a population parameter is called
+***inference***. The branch of ***inferential statistics*** is the
+science of getting the information about population by studying samples.
+To understand the process of inferential statistics, lets also
+understand the relation of data and statistics.
+
+Data collected in a statistical study can be classified into different
+categories. The category of the data dictates the type of statistical
+analysis that can be performed on the data. The first distinction comes
+in the nature of the variables in the dataset and can be divided into
+***Qualitative*** and ***Quantitative*** variable/data. Qualitative
+variable/data consists of labels or description of traits of the members
+and generally are recorded in words, however, numbers can also be used
+as labels. Whereas quantitative data consists of counts and measurements
+where the numbers model underlying patterns in the data.
+
+Example:
+
+*Quantitative data example*
+
+-   Number of clicks on an ad/ visits to a website.
+-   Number of tickets a customer help desk receives in a day.
+-   Number of cartons of eggs purchased by customers over a month.
+
+*Qualitative data example*
+
+-   The color of a persons eye.
+-   Rating the service of a restaurant on a scale of 1 - 5.
+-   Psychological evaluation of a person on a spectrum.
+-   Level of satisfaction on a survey.
+
+### EXERCISE: In all the scenarios below, identify whether the data/variable is qualitative or quantitative.
+
+> Political party affiliations of a group of people.
+
+> Number of children in a household.
+
+> Zipcodes of a state.
+
+> Reviews on a book.
+
+> Height of children aged 10.
+
+> Model number of all MACs manufactured in 2021.
+
+Due to the different types of numeric values a quantitative
+data/variable can take, it can be further divided into ***discrete***
+and ***continuous*** data/variable. A discrete variable is the one that
+can only take particular values such as counts. These values are usually
+integers or whole numbers. A continuous random variable is the one that
+can take any value in an interval such as measurements. These values are
+often real numbers.
+
+Example:
+
+*Discrete Data*
+
+-   Number of houses in a block.
+-   Number of cars in an intersection at a given time.
+-   Number of accidents on a highway in a year.
+
+*Continuous data*
+
+-   Length of a string.
+-   Height of a building.
+-   Weight of flour.
+
+### EXERCISE: In all the scenarios below, identify whether the data/variable is discrete or continuous.
+
+> Age of a dinosaur fossil.
+
+> Number of students majoring in statistics and data science.
+
+> Time taken by a student to reach class.
+
+> Price of a pound of tomatoes at different grocery stores across town.
+
+Data can also be classified depending on the level of measurement such
+as nominal, ordinal, interval, and ratio. But we will not define those
+here.
+
+Now that we have seen the basic categories of data, now let's dive into
+how this data can be evaluated statistically.
+
+## Statistics for describing, exploring and comparing data.
+
+To understand, describe, explore and compare data that we collect; the
+following characteristics of data are very important: 1) center, 2)
+variation, 3) distribution, and 4) outliers. The methods used to
+understand these characteristics are often refered to as **descriptive
+statistics** because the summarize or describe characteristics of data.
+Below we discuss the measures of center and measures of variation as
+these are the ones we need to understand the behaviour of the population
+of interest.
+
+### Measures of center:
+
+A ***measure of center*** is a value that is at the center of a dataset.
+Mean, median, mode and midrange are the most commonly used measures of
+center. Their formulas are given below but can be found using functions
+in R.
+
+-   **Mean**: Also refered to as the arithmetic mean of a dataset is a
+    value that lies exactly at the center of a dataset. It is obtained
+    by
+
+$$\bar{x} = \sum_{i=1}^n \frac{x_i}{n} \hspace{1em} \frac{\leftarrow \text{sum of all data points}}{\leftarrow \text{number of data points}}$$
+
+It is also important to remember that, generally, the mean of a dataset
+is not a value from the dataset.
+
+-   **Median**: It is the middle value of a dataset.
+
+Median is found by arranging the data points in ascending or descending
+order and finding the value that lies exactly at the $\frac{n}{2}^{th}$
+value (if n is odd) or the average of the $\frac{n}{2}^{th}$ and
+$\frac{n+1}{2}^{th}$ value (if n is even). If n is odd then the median
+is a value from the dataset but if n is even then the median is not a
+value from the dataset.
+
+-   **Mode**: It is a value that appears the most in a dataset or the
+    value with the greatest frequency.
+
+A dataset might have no mode, one mode (also called unimodal), two modes
+(also called bimodal) or more than two modes (also called multimodal).
+
+The mode of a dataset is always a value from the dataset.
+
+-   **Midrange**: It is the value midway between the maximum and the
+    minimum.
+
+$$\text{Midrange} = \frac{\text{max data value + min data value}}{2}$$
+Example: Five bags of regular Chips Ahoy chocolate chip cookie contains
+the following amount of chocolate chips:
+
+$$22, 22, 26, 24, 23$$ Let's find the measures of center of this
+dataset:
+
+$$\bar{x} = \frac{22+ 22+ 26+ 24+ 23}{5} = 23.4$$ To find median, we
+first have to arrange the data points, let's, say, ascendingly.
+
+$$22, 22, 23, 24, 26$$ Thus, $$\text{Median} = 23$$
+
+$$\text{Mode} = 22$$
+
+$$\text{Midrange} = \frac{22+26}{2}=24$$
+
+In this we can see that except for mean and midrange are not values from
+the dataset.
+
+All the measures of center have their own pros and cons, such as:
+
+-   Mean is the best measure of center for making inference about the
+    center of the population since it varies the least among all other
+    measures of center. But mean is also the most affected by the
+    presence of outliers.
+
+-   Median is the least affected by the presence of outliers since it
+    doesn't use all the data values. But is not great in a non
+    symmetrical data for using it for inference about the center of the
+    population.
+
+-   Mode can be used for every type of data but is not that useful in
+    conveying information about the data.
+
+-   Midrange is very easy to compute but it is the least used measure of
+    center since it is very sensitive to outliers (the formula need min
+    and max and both of these values can be outliers).
+
+### Measures of variation
+
+A ***measure of variation*** are values that describe the spread of a
+dataset.
+
+-   **Range**: The range is the difference between the maximumn and
+    minimum value.
+
+-   **Standard Deviation**: It is a value that measures how much data is
+    away from the mean. It is often denoted by *s* and is calculated as
+
+$$s = \sqrt{\frac{\sum(x_i-\bar{x})^2}{n-1}}$$ But the most used formula
+of standard deviation is a corrected formula that performs better in
+understanding the standard deviation of the population.
+
+$$s = \sqrt{\frac{n(\sum x_i^2)-(\sum x)^2}{n(n-1)}}$$ Standard
+deviation can never be negative. A standard deviation of 0 implies that
+all data points are at the mean. Outliers affect standard deviation
+drastically and thus it is highly sensitive to outliers.
+
+-   **Variance**: It is a value equal to the square of the standard
+    deviation. It is often denoted as $s^2$.
+
+And just like standard deviation, variance can also never be negative. A
+variance of 0 implies that all data points are the same. Variance are
+also affected by the presence of outliers.
+
+Due to the squaring variance is very difficult to interpret compared to
+deviation.
+
+Example: Continuing with the Chips Ahoy example,
+
+$$s = \sqrt{\frac{\sum(x_i - 23.5)^2}{4}} = \sqrt{11/3}=\sqrt{3.667}=1.915$$
+Thus, $s^2=3.667$.
+
+The standard deviation is used to make sense of the distribution or the
+spread of data points in symmetric and non-symmetric datasets using the
+[Empirical](https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule)
+and
+[Chebyshev's](https://statisticsbyjim.com/basics/chebyshevs-theorem-in-statistics/)
+rule. We won't be discussing those here but it is a good piece of
+information.
+
+Now we will start understanding and learning basic terminologies of
+probability, random variables and finally probability distributions .
+
+# Probability
+
+To understand probability, one has to first understand the notion of
+sets. Let's look at an example to motivate ourselves for what follows.
+
+> Example: A fair coin (that is, the chances of getting a Head or a Tail
+> is equal) is tossed thrice. We are interested in finding the chance or
+> probability of getting 2 heads in three flips.
+
+Since we all have seen and worked with a coin, we can easily write out
+all possible combinations of H and T in the three coin flips.
+
+$$\{HHH, HHT, THH, HTH, TTH, THT, HTT, TTT\}$$
+
+Three of these outcomes have exactly two heads:
+
+$$\{HHT, THH, HTH\}$$ Since all outcomes are equally probable, giving us
+the chance or probability of getting two heads as
+
+$$P(\text{Two heads in three flips}) = \frac{3}{8}$$ For any such
+experiments, where there are *n* possible outcomes and each one is
+equally probable and the probability of getting *k* outcome is
+$\dfrac{k}{n}$.
+
+It is important to note that the above example is one of the most ideal
+scenarios, since all the outcomes are equally probable and it is
+possible to write out all the possible scenario/outcome. Are all
+experiment that we deal with, only have equally probable outcomes or
+have small sets of possible outcomes? The answer is no. Thus, one needs
+to understand some basic fundamental definitions and theories to begin
+with.
+
+## Important definitions
+
+Every time an experiment is performed, it creates a set of outcomes. A
+key characteristic of experiments is that the outcome cannot be
+predicted with certainty prior to it happening.In most cases, the nature
+of the experiments are such that a collection of every possible outcome
+can be described prior to its performance. Such an experiment that can
+be repeated under the same condition is called a ***random
+experiment***. The set of all possible outcomes of these experiments is
+called the ***sample space***. $\Omega$ is often used to denote sample
+space.
+
+Every individual outcome of the sample space is called an ***event***.
+Each event has a probability associated with it, and is denoted as
+$P(\text{event})$. Events that cannot happen at the same time are called
+***disjoint*** or ***mutually exclusive events***. Events where the
+occurrence of one event does not affect the probability of the other
+event occurring are called ***independent events***.
+
+Example: Mutually exclusive events
+
+Event 1: Getting heads Event 2: Getting tails
+
+Example: Independent Events
+
+Event 1: Getting heads in the first toss Event 2: Getting tails in the
+second toss
+
+Every event probability follow the following set of rules or axioms,
+which are refered to as the **Axioms of Probability**,:
+
+1.  The probability of an event is always non-negative, that is,
+    $P(\text{event}) \geq 0$.
+
+2.  The probability of sum of all events in a sample space is 1, that
+    is, $P(\Omega) =1$.
+
+3.  The probability of mutually exclusive events
+    ($A \cap B = \emptyset$) is equal to the sum of probabilities of
+    each event, that is, $P(A\cup B) = P(A)+P(B)$.
+
+From these axioms the following set of corollaries are derived called
+the ***Corollaries of Probability***:
+
+1.  Probability of all event lies between 0 and 1, that is,
+    $0\leq P(A)\leq 1$.
+
+2.  Probability of the compliment of an event A is $1-P(A)$, that is,
+    $P(A^c)=1-P(A)$.
+
+3.  In general, for any events $A$ and $B$, the probability of
+    $A \text{or} B$ is given as the sum of the probabilities of event
+    $A$ and event $B$ and then subtract the probability of event
+    $A \text{and} B$, that is, $P(A\cup B) = P(A)+P(B)-P(A \cap B)$.
+
+## Random Variables
+
+Any random experiment is modeled by a ***random variable***. A random
+variable can be understood as a function that only assigns one value
+(from the sample space) to the random experiment or as a variable that
+takes a single numerical value for each outcome of a random process
+decided by probability. Often denoted using uppercase letters, like, $X$
+or $Y$. The values taken by the random variable is denoted using
+lowercase letters, like, $x$ or $y$. That is, once an experiment is
+performed then we get $X = x$, where $X$ was the experiment and $x$ was
+the value it took.
+
+For example, you toss a coin once and get a head, then the random
+variable can be defined as $X = \text{getting a head}$ which has the
+value $1$ after the experiment.
+
+A random variable can take a certain type of value depending on the
+nature of the random process. The types can be divided into discrete or
+continuous random variables.
+
+A ***discrete random variable*** has a set/collection of values that is
+finite or countable. A ***continuous random variable*** has infinitely
+many values and the set/collection of values that is uncountable. These
+definitions support the definitions of discrete and continuous data
+defined above but in terms of sets or random variables.
+
+Example: ***discrete random variable:*** No. of heads in 10 coin flips,
+no. of stops in a bus route, time taken (in mins) to walk a mile, no. of
+rings in a mature tree, etc.
+
+***continuous random variable:*** Height of a light pole, weight of
+truck, distance between any two cities in a state, etc.
+
+# Probability distribution
+
+A ***probability distribution*** is a description/model that gives the
+probability of each value that a random variable can take from a sample
+space. Generally, expressed as formulas or a density line or listed out
+in tables. If a probability distribution represents a discrete random
+variable, it is referred to as a ***discrete probability
+distribution***, and if it represents a continuous random variable, then
+it is called a ***continuous probability distribution***.
+
+Every probability distribution satisfies the following conditions:
+
+1.  It represents a numerical random variable *X* such that the
+    probability distribution gives the probability associated with each
+    value that the random variable takes.
+
+2.  $0 \leq P(X=x) \leq 1$ for each value *x*, where, *x* is the value
+    that the random variable assumes.
+
+3.  $\sum P(X= x) = 1$ and the sum of the probability of all such *x*
+    should add upto 1.
+
+Example: The probabilities of a random variable, X, is given by the
+formula,
+
+$$P(X=x)= \frac{x}{3}, \text{ where, } x = 0, 1, 2$$
+
+Does the function $P(x)$ determine a probability distribution?
+
+To get the answer, we net to check whether $P(x)$ satisfies the above 3
+conditions.
+
+1.  X does take numeric values x (and x = 0, 1, 2), thus it is a
+    numerical random variable and $P(x)$ satisfies the first condition.
+
+2.  P(0) = 0, $P(X=1)= \frac{1}{3}$ and $P(X=2)= \frac{2}{3}$ are all
+    values between or equal to 0 and 1. Thus, $P(x)$ satisfies the
+    second condition.
+
+3.  $P(0)+P(X=1)+ P(X=2) = 0+\frac{1}{3}+\frac{2}{3} = 1$ and thus,
+    $P(x)$ satisfies the third condition too.
+
+Hence, we can say that $P(x)$ is a probability distribution.
+
+It is important to note that, all the above conditions are in line with
+axioms an corollaries of probability. For example. the second axiom
+comes from the fact that all possible outcomes of a random variable
+combined makes the sample space. Can you guess which axiom or corrolary
+does the third condition come from?
+
+With a probability distribution one gets the description of the
+population of interest. Thus all values associated with probability
+distributions are actually parameters (numeric characteristics of a
+population) and not statistics (numeric characteristics of a sample).
+
+### EXERCISE: Confirm whether the following cases are a probability distribution.
+
+1.  Assume that the probabilities of number of girls in two birth is
+    listed in the following table:
+
+| Number of Girls (X) | P(X) |
+|:--------------------|:-----|
+| 0                   | 0.25 |
+| 1                   | 0.50 |
+| 2                   | 0.25 |
+
+2.  Senior executives were asked when to is the right time for job
+    applicants to ask about salary and their responses and probabilities
+    are listed below.
+
+| Number of Interviews (X) | P(X) |
+|:-------------------------|:-----|
+| 1                        | 0.20 |
+| 2                        | 0.26 |
+| 3                        | 0.10 |
+| 4                        | 0.10 |
+
+3.  In a research center poll, participants of a drug trial were asked
+    whether they experienced any side effects after the drug was taken
+    and their response have been recorded in the following table.
+
+| Response (X) | P(X) |
+|:-------------|:-----|
+| Yes          | 0.41 |
+| No           | 0.52 |
+| Don't Know   | 0.07 |
+
+## Parameters of a probability distribution
+
+As we have seen the sample version of the characteristics of data. We
+now can think the in terms of random variables and probability
+distributions. The population versions of some of those characteristics
+can be obtained by slightly different formulae and are discussed below.
+
+-   **Expected Value**: It is a value that gives the mean of the
+    population. It is denoted by $E(X) = \mu$. We will learn the formula
+    for $E(X)$ relevant to each type of distribution but it can also be
+    found using a population version of the sample mean, which has the
+    same formula but uses $N$ (denotes the population size).
+
+$$\mu = \sum \frac{x_i}{N}$$
+
+-   **Standard Deviation**: It is a value that describes the spread of
+    the population. It is denoted by $\sigma$. We will learn the formula
+    for $\sigma$ relevant to each type of distribution but it the
+    population version is similar to the sample standard deviation.
+    Instead of dividing by *n-1* we now will be dividing by *N* and use
+    notations for population instead.
+
+$$\sigma = \sqrt{\frac{\sum(x_i-\mu)^2}{N}}$$ - **Variance**: It is a
+value that is the square if $\sigma$.
+
+### Discrete Probability Distribution:
+
+The probability distribution of a discrete random variable is given by
+the ***Probability Mass Function*** (or PMF). PMF is a function that
+gives the probability at any given point of a discrete random variable.
+The PMF can be in a table format or given as a function at points $x$
+and will be plotted as bar graphs.
+
+Example:
+
+1.  The number of Heads (X) when a coin is tossed twice. The sample
+    space created is
+
+$$[HH, TH, HT, TT]. $$
+
+This shows that X can take the values 0 (no heads), 1 (1 head), and 2 (2
+heads).
+
+2.  For a discrete random variable X, the pmf can be given as
+
+$$
+f(x) =
+\begin{cases}
+\frac{1}{4}(1 - x), & x = 0,1 \\
+\frac{1}{4}(x - 1), & x = 2,3 \\
+0, & \text{otherwise}
+\end{cases}
+$$
+
+For a discrete random variable, the probability of $X$ being between two
+values $a$ and $b$ can be found using the pmf as
+
+$$P(a \leq X \leq b ) = \sum P(X=a)+\cdots+ P(X=b).$$
+
+When the distribution is shown as a bar graph such as the one below.
+
+```{r echo=FALSE}
+library(tidyverse)
+ggplot(mapping = aes(x = 0:4, y = c(0.1, 0.4, 0.1, 0.2, 0.2))) + geom_col(col = "blue", fill = "skyblue")+labs(x = "X", y = "Probability")
+```
+
+Each bar represents each of the value that the variable $X$ can take.
+The probability of each of those values is given by the height of the
+bars and the probability of more than one point, say $P(2\leq X\leq 4)$,
+can be found by adding the height of the bars, i.e,
+$P(2\leq X\leq 4) = 0.1+0.2+0.2=0.5$.
+
+The expected value, standard deviation and variance of a pmf is given
+as,
+
+$$
+E(X) = \sum x * P(X = x)
+$$
+
+and
+
+$$
+\sigma^2 = \sum (x-\mu)^2*P(X=x).
+$$
+
+The standard deviation can just be found by taking the square root of
+variance.
+
+Example:
+
+-   Consider the bar graph shown above, the expectation of $X$ is
+
+$$E(X) = 0*0.1 + 1*0.4 + 2*0.1+3*0.2+4*0.2 = 2$$
+
+$$Var(X) = (0 - 2)^2*(0.1) + (1 - 2)^2*(0.4) + (2-2)^2*(0.1)+(3 - 2)^2*(0.2)+(4 - 2)^2*(0.2) = 1.8$$
+
+$$\sigma = \sqrt{1.8}=1.34$$
+
+-   Consider a single roll of a fair six-sided die (let's call this
+    $D$):
+
+$$
+E(D) = 1*P(D = 1) + 2*P(D = 2) + 3*P(D = 3) + 4*P(D = 4) + 5*P(D = 5) + 6*P(D=6) \\
+= 1*(1/6) + 2*(1/6) + 3*(1/6) + 4*(1/6) + 5*(1/6) + 6*(1/6) = 3.5
+$$
+
+$$
+Var(D) = \sum (x-3.5)^2*P(D=x) = (1 - 3.5)^2*P(D = 1) + + ... + (6-3.5)^2*P(D = x) \\
+= (1 - 3.5)^2*(1/6) + ... + (6-3.5)^2*(1/6) \approx 2.92
+$$
+
+and thus, $\sigma = \sqrt{2.92}.$
+
+------------------------------------------------------------------------
+
+Some very commonly used discrete probability distributions are:
+
+-   Bernoulli Distribution: Probability distribution for a random
+    variable that only takes two values. Example: Tossing a coin once.
+
+-   Binomial Distribution: Probability distribution for a random
+    variable that is a repeated trial of a bernoulli variable. Example:
+    Tossing a coin ten times.
+
+-   Geometric distribution: Probability distribution for a random
+    variable that measures the number of failures before the first
+    success. Example: Tossing a coin till I get a head.
+
+-   Poisson distribution: Probability distribution for a random variable
+    that measures number of events occurring in a fixed interval of time
+    if these events occur with a known constant average rate and
+    independently of the time since the last event.
+
+-   Discrete Uniform Distribution: Probability distribution for a random
+    variable that takes discrete values in the interval [a,b] and the
+    probability of each of the n outcomes is 1/n.
+
+### Continuous Probability Distribution
+
+The probability distribution of a continuous random variable is given by
+the ***Probability Density Function*** (PDF). The PDF is a function over
+the sample space $\Omega$ of a continuous random variable X from which
+the probability that X is within a certain interval can be obtained. It
+is always given as a function of $x$ where, $x$ takes values in a range
+and is graphed as a curve and is denoted as $f(x)$.
+
+For a continuous random variable, the probability of $X$ (using the pdf
+$f(x)$)
+
+-   being exactly equal to a point, say $a$, is 0.
+
+$$P(X=a)=\int_a^af(x)dx=0$$
+
+-   being between two values $a$ and $b$ can be found
+
+$$P(a \leq X \leq b ) = \int_a^bf(x)dx$$
+
+Thus, the expected value and variance of a pdf is given as,
+
+$$
+\mu = \int x \cdot f(x)dx
+$$ and $$
+\sigma^2 = \int (x-\mu)^2 \cdot f(x)dx.
+$$
+
+The standard deviation can just be found by taking the square root of
+variance.
+
+You won't be asked to find the mean (expected value) or deviation of a
+continuous random variable.
+
+Few very commonly used continuous probability distributions are:
+
+-   Continuous Uniform Distribution: Probability distribution for a
+    random variable that takes continuous values in the interval [a,b]
+    and is assigned a constant density for each possible value.
+
+-   Exponential Distribution: Continuous distribution that assigns the
+    probability to the distance between events that occur continuously
+    and independently at a constant average rate.
+
+-   Normal Distribution: Continuous probability distribution which
+    appears very often in statistical and natural settings.
+
+### EXERCISE: What type of distribution should this variable have? Answer it by mentioning whether it should have a discrete or continuous distribution.
+
+-   How long until the next bus arrives?
+
+-   No. of days until a new lightbulb burns out.
+
+-   The roll of a fair 6 sided die.
+
+-   Number of calls a call center receives in a minute, considering that
+    on average they receive 3 calls per minute at all times of day.
+
+-   Total no of people in Madison (250,000) who catch COVID-19.
+
+-   Speed of all cyclists participating in the Olympic triathalon.
+
+In this course we will only discuss the Binomial and Normal distribution
+in detail. In the next lecture notes we will learn about these two.
+
+### R functions:
+
+We won't be calculating most of the probabilities by hand and find them
+using R. There are 4 main R functions that you can use for any
+distribution. They can be used to find
+
+1.  The *density* (for continuous distribution) or *probability at a
+    point* (for discrete distribution), these are the functions that
+    start with a d followed by the distributions name. The arguments it
+    takes is $x$ (the point at which you want the density or the
+    probability) and the parameters of the distribution. General format
+    of these functions is `ddist(x, parameters)`.
+
+2.  The *probability to the left* (or right) of a point $q$ of a
+    distribution, these are functions that start with a p followed by
+    the distributions name. General format of these functions is
+    `pdist(q, parameters)`.
+
+3.  The *point to the right (or left) of a certain probability* or the
+    point $x$ such that the area under the curve to the left or right of
+    the distribution is $p$. General format of these functions is
+    `qdist(p, parameters)`.
+
+4.  *Generate* $n$ number of outcomes from a given distribution, these
+    functions are the r functions. General format of these functions is
+    `rdist(n, parameters)`.
+
+We will see in detail about these functions for the Binomial and Normal
+distribution in the next lecture notes.
