@@ -32,7 +32,7 @@ theme_set(theme(panel.background = element_rect(fill = "#ededfb")))
 - You should also download `exoplanets-clean-through-2022.csv` to `STAT240/data` on your local computer.
 
 ```{r read-data, echo = FALSE}
-planets <- read_csv("../../data/exoplanets-clean-through-2022.csv")
+planets <- read_csv("../data/exoplanets-clean-through-2022.csv")
 ```
 
 # Problem 1
