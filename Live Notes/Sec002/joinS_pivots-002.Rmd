@@ -123,6 +123,79 @@ band_instruments
 band_members
 ```
 
+# Friday 10/02
+
+# Pivot
+
+### Wide dataset to a long dataset
+
+```{r}
+players = tibble(
+  player = c("Erling Haaland", "Kevin De Bruyne"),
+  goals = c(36, 7),
+  assists = c(8, 16),
+  games = c(35, 32)
+)
+
+players # wide dataset
+```
+
+
+- `pivot_longer()`: pivots wide datasets to long datasets
+
+
+```{r}
+players %>% pivot_longer(c(goals, assists, games))
+players %>% pivot_longer(goals:games)
+players %>% pivot_longer(- c(player, assists))
+players %>% pivot_longer(c(goals,games))
+
+
+player_l1 =  players %>% pivot_longer(goals:games)
+player_l2 = players %>% pivot_longer(-player, names_to = "Characteristic", values_to = "Scores")
+```
+
+
+### Long dataset to a Wide dataset
+
+- `pivot_wider()`:
+
+```{r}
+player_l1
+
+player_l1 %>% pivot_wider()
+
+player_l2 %>% pivot_wider(names_from = Characteristic, values_from = Scores)
+```
+
+------------
+End of Midterm 1 portion
+
+### Removing NA from your dataset
+
+- We have seen that `filter()` combined with `!is.na()` from the dplyr package
+
+- `drop_na()`
+
+```{r}
+# starwars %>% filter(!is.na(name), !!is.na(height), !is.na(mass), !is.na(hair_color)......)
+
+starwars %>% drop_na()
+starwars %>% drop_na(hair_color)
+```
+
+
+```{r}
+table1; table2 
+
+# table1 -> table2, pivot_longer
+# table2 -> table1, pivot_wider
+```
+
+
+
+
+
 
 
 
