@@ -1,0 +1,67 @@
+---
+title: "Binomal_003-live"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+source("../scripts/ggprob.R")
+```
+
+
+Example: X = no. of heads in 3 coin flips
+
+- `dbinom(x)`: P(X = x)
+
+
+
+```{r}
+# prob of gettung 2 heads
+
+dbinom(2, 3, 0.5)
+choose(3, 2)*(0.5)^2*(1-0.5)^1
+
+dbinom(0:3, 3, 0.5)
+```
+
+
+- `pbinom()`: by default, the prob to the left of a point.
+
+$$P(X \le q) = \sum_{i=0}^q P(X=i)$$
+
+`lower.tail = F` then pbinom gives you the prob to right of a point excluding the point
+
+$$P(X > q) = \sum_{i=q+1}^{\inf} P(X=i)$$
+
+```{r}
+# Prob of getting atmost 2 heads. P(X<= 2)
+
+pbinom(2, 3, 0.5) #P(X<= 2) = P(X=0)+P(X=1)+P(X=2)
+
+0.125 + 0.375 + 0.375
+
+sum(dbinom(0:2, 3, 0.5))
+```
+
+```{r}
+pbinom(2, 3, 0.5, lower.tail = F) # P(X = 3) = P(X>2)
+
+# 0.125 0.375 0.375 0.125 
+
+1 - pbinom(2, 3, 0.5) # same as pbinom(2, 3, 0.5, lower.tail = F). That is lower.tail argument gives you the compliment probability
+
+
+# Prob of getting atleast 2 heads, P(X >= 2)
+
+pbinom(1, 3, 0.5, lower.tail = F)
+```
+
+
+
+
+
+
+# Can you have a binomial distribution that starts from 1? No 0 in the sample space.
+
