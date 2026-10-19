@@ -45,6 +45,46 @@ pbinom(2, 3, 0.5, lower.tail = F) # P(X > 2) = P(X = 3)
 
 1 - pbinom(2, 3, 0.5)
 
-pbinom(1, 3, 0.5)  # P(X < 2)
+gbinom(3, 0.5) +
+  geom_binom_density(3, 0.5, a = 0, b = 2, color = "red")
 ```
+
+```{r}
+#P(X>=2)
+
+pbinom(1, 3, 0.5, lower.tail = F) # P(X >= q), pbinom(q-1, n, p, lower.tail = F)
+```
+
+
+
+- `qbinom()`: gives the point that covers a (atleast) certain prob `p` to the left (by default) or to the right (using the `lower.tail = F`) 
+
+```{r}
+qbinom(0.5, 3, 0.5)
+
+gbinom(3, 0.5)
+
+dbinom(0:3, 3, 0.5)
+```
+
+
+```{r}
+qbinom(0.7, 3, 0.5) # 70th percentile
+
+0.125 + 0.375 + 0.375
+0.125 + 0.375
+
+qbinom(seq(0.5, 0.9, by = 0.05), 3, 0.5) # all the percentiles between 0.5 and 0.875 will return 2, anything below or above that range will give 1 and 3 respectively. 
+```
+
+
+```{r}
+gbinom(2000, 0.01)
+```
+
+$$n*p*(1-p) \ge 10$$
+
+
+
+
 
