@@ -16,4 +16,114 @@ $$X \sim N(\mu, \sigma^2)$$
 
 Parameters: $\mu$ and $\sigma$.
 
-The center of any normal distribution is controlled by the $\mu$, and it's height is controlled by the $\sigma$. The lower the dev, hi
+The center of any normal distribution is controlled by the $\mu$, and it's height is controlled by the $\sigma$. The lower the dev, higher is the curve.
+
+
+R functions: d, p, q functions
+
+Default: mu = 0, sd = 1
+
+Example: N(20, 0.5)
+
+```{r}
+gnorm(20, 0.5)
+```
+
+
+- `dnorm(x)`:
+
+```{r}
+dnorm(19, 20, 0.5) # gives the density at x or height of the density curve at x
+
+dnorm(10, 20, 0.5) # since this is a cont rv, the density at a very far point exists even if it is very tiny.
+
+dnorm(seq(19, 20, by = 0.001), 20, 0.5) # since this is a cont rv we have density at every real number possible between 18 - 22
+```
+
+
+- `pnorm(q)`: P(X <= q) = P(X < q)
+
+```{r}
+pnorm(19, 20, 0.5) #P(X <= 19) = P(X < 19)
+
+pnorm(19, 20, 0.5, lower.tail = F) # P(X > q) = P(X >= q)
+1 - pnorm(19, 20, 0.5)
+```
+
+
+
+- `qnorm(p)`: gives the point that covers a certain probabilty
+
+```{r}
+qnorm(0.4, 20, 0.5)
+qnorm(0.40001, 20, 0.5)
+
+qnorm(0.9, 20, 0.5)
+qnorm(0.89, 20, 0.5)
+
+
+qnorm(0.9, 20, 0.5)
+qnorm(0.9, 20, 0.5, lower.tail = F)
+```
+
+```{r}
+qnorm(0.9, 0, 0.5)
+gnorm(0, 0.5) +
+  geom_norm_fill(mu = 0, sigma = 0.5, b = 0.6407758, col = "red")
+
+
+qnorm(0.9, 0, 0.5, lower.tail = F)
+gnorm(0, 0.5) +
+  geom_norm_fill(mu = 0, sigma = 0.5, a = -0.6407758, col = "red")
+```
+
+# Demonstration of CLT
+
+In this example, we start with a random variable X which is Uniformly distributed, i.e,
+
+$$X \sim Unif(2,5)$$
+
+So the $\mu= \frac{(a+b)}{2}=3.5$ and $\sigma = \frac{b-a}{\sqrt{12}} = 2.02$. 
+
+Due to CLT, we know that the sample of size 100 from X will have a normal distribution, i.e,
+
+$$\overline{X} \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r}
+xbar = c()
+for (i in 1:1000) {
+  x_i = runif(100, 2, 5) #sample of X of size 100. X has a expected value of (a+b)/2 which (2+5)/2
+xbar[i] = mean(x_i) # sample mean/avg of X
+}
+
+sd(xbar) # this number gives the deviation of the xbars and should approx be the same as sigma/sqrt(n) = 2.02/10. Any differences you see here is due to this being sample deviation and not the population deviation.
+
+
+
+library(tidyverse)
+ggplot(mapping = aes(xbar)) + geom_density() + geom_vline(xintercept = (2+5)/2, col = "red")
+```
+
+
+In this example, we start with a random variable X which is exponentially distributed, i.e,
+
+$$X \sim exp(0.1)$$
+
+```{r}
+xbar = c()
+for (i in 1:1000) {
+  x_i = rexp(1000, 0.1) # here since X is from a skewed distribution only a bigger sample size gives a normal distribution
+xbar[i] = mean(x_i)
+}
+
+xbar
+
+ggplot(mapping = aes(xbar)) + geom_density() + geom_vline(xintercept = 1/0.1, # the expected value of X is 1/lambda = 1/0.1
+           col = "red")
+```
+
+
+
+
+
+
