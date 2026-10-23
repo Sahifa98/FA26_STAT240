@@ -1,0 +1,35 @@
+---
+title: "Normal-003_live"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("../scripts/ggprob.R")
+```
+
+# Normal distribution
+
+$$X \sim N(\mu, \sigma^2)$$
+
+Parameters: $\mu$ and $\sigma$.
+
+The center of every normal distribution is controlled by it's expected value or $\mu$.The height of the normal distribution is controlled by it's standard deviation, $\sigma$. The higher the curve, lower is the deviation.
+
+# R functions for the normal distribution
+
+d,p,q functions: dnorm, pnorm and qnorm. By default, dnorm(x, mean, sd), mean = 0 and sd = 1
+
+Example: N(20, 0.5)
+
+```{r}
+gnorm(20, 0.5)
+```
+
+
+- `dnorm(x)`: density of a point x (height of the density curve)
+
+```{r}
+dnorm(19, 20, 0.5)
