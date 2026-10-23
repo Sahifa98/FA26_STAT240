@@ -1,0 +1,19 @@
+---
+title: "Normal_002-live"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+source("../scripts/ggprob.R")
+```
+
+# Normal distribution
+
+$$X \sim N(\mu, \sigma^2)$$
+
+Parameters: $\mu$ and $\sigma$.
+
+The center of any normal distribution is controlled by the $\mu$, and it's height is controlled by the $\sigma$. The lower the dev, hi
