@@ -33,3 +33,93 @@ gnorm(20, 0.5)
 
 ```{r}
 dnorm(19, 20, 0.5)
+
+dnorm(10, 20, 0.5) # since this cont rv the probability further from the curve is almost zero.
+
+tibble(`f(x)` = dnorm(seq(19, 20, by = 0.001), 20, 0.5))
+```
+
+- `pnorm(q)`: prob/area to the left of a point q (by default), if using `lower.tail = F` this would instead give you the prob/area to the right.
+
+```{r}
+pnorm(19, 20, 0.5) # P(X <= 19) = P(X < 19) 
+
+sum(dnorm(0:19, 20, 0.5)) #this is not the same as the prob to the left, because dnorm doesn't give prob
+
+pnorm(19, 20, 0.5)
+pnorm(19.000001, 20, 0.5)
+
+pnorm(19, 20, 0.5, lower.tail = F) # P(X > 19) = P(X >= 19)
+1 - pnorm(19, 20, 0.5)
+```
+
+- `qnorm(p)`: give us a point that covers a certain prob to the left of it (by default)
+
+
+```{r}
+qnorm(0.9, 20, 0.5)
+qnorm(0.9001, 20, 0.5)
+
+qnorm(0.9, 20, 0.5)
+qnorm(0.9, 20, 0.5, lower.tail = F)
+
+20.64078 - 20
+19.35922 - 20
+
+gnorm(0, 0.5) + 
+  geom_norm_fill(0, 0.5, b = qnorm(0.9, 0, 0.5), fill = "yellow", alpha = 0.5) +
+  geom_norm_fill(0, 0.5, a = qnorm(0.9, 0, 0.5, lower.tail = F), fill = "purple", alpha = 0.5) 
+
+```
+
+
+# Demonstration of CLT
+
+In this example, we start with a random variable X which is Uniformly distributed, i.e,
+
+$$X \sim Unif(2,5)$$
+
+So the $\mu= \frac{(a+b)}{2}=3.5$ and $\sigma = \frac{b-a}{\sqrt{12}} = 2.02$. 
+
+Due to CLT, we know that the sample of size 100 from X will have a normal distribution, i.e,
+
+$$\overline{X} \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+```{r}
+xbar = c()
+for (i in 1:1000) {
+  x_i = runif(100, 2, 5) #sample of X of size 100. X has a expected value of (a+b)/2 which (2+5)/2
+xbar[i] = mean(x_i) # sample mean/avg of X
+}
+
+sd(xbar) # this number gives the deviation of the xbars and should approx be the same as sigma/sqrt(n) = 2.02/10. Any differences you see here is due to this being sample deviation and not the population deviation.
+
+
+
+library(tidyverse)
+ggplot(mapping = aes(xbar)) + geom_density() + geom_vline(xintercept = (2+5)/2, col = "red")
+```
+
+
+In this example, we start with a random variable X which is exponentially distributed, i.e,
+
+$$X \sim exp(0.1)$$
+
+```{r}
+xbar = c()
+for (i in 1:1000) {
+  x_i = rexp(1000, 0.1) # here since X is from a skewed distribution only a bigger sample size gives a normal distribution
+xbar[i] = mean(x_i)
+}
+
+xbar
+
+ggplot(mapping = aes(xbar)) + geom_density() + geom_vline(xintercept = 1/0.1, # the expected value of X is 1/lambda = 1/0.1
+           col = "red")
+```
+
+
+
+
+
+
