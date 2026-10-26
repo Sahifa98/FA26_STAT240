@@ -153,18 +153,20 @@ The random variable $X$ has the $\text{Binom}(100, 0.2)$ distribution.
 
 (a) Find an integer $a$ so that $P(X \le a) \ge 0.5$. (There are many choices for $a$).  Show the value of $P(X \le a)$ with `pbinom()`.
 
-[For $P(X \le a)$ to be at least 0.5,  most of the probability of $X$ must be at or below $a$.  One choice is $a = 30$, since $P(X \le 30) = 0.994$.]{.soln}
+[For $P(X \le a)$ to be at least 0.5,  most of the probability of $X$ must be at or above $a$. So any number above 19 is the correct answer.  One choice is $a = 20$, since $P(X \le 20) = 0.559$.]{.soln}
 
 ```{r, class.source="rsoln", class.output="rsoln"}
-pbinom(30, 100, 0.2)
+tibble(x = 0:100, p_0.5 = pbinom(x, 100, 0.2))
+pbinom(20, 100, 0.2)
 ```
 
 (b) Find an integer $b$ so that $P(X \ge b) \ge 0.5$. (There are many choices for $b$). Show the value of $P(X \ge b)$ with `pbinom()`. 
 
-[For $P(X \ge b)$ to be at least 0.5,  most of the probability of $X$ must be at or above $b$.  One choice is $b = 15$, since $P(X \ge 15) = 0.92$.]{.soln}
+[For $P(X \ge b)$ to be at least 0.5,  most of the probability of $X$ must be at or below $b$. So any number below 21 is the correct answer.  One choice is $b = 20$, since $P(X \ge 20) = 0.54$.]{.soln}
 
 ```{r, class.source="rsoln", class.output="rsoln"}
-1 - pbinom(14, 100, 0.2)
+tibble(x = 1:101, p_0.5 = pbinom(x-1, 100, 0.2, lower.tail = F))
+1 - pbinom(19, 100, 0.2)
 ```
 
   
