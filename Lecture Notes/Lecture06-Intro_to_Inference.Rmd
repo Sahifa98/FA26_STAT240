@@ -1,0 +1,721 @@
+---
+title: 'STAT 240: Chapter 6 Introduction to Statistical Inference'
+author: "Sahifa Siddiqua"
+date: "Spring 2026"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Overview
+
+
+## Learning Outcomes
+
+-   These lectures will teach you how to:
+    -   Understand the goal of statistical inference and estimation.
+    -   Interpret the results of statistical inference in a real-life context.
+
+## Preliminaries
+
+Make sure you have the file `ggprob.R` in `STAT240/scripts`.
+
+# Introduction
+
+> Statistical inference is the process of estimating or making conclusions about the value of an unknown parameter of a population, based only upon a sample of data from that population.
+
+Let's also review some of the definitions that we have already seen and the ones we will be using here. All of these definitions have been discussed in depth in the "Intro to probability" lecture notes
+
+> The *population* is the group that we wish to learn more about or our group of interest. Most often the population is huge and it is impossible to collect data from each and every member of the population.
+
+> All numerical characteristics of a population are called a *parameter*.
+
+
+Parameters are usually unknown and are the very reason we do statistical inference - that is estimating them and drawing conclusions about them. That's why to draw conclusions about them, we often work with samples.
+
+> The *sample* is the smaller group or subset of the population from which we collect the data. 
+
+> All numerical characteristics of the sample, such as the mean, median, minimum, maximum, standard deviation, are called *statistics*.
+
+Mostly, to understand the population we try to figure out the probability distribution of the sample (since probability distribution represent the population from which the sample comes from). And as we have seen in previous lecture notes, every probability distribution is associated with their own parameters. For example, the parameters of the binomial distribution are $n$ and $p$. And for the normal distribution, it is $\mu$ and $\sigma$ which are its mean and standard deviation. So at the end of the day what we are trying to do is estimate these parameters.
+
+The statistic that helps get inference about a parameter is commonly refered to as an estimator. And there are a lot different ways in which one can find estimators and they are refered to as estimation. In statistics, estimation is a rule for calculating an estimate of a given quantity based on observed data: thus the rule (the estimation), the quantity of interest (the estimand) and its result (the estimator) are distinguished.
+
+> An *estimator* or *point estimate* is a statistic (that is, a function of the data) that is used to infer the value of an unknown parameter in a statistical model. A common way of phrasing it is "the estimator is the method selected to obtain an estimate of an unknown parameter".
+
+There are *point* and *interval estimators*. The point estimators yield single-valued results. This is in contrast to an interval estimator, where the result would be a range of plausible values.
+
+In this course, we won't be learning about the different ways of estimation but we will be using estimators most commonly used for our parameters of interest. The table below shows the most commonly used estimator for corresponding parameters.
+
+| Quantity               | Parameter     | Statistic        |
+|------------------------|---------------|------------------|
+| Mean                   | $\mu$         | $\bar{X}$        |
+| Standard Deviation     | $\sigma$      | $s$              |
+| Variance               | $\sigma^2$    | $s^2$            |
+| Proportion             | $p$           | $\widehat{p}$    |
+| Slope of lm            | $\beta_1$     | $\hat{\beta}_1$  |
+
+
+All estimators are obtained from samples collected from the population. Thus, any sample that can be used to make inference on the population must satisfy two very important property, i.e., it should be a representative or unbiased sample and it should be collected randomly. 
+
+> An unbiased or representative sample is a subset of a population selected randomly, where every member has an equal chance of being included, ensuring the sample accurately represents the entire group.
+
+If a sample is representative of the population, then we can use sample statistics to estimate/draw conclusions about population parameters. Furthermore, the larger your random sample is, the better it represents the population.
+
+
+Let's see it again with the help of simulation an example instead.
+
+### Example:
+
+We will go with a very classic and easy to visualize example. Let’s consider trying to predict the winner of an election to select the student representative and let's say there are two candidates: Candidate A and Candidate B.
+
+The population is all the students who plans to vote. Let's say the University Gazette wishes to analyze the chances of Candidate A winning. So in this case the *parameter of interest* is the percentage of votes Candidate A gets in this election.
+
+The perfect way to guess the parameter is to simply ask everyone ahead of time who they are going to vote for. However, in most cases that is impossible. So the news organizations decide instead to collect data from a smaller sample, perhaps say some of the students visiting the University Cafeteria on a given day.
+
+If 51% of that random sample claims they plan to vote for Candidate A, they then claim that 51% of the population plans to vote for Candidate A, with some known level of uncertainty.
+
+Claiming that 51% of your random sample plans to vote for Candidate A is a fact - but jumping from there to the conclusion that 51% of the population does too requires your sample to be representative of your population.
+
+If we can do that in a valid and meaningful way, then that is a huge achievement - making a statement about hundreds (assume, the usual turnout is 400 students) of students by only collecting data from a bunch (say 5), which is 0.0125% of the whole population.
+
+To simulate this scenario above, let's create a population. The true proportion of votes Candidate A will receive (probability of success) be $p$. It is in the next chunk but will be hidden till the end. We will try to estimate this $p$, which is the parameter.
+
+```{r, include=FALSE}
+p = 0.7
+```
+
+The population can be created as
+
+```{r}
+population = c(rep("A", 400*p), rep("B", 400*(1-p)))
+```
+
+Now let's create a sample of size 5 from the above population.
+
+```{r}
+sample(population, size = 5)
+```
+
+The proportion of people voting for Candidate A in this sample is 2 out of 5 and that gives me the sample proportion as $\frac{2}{5}=0.4$. The notation we will use for sample proportion is $\widehat{p}$. Let's create few more samples of the same size and see the $\widehat{p}$ we get.
+
+```{r, echo=FALSE}
+list = list()
+for (i in seq(1, 10, by = 2)) {
+  s = sample(population, size = 5)
+  sum = sum(s =="A")/5
+  list[[i]] = s
+  list[[i+1]] = sum
+}
+print(list)
+```
+
+It’s becoming clear that trying to estimate $p$ with the $\widehat{p}$ from five people gives very unstable estimates. 
+
+But what if increase the number of people in our sample. Let’s try asking twenty people.
+
+```{r}
+(sample_20 = sample(population, size = 20))
+sum(sample_20 =="A")/20
+```
+
+
+Let's create few more samples of the same size and see the $\widehat{p}$ we get.
+
+```{r, echo=FALSE}
+list = list()
+for (i in seq(1, 10, by = 2)) {
+  s = sample(population, size = 20)
+  sum = sum(s =="A")/20
+  list[[i]] = s
+  list[[i+1]] = sum
+}
+print(list)
+```
+
+And we can see that the $\widehat{p}$s for the samples of 20 are more stable and range between a short distance compared to the samples of 5.
+
+This is example demostrates the importance of a random and representative/unbiased sample. The larger the representation the better is your estimate. Increasing the size of your samples decreases the fluctuation in the estimates. That is if the sample size was 100, we would have gotten even better estimates.
+
+```{r, echo=FALSE}
+list = list()
+for (i in 1:5) {
+  s = sample(population, size = 100)
+  sum = sum(s =="A")/100
+  list[[i]] = sum
+}
+print(list)
+```
+
+Now let's take a look at what the actual value of $p$ was and see how close we are to getting that $p$.
+
+```{r}
+p
+```
+
+
+
+And as we can see above we have so many different estimates and rarely any have the same value as the actual $p$. Then what is the purpose of finding $\widehat{p}$ if it doesn't give me $p$? Well, it is important to understand that no matter how good your sample is, getting the exact value of $p$ is next to impossible and even if you do how would you know if you got the $p$, because $p$ is unknown. Thus, the estimation process is to just get an idea of what the parameter should look like and get more statistical information such as the distribution or the range where the actual value of the parameter lies and so on.
+
+One thing to keep in mind is that, eventhough the value of $\widehat{p}$ we get are different, the true value or $p$ remains constant. The value of $p$ is fixed even before we take the sample and calculate a statistic, and remains the same after we have calculated one value of a statistic. Thus, the proportion of the people voting for the Candidate A behaves is a random variable. That is for each sample, it can take on a different value… thus it must have a probability distribution! And statistically, the actual $p$ is associated with the probability distribution of $\widehat{p}$.
+
+Moving on let's lay the base for the distribution of the sample statistics.
+
+# Sampling Distributions
+
+> Sampling distribution is the probability distribution of a specific statistic (like the sample mean or proportion) calculated from all possible random samples of a fixed size drawn from a population.
+
+Assuming that the proportion, $\widehat{p}$, in the above example is a random variable (since it changes for each sample), the distribution of $\widehat{p}$ is called the sampling distribution of $\widehat{p}$. Let's take a look at what the approximate distribution of the $\widehat{p}$ of the above example is going to look like. For that we will be considering 10,000 samples of size 5, 20 and 100 of the population, find the $\widehat{p}$ for each of those samples and make a histogram for the vector of sample $\widehat{p}$s.
+
+```{r}
+sample_prop_5 = c() # an empty vector to store the sample proportions
+
+for (i in 1:10000){ # this will to the next step 10000 times and save each in the vector sample_prop
+  sample_prop_5[i] = sum(sample(population, size = 5) =="A")/5  # sample proportion for each sample of size 5 taken from the population.
+}
+ 
+sample_prop_5[1:10] # values of sample proportions for the first 10 samples
+```
+
+Now let's make a histogram plot of these sample proportions to get an idea of what the distribution of $\widehat{p}$ looks like and also let's add a line for the actual value of $p$ (the one that we started with). A fair warning is that this value of $p$ will be unknown for a real life dataset, but to demonstrate the idea of sampling distributions and sample size we put it on the plot.
+
+```{r}
+ggplot(mapping = aes(x = sample_prop_5)) +
+  geom_histogram(binwidth = 0.2, center = 0.55, color = "black", fill = "lightyellow") +
+  geom_hline(yintercept = 0) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.1), limits = c(0, 1)) +
+  geom_vline(xintercept = p, color = "red") +
+  labs(
+    title = "Simulated Sampling Distribution of p-hat",
+    subtitle = "From n = 5 people"
+  )
+```
+
+We will repeat the same steps for $n = 20 \text{ and } 100$.
+
+```{r, echo = F}
+sample_prop_20 = c() # an empty vector to store the sample proportions
+
+for (i in 1:10000){ # this will to the next step 10000 times and save each in the vector sample_prop
+  sample_prop_20[i] = sum(sample(population, size = 20) =="A")/20  # sample proportion for each sample of size 20 taken from the population.
+}
+ 
+sample_prop_20[1:10] # values of sample proportions for the first 10 samples
+```
+
+```{r, , echo = F}
+ggplot(mapping = aes(x = sample_prop_20)) +
+  geom_histogram(binwidth = 0.05, center = 0.55, color = "black", fill = "gray") +
+  geom_hline(yintercept = 0) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.1), limits = c(0, 1)) +
+  geom_vline(xintercept = p, color = "red") +
+  labs(
+    title = "Simulated Sampling Distribution of p-hat",
+    subtitle = "From n = 20 people"
+  )
+
+sample_prop_100 = c() # an empty vector to store the sample proportions
+
+for (i in 1:10000){ # this will to the next step 10000 times and save each in the vector sample_prop
+  sample_prop_100[i] = sum(sample(population, size = 100) =="A")/100  # sample proportion for each sample of size 100 taken from the population.
+}
+
+ggplot(mapping = aes(x = sample_prop_100)) +
+  geom_histogram(binwidth = 0.01, center = 0.55, color = "black", fill = "gray") +
+  geom_hline(yintercept = 0) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.1), limits = c(0, 1)) +
+  geom_vline(xintercept = p, color = "red") +
+  labs(
+    title = "Simulated Sampling Distribution of p-hat",
+    subtitle = "From n = 100 people"
+  )
+```
+
+By looking at the histograms, we come to the following conclusions:
+
+- Notice how the distribution centers around the true $p$, but with plenty of possibility for error.
+
+- The distribution “tightens” around the true $p$ as we increase the sample size to 100 people.
+
+> These fluctations from the true value of parameter that we see in the histograms of the estimates are what we call the *sampling error*. 
+
+Sampling error is the idea that by only collecting data from a sample instead of the entire population, you introduce the possibility of “getting the wrong answer”; i.e., the sample statistic does not take the value of the population parameter. We can generally reduce the sampling error with larger data. The larger the $n$ is the closer all your statistics value is to the actual/true value of the parameter. 
+
+The sampling error is captured by the standard deviation in the distribution of the sample statistics.
+
+> We refer to the standard deviation of the sampling distribution as *standard error*. It is often denoted as $se$. And this error always depends on the sample size $n$.
+
+Figuring out the sampling distribution in real life situations is a little trickier than what we saw. Generally, collecting such a large number of sample is not possible. So just like figuring out distribution for any random variable, we use the properties of the statistics itself to see which distribution fits it better. For example, the CLT says that the distribution of sample averages is approximately normal.
+
+Knowing the sampling distribution for more inferences such as finding out a range where the true value lies or doing a test to see if the true value is a certain value. Below we give the basic statistical definition for these two processes.
+
+# Confidence Interval
+
+> A confidence interval is a two-part estimate of a parameter value. The first part is a **numeric range**, and the second part is a **confidence level** which indicates how confident we are that the true value of the parameter is in that range.
+
+The idea of confidence interval comes from the fact that getting one specific value for the parameter is more difficult and unreliable compared to getting a range instead. Thus in most cases, it is more informative to estimate the value of the parameter by looking at an interval of numbers instead of looking at a single point. An interval estimate is a range of possible values for a population parameter. When an interval estimate is associated with a certain level of confidence, the intervals are called confidence intervals.
+
+The level of confidence, often denoted by $c$, is the percentage of all possible samples of a given size that will produce interval estimates that contain the actual parameter. For Example, consider a 90% confidence interval for population mean. We would expect 90% of all possible samples of size $n$ to produce an interval estimate that contain $\mu$.
+
+All confidence interval are centered at the *point estimate* and the largest distance away from the *point estimate* that the confidence interval will cover is called the margin of error (or maximum error of estimate), denoted by *moe*. The *moe* also depends on something called the critical value. A *critical value* is the value from the standard distribution of the test statistic which defines the upper and lower bounds of a confidence interval. So the critical value depends on the confidence level $c$ and is obrained using the quantile functions in R.
+
+## General Formula
+
+Generalized formula of confidence intervals take the following form:
+
+$$
+\text{Point Estimate } \pm \text{ Critical Value * Standard Error of PE}
+$$
+
+-   Where the **point estimate** is your estimate of the true parameter based on your data... (such as the sample proportion $\hat{p}$ for the true $p$, or the sample mean $\bar{x}$ for the true $\mu$)
+
+-   the **Critical value** also known as **quantile confidence score** is the ($c$ + (1-$c$)/2) or $1- \dfrac{\alpha}{2}$ quantile of the sampling distribution and $c$ is the confidence level and $\alpha= 1-c$.  The critical value is found using the `qdist()` functions we learned in previous lecture notes where the dist is just the sampling distribution. In general, $\text{cv} = \text{qdist}(c + (1-c)/2)$.
+
+
+-   and the **standard error of the point estimate** is a known formula based on what point estimate you are using.
+
+The margin of error is thus given by $\text{ Critical Value * Standard Error of PE}$.
+
+
+Example: Continuing with the example above.
+
+So we know that the 20-person estimate is "better" than the 5-person estimate; it has a lower **standard error** because we are sampling more of the population.
+
+But what does that actually mean? It doesn't mean that it's better **every time**. This 5 person $\hat{p}$ happens to be closer to the true $p = 0.7$ than the 20 person $\hat{p}$ by sheer luck.
+
+```{r, echo = FALSE}
+set.seed(1204)
+```
+
+```{r}
+mean(sample(population, size = 5) == "A")
+mean(sample(population, size = 20) == "A")
+```
+
+Furthermore, we haven't done a great job of describing **how much we actually know** about the population. We just would say "70% seems like a good guess." How good? We don't know! In this case, it is perfect but we wouldn't know. **Confidence intervals** address this problem by providing both an estimate of the parameter **and** and associated confidence level.
+
+
+
+```{r, include = FALSE}
+set.seed(132)
+n = 20
+p_hat = mean(sample(population, size = n) == "A")
+
+p_hat + qnorm(0.995) * c(-1, 1) * p_hat * (1-p_hat) / sqrt(n)
+```
+
+Here's an example of the interpretation of a confidence interval:
+
+**"We are 99% confident the true proportion of voters in this small town who will vote for Candidate A is between 40.7% and 69.2%."**
+
+
+## Visualization
+
+```{r, echo = FALSE}
+visualizeProportionCI = function(p, sample_size, conf.level = 0.95, theory = TRUE, wald = FALSE) {
+  stdError = sqrt(p * (1 - p) / sample_size)
+  
+  # calculate true sampling distribution curve
+  samplingDistribution = tibble(
+    x = seq(p - 3*stdError, p + 3*stdError, length.out = 50),
+    y = dnorm(x, p, stdError)
+  )
+  
+  # calculate random point estimate, associated confidence interval
+  moeLabel = paste0("Interval width: This region contains ", 100*conf.level, "% of area")
+  point_estimate = rnorm(1, p, stdError)
+  if (wald) {
+    stdError = sqrt(point_estimate * (1 - point_estimate)/sample_size)
+    moeLabel = paste0("ESTIMATE: This region (on avg.) contains ", 100*conf.level, "% of area")
+  }
+  moe = qnorm(1 - (1-conf.level)/2) * stdError
+  ciLeft = point_estimate - moe
+  ciRight = point_estimate + moe
+  
+  # encode confidence interval as green if it contains the true parameter, red if it does not
+  myColor = ifelse(between(p, ciLeft, ciRight), "chartreuse3", "red")
+  
+  myAlpha = 0.4
+  # for more "realistic" graphing, remove the color and the helpful visuals
+  if (!theory) {
+    myColor = "black"
+    myAlpha = 0
+  }
+
+  helpfulY = dnorm(p, p, stdError)/20 # helpful margin to keep things scaled nicely graphically
+  moeY = dnorm(p + moe, p, stdError) # y level of MOE visual
+  
+  ggplot() +
+    # underlay sampling distribution
+    geom_line(aes(x, y), samplingDistribution, color = "gray", alpha = 2*myAlpha) +
+    geom_hline(yintercept = 0) +
+    
+    # add true parameter value visual
+    geom_vline(xintercept = p, linetype = "dashed", color = "blue", linewidth = 1.5, alpha = myAlpha) +
+    annotate("text", x = p - stdError/5, y = dnorm(p, p, stdError) - helpfulY, color = "blue", alpha = myAlpha, angle = 90, hjust = "right", vjust = "top", label = "True Parameter", linewidth = 6) +
+    
+    
+    # annotate margin of error visual and label
+    annotate("segment", x = p - moe, xend = p + moe, y = moeY, yend = moeY, arrow = arrow(ends = "both", length = unit(.2, "cm")), alpha = myAlpha) +
+    annotate("text", x = p - conf.level*moe, y = moeY + helpfulY/2, hjust = "left", vjust = "bottom", label = moeLabel, alpha = myAlpha) +
+    
+    # annotate point estimate and label
+    annotate("segment", x = point_estimate, xend = point_estimate, y = 0, yend = helpfulY*2, size = 2) +
+    annotate("text", x = point_estimate, y = -helpfulY, label = "PE", size = 4) +
+    
+    # annotate confidence interval
+    annotate("segment", x = ciLeft, xend = ciRight, y = helpfulY, yend = helpfulY, color = myColor, size = 1.5, arrow = arrow(ends = "both", length = unit(.2, "cm"))) +
+    
+    annotate("text", x = p + stdError, y = dnorm(p, p, stdError), label = paste0("Sampling Dist: N(", round(p, 2), ", ", round(stdError, 2), ")"), alpha = myAlpha) +
+    
+    theme_minimal() + 
+    theme(
+      panel.grid = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(size = 10)) + 
+    
+    labs(
+      x = "Potential Values of p",
+      y = ""
+    )
+}
+```
+
+-   We have written a custom function, `visualizeProportionCI`, as an educational tool.
+
+-   For example, here's a random point estimate and associated confidence interval of our true $p = 0.4$ with $n = 20$ at confidence level 95%:
+
+```{r}
+visualizeProportionCI(p = 0.4, sample_size = 20, conf.level = 0.95)
+```
+
+-   Watch our interval width **decrease** (see the sampling error and the labels on the x axis decrease) as we increase sample size:
+
+```{r}
+visualizeProportionCI(p = 0.4, sample_size = 200, conf.level = 0.95)
+```
+
+-   Finally, notice that if we were to decrease our **confidence level**, our interval would get **smaller**, and therefore be **less likely** to contain the real $p$.
+
+```{r}
+# I strongly encourage you to run these a few times in your console to watch its behavior over many runs!
+
+set.seed(1234)
+visualizeProportionCI(p = 0.4, sample_size = 200, conf.level = 0.68)
+visualizeProportionCI(p = 0.4, sample_size = 200, conf.level = 0.68)
+```
+
+-   In practice, we do not know what the true value of $p$ is, so we just get a "blind" confidence interval; you can see this with the `theory = FALSE` argument to the `visualizeProportionCI` function.
+
+```{r}
+visualizeProportionCI(p, sample_size = 20, theory = FALSE)
+```
+
+#### The Confidence Level Trade-Off
+
+If a statistician gets to specify how much **confidence** the interval will have.. *"why don't we just make intervals with really really high confidence, maybe even 100% confidence?"* The answer is because those intervals are **too wide to be useful**.
+
+For example, I can give you a 100% confidence interval for any parameter - it's between negative infinity and positive infinity. I can do even better for a proportion - it's between 0% and 100%.
+
+> The more confidence your interval has, the wider it has to be. The wider it has to be, the less useful it becomes.
+
+For example, our original interval was *"We are 99% confident the true proportion of voters in this small town who will vote for Candidate A is between 40.7% and 69.2%.*
+
+To predict the winner, we'd want that interval to be fully one side or the other of 50%. To do that, we have to make the interval **narrower** around $\hat{p}$, which means **reducing our confidence**.
+
+```{r, include = FALSE}
+set.seed(133)
+n = 20
+p_hat = mean(sample(population, size = n) == "A")
+
+p_hat + qnorm(0.80) * c(-1, 1) * p_hat * (1-p_hat) / sqrt(n)
+```
+
+*"We are 68% confident that the true proportion of voters in this small town who will vote for Candidate A is between 50.3% and 59.7%"*. Because these intervals are only based off of 20 people, we don't have a lot of confidence in this difference.
+
+> We need to find a **balance** between how confident we are in the interval and how useful it is. In practice, many statisticians choose to create intervals with 95% or 90% confidence.
+
+## Interpretation
+
+We always interpret confidence intervals with a statement like:
+
+> "We are c% (or $100*(1-\alpha)$%) confident that the true parameter (proportion/mean/value) is between A and B."
+
+It is incorrect to say that "there is a c% chance that the parameter is in this range"; it either is, or it isn't, we just don't know.
+
+# Hypothesis Testing
+
+> A statistical hypothesis test is a method of statistical inference used to decide whether the data provide sufficient evidence to reject a particular hypothesis.
+
+Confidence intervals above allow us to **estimate the range** of a parameter. Another frequent problem is not to directly estimate the value of a parameter, but simply show that the parameter is likely to be **not equal to**, or **greater than**, or **less than** some specific special value.
+
+We can use the same knowledge of **sampling distributions** to address this very related problem - we'll start with one of the first historical examples of statistical inference.
+
+### Example
+
+We will consider a very classic example to demonstrate the idea of hypothesis testing. The ["Lady Tasting Tea" experiment](https://en.wikipedia.org/wiki/Lady_tasting_tea) was an important historical development for statistical design, conducted by Ronald Fisher in 1913. 
+
+The experiment was step as:
+
+-   A colleague of Fisher's named Muriel Bristol claimed she could tell whether the tea had been added before or after the milk to her cup just by tasting it.
+
+-   Fisher wanted to devise a statistical test to assess the strength of her claim with data.
+
+-   He started with the following assumptions...
+
+1.  She gets every cup correct (success) or incorrect (failure).
+2.  Her successes and failures are independent of each other.
+3.  The number of cups is pre-specified (n = 8).
+4.  She is just as likely to identify a tea-first cup correctly as a milk-first cup, with some constant probability $p$.
+
+Then, the number of correct cups out of 8, call this $X$, follows the $Binom(8, p)$ distribution.
+
+-   Fisher wished to assess if Muriel's **true** $p$, the chance of correctly identifying the first ingredient, is **better than random guessing**, which means $p>1/2$.
+
+-----------------------------------------------------
+
+## Stating the hypothesis
+
+In a test of hypothesis, we test a certain given theory or belief about a population parameter. A statistical hypothesis is a mathematical statement about the numerical value of a population parameter.
+
+Hypothesis testing is a statistical process for determining the likelihood that a given hypothesis is true. To conduct a hypothesis test, we first must state the null and alternative hypotheses being used in our test.
+
+The null hypothesis, written as $H_0$ (H-naught), is the statement that expresses the value currently believed to be true (always a statement of equality). Sometimes referred to as the status quo hypothesis, because it is a statement of no change, no effect, or no difference and is assumed true until evidence indicates otherwise.
+
+The alternative hypothesis, written as $H_{\alpha}$ or $H_1$, describes a new claim for the value of the population parameter. It is also referred to as the research hypothesis, as this is the statement that the researcher is aiming to gather evidence to support.
+
+It is important to remember that, in hypothesis, the equality of the parameter's value is always in the null hypothesis (along with other inequalities but that is optional) and the strict inequalities are always part of the alternate hypothesis. As a rule of thumb, whatever, theory we test for part of the alternate hypothesis and the universal truth (or the opposite of what we want to test for) is part of the null hypothesis.
+
+Thus, generally,
+
+The null hypothesis: this is the status quo, presumed to be true and is stated as 
+
+$H_0: \text{parameter} = \text{value}$ (in case of simple hypothesis test) Or 
+
+$H_0: \text{parameter} \leq \text{value} \text{ or }H_0: \text{parameter} \geq \text{value}$ (in case of composite hypothesis test).
+
+The alternative hypothesis: What statement are we collecting evidence to support? The alternative hypothesis will assume one of the three forms:
+
+a. One-tailed, Right-tailed hypothesis test: $H_{\alpha}: \text{parameter} > \text{value}$.
+
+b. One-tailed, Left-tailed hypothesis test: $H_{\alpha}: \text{parameter} < \text{value}$.
+
+c. Two-tailed hypothesis test $H_{\alpha}: \text{parameter} \neq \text{value}$.
+
+
+To understand these two hypothesis let's take a look at some examples:
+
+Example: 
+
+1) A company claims the average battery life of its smartphones is 10 hours. A test needs to be performed to check the company's claims.
+
+Null hypothesis, $H_0$: $\mu$ = 10 hours
+Alternative hypothesis, $H_{\alpha}$: $\mu \neq$ 10 hours
+
+2) A school wants to know if a new teaching method improves student scores. The current average score is 75 and a test needs to be conducted to check the companies claim.
+
+Null hypothesis $H_0$: $\mu$ = 75 (average score remains the same)
+Alternative hypothesis $H_{\alpha}$: $\mu >$ 75 (scores improved)
+
+3) Researchers want to know if a new drug lowers blood pressure.
+Null hypothesis, $H_0$: The drug has no effect on blood pressure.
+Alternative hypothesis, $H_{\alpha}$: The drug reduces blood pressure.
+
+4) For the Muriel Bristol example,
+
+Null hypothesis, $H_0$: $p \leq 1/2$
+Alternative hypothesis, $H_{\alpha}$: $p > 1/2$.
+
+-------------------------------------------------------------
+
+## Gathering evidence from data
+
+The next step will be gathering evidence from our sample. This step is very crucial and plays a big role in how hypothesis testing work. This step of statistical hypothesis test typically involves a calculation of a test statistic.
+
+> The *test statistic* is the value in a probability distribution used to make a decision about the null hypothesis. The test statistic is computed based on information provided in the sample and assuming that the null hypothesis is true.
+
+The general formula of a test statistic is given by
+
+$$\text{test statistic} = \frac{\text{point estimate} - \text{parameter}_{H_0}}{sd(\text{point estimate})}$$
+
+It's worth keeping in mind that this point estimate is the same as our sample statistic. Thus the test statistic is actually the standardized version of the sample statistic and has it's own distribution (which will be a version of the sampling distribution). For example, if the statistic was normally distributed with some $\mu$ and $\sigma$ then the test statistic is normally distributed with mean 0 and sd 1 or standard normal distribution. 
+
+This distribution of the test statistic is refered to as the null distribution. It represents the range of values the test statistic would likely take due to chance alone, allowing researchers to evaluate the statistical significance of their findings. 
+
+> A *null distribution* is the probability distribution of a test statistic assuming the null hypothesis ($H_0$) is true. 
+
+Once the null distribution is decided we can now move on the next step which is the decision making
+
+## Decision Making:
+
+A sample statistic is said to be statistically significant if it is far enough away from the presumed value of the population parameter to conclude that is would be unlikely for the sample statistic to be that extreme by chance if the null hypothesis in true. This extremeness is decided based on a previously seen quantity called the level of significance. 
+
+> The *level of significance* is the probability of making the error of rejecting a true null hypothesis in a hypothesis test. It plays a crucial role in the decision making process, denoted by $\alpha$ and $\alpha = 1 − c$. 
+
+We will discuss the errors in details later but for now let's understand how $\alpha$ helps in the decision making process. 
+
+Since $\alpha$ is the probability of making the error of rejecting a true null hypothesis in the null distribution, it defines a region called the *rejection region* in the null distribution. 
+
+> The rejection region of a statistical test is the set of possible values of the test statistic for which the researcher will reject $H_0$ in favor of $H_{\alpha}$.
+
+The rejection region depends on the alternate hypothesis and falls on the side specified in the alternative hypothesis. See the image below to get an idea on where the rejection region will be based on the alternative hypothesis.
+
+![Rejection region](https://ars.els-cdn.com/content/image/3-s2.0-B9780128008522000092-f09-06-9780128008522.jpg)
+Decision Rule for Rejection Regions: Reject the null hypothesis, $H_0$, if the test statistic calculated from the sample data falls within the rejection region.
+ 
+Also, because $\alpha$ is a probability, we can find a corresponding point which is where this rejection region is at and this point is called the *critical value* or the threshold value. The critical value can be found using the quantile functions in R.
+
+> The *critical value* is the value of a test statistics at or beyond which we will reject the null hypothesis. It defines the boundary of the critical region. 
+
+Also, if you notice this critical value is the same as the one discussed in the confidence interval. Thus, at a certain level of significance, the confidence interval (coincides with the acceptance region) and hypothesis testing go hand in hand.
+
+Once $\alpha$ is set the decision making process can go two ways:
+
+1) Find the critical value corresponding with $\alpha$ and compare it to the test statistic, or
+
+2) Find the p-value associated with the test statistic and compare it $\alpha$
+
+If we use critical value, we can come to decision as
+
+| critical value | Decision |
+|-----------|----------|
+| $|\text{critical value}| < |\text{test statistic}|$ | Reject $H_0$ (accept $H_{\alpha}$) |
+| $|\text{critical value}| \ge |\text{test statistic}|$ | Fail to reject $H_0$ (reject $H_{\alpha}$) |
+
+In statistical world, p-value if preferred as the best method. In this class, we will stick to using p-value for our decision making process.
+
+> A *p-value* measures the probability that observed study results occurred by random chance, assuming the null hypothesis is true. That is, a **p-value** is the probability of observing a test statistic **as or more extreme** than the obtained value given that the **null hypothesis is true**.
+
+It takes different forms depending on where the rejection region or the alternative hypothesis. We will denote the observed test statistics as $t$.
+
+| Alternative Hypothesis | p-value Formula        |
+|------------------------|------------------------|
+| $parameter \neq value$ | $2P(T \geq |t| \mid H_0)$ |
+| $parameter > value$    | $P(T \geq t \mid H_0)$ |
+| $parameter < value$    | $P(T \leq t \mid H_0)$ |
+
+P-value is calculated using the p functions in R in this class. 
+
+A low p-value lead us to **doubt the null hypothesis**, and lends credibility to **the alternative hypothesis**.  How low does a p-value have to be for us to doubt the null hypothesis? 
+
+There is a larger philosophical debate in the statistical community whether that is even the right way to think about it, but a common standard comes from a 1925 book by Ronald Fisher. A common standard for "significant" p-values, and the one we will use in this class, is that they must be below 0.05 to reject the null hypothesis, such that our "false rejection" rate is 1 in 20. Thus, as a rule of thumb, most statistical papers present their finding using the level of significance as $0.05$ or $5\%$.
+
+This, of course, does not mean that p-values of 0.06 are to be ignored and discarded. Fisher suggested holding the data to this 0.05 standard because it would mean that, in the long run, at least 19 out of 20 p-values this low would be genuine detection of parameters deviating from important values, rather than just a very unlucky or lucky event making it seem that way.
+
+Thus, using p-value we can come to decision as
+
+| p-value | Decision |
+|-----------|----------|
+| $\text{p-value} < \alpha$ | Reject $H_0$ (accept $H_{\alpha}$) |
+| $\text{p-value} \ge \alpha$ | Fail to reject $H_0$ (reject $H_{\alpha}$) |
+
+## Arriving at the conclusion and the types of errors
+
+- Conclusion
+
+This allows us to draw these two conclusions:
+
+- *Reject the null hypothesis*: This means there is *sufficient* evidence to support the alternative claim stated in the $H_{\alpha}$.
+
+- *Fail to reject the null hypothesis*: This means there is *insufficient* evidence to support the alternative claim stated in the $H_{\alpha}$.
+
+The wording used for interpretation should be consistent with what's given above to keep it statistically accurate.
+
+- Errors
+
+When one is performing a hypothesis test, they should be aware that the evidence that they have to support their claims in either $H_0$ and $H_{\alpha}$ only comes from the sample. And due to the unpredictable nature of a sample one might end up making wrong decision. Depending on the nature of our wrong decisions, we can categorize the errors in our conclusions as *Type I error* or *Type II error*.
+
+- A *Type I error* happens if a researcher rejects a true null hypothesis. The probability of committing a Type I error is given by $\alpha$, which is what we have been refering to as the level of significance. Thus, $\alpha = P(\text{Type I error}) = P(\text{Rejecting } H_0\text{ when }H_0\text{ is true})$.
+
+- A *Type II error* happens if a researcher fails to reject a false null hypothesis. The probability of committing a Type II error is denoted by $\beta$ and is refered to as the *power of the test*. Thus, $\beta = P(\text{Type II error}) = P(\text{Rejecting } H_{\alpha}\text{ when }H_{\alpha}\text{ is true})$. 
+
+
+![Confusion matrix](https://www.scribbr.com/wp-content/uploads/2021/01/type-i-and-ii-error-2.png)
+
+It is important to keep in mind that $\beta$ and $\alpha$ come from different distributions and are not directly related to each other except for the fact that they behave inversely to each other.
+
+![Null and alternate distributions](https://www.scribbr.com/wp-content/uploads/2021/01/type-i-and-type-ii-error.png)
+
+You can read more in detail about $\alpha$ and $\beta$ [here](https://www.scribbr.com/statistics/type-i-and-type-ii-errors/).
+
+----------------------------------------------------------
+
+To finish our understanding process let's try to solve the Muriel Bristol test and see how we perform a hypothesis test.
+
+Example:
+
+If Muriel were indeed just guessing randomly, that would mean $p = 0.5$; a 50/50 shot of getting it right.
+
+If Muriel truly does have this ability, then $p > 0.5$. We aren't claiming she guesses correctly every time, just that she can guess **more accurately than random guessing**.
+
+Thus,
+
+$$H_0: p = 0.5 \\ H_{\alpha}: p > 0.5$$
+Or equivalently, we can just stick with saying that if she gets more that 4 cups right out 8 then she does have an ability.
+
+Thus,
+
+$$H_0: X \leq 4 \\ H_{\alpha}: X > 4$$
+
+To make it simple for introductory level, we will stick with just using the number of successes as our test statistic and thus the null distribution is this case will be a $\text{Binom}(8, 0.5)$.
+
+Say Muriel got 6 cups right out of 8. We wish to show that the observed level of success is very unlikely by random chance, which would lead us to the conclusion that her true $p$ is higher than 0.5.
+
+Because we're interested in showing $X > 4$, we have to consider how likely it is to get **6 or more right** by random chance, which gives us the p-value.
+
+That's a simple `pbinom` 
+
+```{r}
+1 - pbinom(5, 8, 0.5)
+```
+
+In other words, **by randomly guessing, Muriel would have a 14% chance of getting 6 or more right.**
+
+Comparing that with our level of significance of 5%, we get that p-value > 0.05. Which means that we fail to reject the null hypothesis, that is, Muriel Bristol doesn't have any ability. 
+
+In the actual experiment that Fisher did, the number of cups that she got right was all of them (8 out of 8). That gives us the p-value as 0.
+
+```{r}
+1 - pbinom(8, 8, 0.5)
+```
+
+In that case, we reject our null hypothesis and can say that Muriel Bristol indeed had some talent in recognizing the order in which milk and tea was poured.
+
+-------------------------------------------------------
+
+## Formal steps of hypothesis testing
+
+Before we end our lecture note, let's formalize the steps of our hypothesis test to use in future notes.
+
+- Step 1: Model Statement and stating the hypothesis
+
+Model statement is an important step in hypothesis testing that we will see in later lecture notes, where we check the assumptions associated with the random variable of interest. We then state our hypothesis depending on out intent and the parameter of interest.
+
+- Step 2: Identifying Test Statistic and Null Distribution
+
+We then identify the test statistic depending on parameter and that gives us an idea about the null distribution
+
+- Step 3: Decision making process 
+
+This step involves setting a relevant level of significance, calculating p-value and then comparing it with the level of significance.
+
+We then calculate the p-value of a hypothesis test, that is, the **probability of observing a value of the test statistic as or more extreme than the one we did**, on the null distribution, with "extreme" defined by the alternate hypothesis.
+
+Once we calculate the p-value we can the compare it with the pre-set level of significance.
+
+
+- Step 4: Interpret In Context
+
+There is *sufficient* evidence to support ______context of your test_____ (p-value = ____, type of test).
+
+Or 
+
+We find strong evidence that ______context of your test_____ (p-value = ____, type of test).
+
+
+
+
+
