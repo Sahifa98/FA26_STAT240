@@ -1,0 +1,747 @@
+---
+title: "STAT 240: Chapter 7-Inference on Proportions"
+author: "Sahifa Siddiqua"
+date: "Spring 2026"
+output: rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T, message = FALSE, warning = TRUE)
+library(tidyverse)
+source("../scripts/ggprob.R")
+```
+
+# Overview
+
+
+## Learning Outcomes
+
+These lecture notes will focus on how to:
+    - Conceptualize statistical inference such as confidence interval or p-value for a single proportion.
+    - Conceptualize statistical inference such as confidence interval or p-value for a  difference in proportions.
+    
+## Preliminaries
+
+Make sure you have the file `ggprob.R` in `STAT240/scripts`. Download `chimpanzee.csv` to `STAT240/data`. And make sure this lecture note is downloaded to `STAT240/lecture`.
+
+## Dataset
+
+The `chimpanzee` dataset is a mock dataset based on an experiment conducted by scientists at Emory University in 2011; since the scientists did not make the actual data public, we created a mock dataset to recreate the experiment.
+
+The actual setup of the study can be found [here](https://bookdown.org/bret_larget/stat-240-case-studies/chimpanzees-and-prosocial-choice.html).
+
+But let's see a brief rundown of the experiment setup.
+
+* Two chimpanzees were put in adjacent enclosures with the ability to see and communicate with each other. One is refered to as the **decider** and the other is refered to as the **onlooker**.
+
+* One chimpanzee, the **decider**, was given the choice to pick from a bucket of tokens which were two different colors.
+
+* The decider had previously been taught that one color would lead to the human researcher to give them (just the decider) a treat. We call this the **selfish** choice.
+
+* The other color would lead to the human researcher giving **both the decider and the onlooker** a treat. We call this the "**prosocial**" choice.
+
+* The **decider** was given this choice 30 times, and the number of **prosocial** and **selfish** choices were recorded.
+
+* The researchers performed this experiment with many combinations of decider, onlooker, and colors; including observing their behavior when the decider had **no partner**.
+
+-----------
+
+Load the data.
+   
+```{r}
+chimpanzee = read_csv("../data/chimpanzee.csv")
+```
+
+> Every row in the chimpanzee dataset represents one 30-trial combination of actor and partner. 
+
+```{r}
+head(chimpanzee)
+```
+
+For example, when chimp A was paired with I, they made 22/30 prosocial choices. When chimp A had no partner ("none"), they made 16/30 prosocial choices.
+
+*The only exception is that G and A only completed ten trials together in the dataset.* In this lecture note, we will only be considering Chimp A to do our analysis.
+    
+```{r}
+sum1 = chimpanzee %>% 
+  mutate(session_type = case_when(
+    partner == "none" ~ "no partner",
+    TRUE ~ "partner"
+  )) %>% 
+  group_by(actor, session_type) %>% 
+  summarize(prosocial = sum(prosocial),
+            selfish = sum(selfish),
+            n = prosocial + selfish,
+            pct_prosocial = 100*prosocial/n)
+sum1
+
+sum1_wide = sum1 %>% 
+  select(actor, session_type, pct_prosocial) %>% 
+  pivot_wider(names_from = session_type,
+              values_from = pct_prosocial)
+
+sum1_wide
+```
+
+```{r}
+ggplot(sum1, aes(x = actor, y = pct_prosocial,
+                 fill = session_type)) +
+  geom_col(color = "black",
+           position = position_dodge2(preserve = "single")) +
+  #scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    x = "Chimpanzee",
+    y = "Pro-social Choice Probability",
+    title = "Chimpanzee Pro-social Choice Comparison",
+    subtitle = "With and Without Partners",
+    fill = "Session"
+  ) +
+  theme_minimal()
+```
+
+One thing that is evident in this dataset is that every chimpanzee made pro-social choice more than half the time in the presence of a partner compared to in the absence of one. But just noticing a pattern in the dataset is not statistically enough to generalize this to the whole population, keeping in mind that this is just a sample. This is where we come to the inference part.
+
+
+# Introduction
+
+Inference on proportion is used to make inferences about categorical variables, especially binary variables. That is, the outcomes of a variable that can be characterized as success or failure. Most often, the question of interest in these scenarios is the proportion of outcomes that possess a certain characteristic or the number of successes observed in all the trials. For example, percentage of voters who support a candidate, or the proportion of defective items in a production batch, or the proportion of people who prefer a particular product or the number of people with adverse reaction to a drug and so on. 
+
+Thus, the parameter we wish to make inferences about is the *proportion in the population* of a category. In this lecture note, we will learn about inference on single proportion and two proportions (also called the difference in proportions).
+
+For us to be able to make inference dealing with proportion, we first need to make sure the data/variable at hand follows the model needed to go forward. So we will start with the model statement of inference on single proportion followed by inference on difference of proportions.
+
+# Inference on Single Proportion
+
+Inference on single proportion deals with one characteristic of the population, that is, it deals with one proportion, $p$. It always starts with a question like
+
+> Let the true probability of getting the characteristic of interest be equal to or more than or less than a value.
+
+For example, in the chimpanzee dataset, let the true probability of a chimpanzee picking prosocially with a partner be $p_{partner}$. We can start by asking the question: Is $p_{partner}$ greater than 0.5? To make it more specific to Chimp A we can also say, Is $p_{partner}$ for Chimp A greater than 0.5?
+
+We will answer this question statistically through confidence intervals and hypothesis testing.
+
+## Model 
+
+Before we can build a confidence interval or do a hypothesis test, we first need to make sure we have a variable for which $p$ can be appropriately used. So we have to check whether $p$ is the probability of success for that variable or whether the variable is binomial or not.
+
+
+That is, the variable, say X, must satisfy the BINS assumptions and
+
+$$
+X \sim Binom(n, p).
+$$
+
+Example: continuing with the chimpanzee example, we will look at chimp A making prosocial choices in the presence of a partner. Let's consider $X$ to the number of prosocial choices Chimp A makes in the presence of a partner. And it can be seen that $X$ satisfies the BINS assumption
+
+- **B**: The chimpanzee either makes the prosocial choice or does not.
+- **I**: Each trial can be assumed to be independent of each other. (Remember, more art than science.)
+- **N**: We have a fixed number of trials, $n = 90$.
+- **S**: Each trial can be assumed to have the same true probability $p$ of "success" (in this case, making pro-social choices).
+
+Thus, $X \sim \text{Binom}(90,p)$, where $p$ is unknown.
+
+Now we know for sure that the thing swe will be doing next will work for answering the question: Is $p_{partner}$ for Chimp A greater than 0.5?
+
+## Point Estimate and Sampling Distribution
+
+The point estimate of $p$ just as we have seen before is $\widehat{p}$. Through mathematical theory, we know that the distribution of $\widehat{p}$ is
+
+$$
+\hat{p} \stackrel{approx}\sim N \left( p, \sqrt{\frac{p(1-p)}{n}}\right).
+$$
+This distribution can be simulated as shown in the previous lecture notes.
+
+The above distribution relies on the **normal approximation of binomial distributions**, that is, $n*p$ not being small. It is also interesting to see that the expected value of $\widehat{p}$ is $p$. This is what makes $\widehat{p}$ a good estimator of $p$. Also, the standard error of $\hat{p}$ is $\sqrt{\frac{p(1-p)}{n}}$, which depends on $n$ and decreases as $n$ increases. Which coincides with our understanding of sampling distribution from before, that is, more data implies less variance in the predictions.
+
+
+It is also important to note that the sample distribution of $\widehat{p}$ is based on the true, unknown $p$. And since, we have already seen that the confidence interval as well as the hypothesis test uses this standard error, we will need to figure out how to handle the unknown $p$ in the standard error before we can use it. Hint: we will just need to replace it with it's sample version.
+
+##  Confidence Interval For A Single Proportion
+
+Starting of with the general formula, 
+
+$$
+\text{Point Estimate } \pm \text{ Critical Value * Standard Error of PE}.
+$$
+
+OR 
+
+$$
+\text{Point Estimate } \pm \text{qdist}\left(c+\frac{1-c}{2}\right) * \text{Standard Error of PE}.
+$$
+
+We will use the point estimate as $\widehat{p}$. Thus, the critical value will be obtained from the sampling distribution of $\widehat{p}$ which is normal and the standard error is $\sqrt{\frac{p(1-p)}{n}}$. Now just like we were discussing before, we will need to replace the unknown $p$ with something known. In this case, the best replacement of $p$ is $\widehat{p}$.
+
+Thus, the final formula for the confidence interval for a single proportion at some confidence level $c$ is 
+
+$$
+\widehat{p} \pm \text{qnorm}\left(c+\frac{1-c}{2}\right) * \sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}.
+$$
+The replacement of $p$ with $\widehat{p}$ is widely known as the Wald adjustment. Statisticians have shown that the Wald adjustment generally maintains the confidence level, allowing us to interpret the confidence level in the usual way. 
+
+Example: Let's go back to our chimpanzee example, where we don't know the true $p$.
+
+```{r}
+# Three inputs; successes, sample size, confidence level
+x = 60
+n = 90
+conf.level = 0.95
+
+# Calculate Wald confidence interval
+phat = x/n
+se = sqrt(phat * (1 - phat)/n) # Wald adjustment replaces p with phat
+moe = qnorm(conf.level + (1 - conf.level)/2) * se
+  
+left = phat - moe
+right = phat + moe
+  
+c(left, right)
+```
+
+
+> We are **95% confident** that the **true probability of Chimpanzee A making a prosocial choice with a partner** is between 56.9% and 76.4%.
+
+------------------------------------------------
+
+**Visualization**
+
+We will use the `visualizeProportionCI` function just as a visual aid to help you see these confidence intervals. 
+
+
+```{r, echo = FALSE}
+visualizeProportionCI = function(true_p, sample_size, conf.level = 0.95, theory = TRUE, wald = FALSE) {
+  stdError = sqrt(true_p * (1 - true_p) / sample_size)
+  
+  # calculate true sampling distribution curve
+  samplingDistribution = tibble(
+    x = seq(true_p - 3*stdError, true_p + 3*stdError, length.out = 50),
+    y = dnorm(x, true_p, stdError)
+  )
+  
+  # calculate random point estimate, associated confidence interval
+  moeLabel = paste0("Interval width: This region contains ", 100*conf.level, "% of area")
+  point_estimate = rnorm(1, true_p, stdError)
+  if (wald) {
+    stdError = sqrt(point_estimate * (1 - point_estimate)/sample_size)
+    moeLabel = paste0("ESTIMATE: This region (on avg.) contains ", 100*conf.level, "% of area")
+  }
+  moe = qnorm(1 - (1-conf.level)/2) * stdError
+  ciLeft = point_estimate - moe
+  ciRight = point_estimate + moe
+  
+  # encode confidence interval as green if it contains the true parameter, red if it does not
+  myColor = ifelse(between(true_p, ciLeft, ciRight), "chartreuse3", "red")
+  
+  myAlpha = 0.4
+  # for more "realistic" graphing, remove the color and the helpful visuals
+  if (!theory) {
+    myColor = "black"
+    myAlpha = 0
+  }
+
+  helpfulY = dnorm(true_p, true_p, stdError)/20 # helpful margin to keep things scaled nicely graphically
+  moeY = dnorm(true_p + moe, true_p, stdError) # y level of MOE visual
+  
+  ggplot() +
+    # underlay sampling distribution
+    geom_line(aes(x, y), samplingDistribution, color = "gray", alpha = 2*myAlpha) +
+    geom_hline(yintercept = 0) +
+    
+    # add true parameter value visual
+    geom_vline(xintercept = true_p, linetype = "dashed", color = "blue", size =  1.5, alpha = myAlpha) +
+    annotate("text", x = true_p - stdError/5, y = dnorm(true_p, true_p, stdError) - helpfulY, color = "blue", alpha = myAlpha, angle = 90, hjust = "right", vjust = "top", label = "True Parameter", size =  6) +
+    
+    
+    # annotate margin of error visual and label
+    annotate("segment", x = true_p - moe, xend = true_p + moe, y = moeY, yend = moeY, arrow = arrow(ends = "both", length = unit(.2, "cm")), alpha = myAlpha) +
+    annotate("text", x = true_p - conf.level*moe, y = moeY + helpfulY/2, hjust = "left", vjust = "bottom", label = moeLabel, alpha = myAlpha) +
+    
+    # annotate point estimate and label
+    annotate("segment", x = point_estimate, xend = point_estimate, y = 0, yend = helpfulY*2, size = 2) +
+    annotate("text", x = point_estimate, y = -helpfulY, label = "PE", size = 4) +
+    
+    # annotate confidence interval
+    annotate("segment", x = ciLeft, xend = ciRight, y = helpfulY, yend = helpfulY, color = myColor, size = 1.5, arrow = arrow(ends = "both", length = unit(.2, "cm"))) +
+    
+    annotate("text", x = true_p + stdError, y = dnorm(true_p, true_p, stdError), label = paste0("Sampling Dist: N(", round(true_p, 2), ", ", round(stdError, 2), ")"), alpha = myAlpha) +
+    
+    theme_minimal() + 
+    theme(
+      panel.grid = element_blank(),
+      axis.text.y = element_blank(),
+      axis.text.x = element_text(size = 10)) + 
+    
+    labs(
+      x = "Potential Values of p",
+      y = ""
+    )
+}
+
+```
+
+For example, here's a random point estimate and associated confidence interval of our true $p = 0.4$ with $n = 20$ at confidence level 95%:
+
+```{r}
+visualizeProportionCI(true_p = 0.4, sample_size = 20, conf.level = 0.95)
+```
+
+Watch our interval width **decrease** (see the sampling error and the labels on the x axis decrease) as we increase sample size:
+
+```{r}
+visualizeProportionCI(true_p = 0.4, sample_size = 200, conf.level = 0.95)
+```
+
+Finally, notice that if we were to decrease our **confidence level**, our interval would get **smaller**, and therefore be less likely to contain the real $p$.
+
+```{r}
+# I strongly encourage you to run this a few times in your console to watch its behavior over many runs! Try to get one which doesn't contain the true p!
+visualizeProportionCI(true_p = 0.4, sample_size = 200, conf.level = 0.6)
+```
+
+In practice, we do not know what the true value of $p$ is, so we just get a "blind" confidence interval; you can see this with the `theory = FALSE` argument to the `visualizeProportionCI` function.
+
+```{r, echo=FALSE}
+true_p = 0.7
+```
+
+```{r}
+visualizeProportionCI(true_p, sample_size = 20, theory = FALSE)
+```
+
+-----------------------------------------------------
+
+The **Wald** estimate is widely used, but there is another adjustment which is slightly better at covering the true parameter called the Agrestti-Coull adjustment. In this course, we will only use the Wald adjustment.
+
+## Hypothesis Testing
+
+Hypothesis Testing for $p$ follows all the steps outlined in the intro to inference lecture notes. So here we will demonstrate the hypothesis test with the chimpanzee example.
+
+- *Step 1: Model Statement and stating the hypothesis*
+
+Using the chimpanzee A data as an example, who picked the prosocial choice 60 times out of 90 total trials with a partner.
+
+Defining Variable: Defing $X$ the same way as before, that is, $X$ is the number of observed prosocial choices among $n = 90$ chimpanzee A trials with a partner.
+
+Let $p$ be the parameter of interest that is unknown, but the true, underlying probability of chimpanzee A making the prosocial choice in a single trial with a partner.  
+
+Model Statement: We have seen before that $X$ satisfies BINS assumption and 
+
+$$
+X \sim \text{Binom}(90, p).
+$$
+
+
+State Hypotheses:
+
+Recall that the **null hypothesis** is always of the form `parameter = value`, and is the opposite of what we WANT to prove. The **alternative hypothesis** is of the form `parameter \neq or > or < value`. It is the statement that we WANT to prove. 
+
+With the chimpanzee data, we can test the null hypothesis that $p = 0.5$ (or $p\leq 0.5$, we will stick to just the equal to in the exampler); the idea that the chimps are picking randomly between the colors or being selfish, they really aren't considering their partner at all. The alternative hypothesis, or the idea that the chimps ARE picking prosocially more often than random, is $p > 0.5$.
+
+Thus,
+$$
+H_0: p = 0.5
+$$
+
+$$
+H_A: p > 0.5
+$$
+
+- *Step 2: Identifying Test Statistic and Null Distribution*
+
+Recall that we always **assume the null hypothesis is true** (in this case $p = 0.5$), and then use some **test statistic** whose distribution is known when the null hypothesis is true.
+
+Also, remember the general formula of the test statistic is
+
+$$\text{test statistic} = \frac{\text{point estimate} - \text{parameter}_{H_0}}{se(\text{point estimate})}$$
+So in this case, the p.e is $\widehat{p}$, se(p.e) is $\sqrt{\frac{p(1-p)}{n}}$. We face the same issue of unknown $p$ and we deal with it the same way as before and we get 
+
+$$\text{test statistic} = \frac{\widehat{p}-p_{null}}{\sqrt{\frac{\widehat{p}(1-\widehat{p})}{n}}}.$$
+The distribution of the test statistics also known as the null distribution in this is case is $N(0,1)$. This is also why we can denote the test statistic shown above as *z* and that's what we will be using moving forward. This is also the reason that this test is refered to as the *z-test*, since the null distribution or the distribution of the test statistic follows the *z-distribution* or the standard normal distribution. In general, all tests that have `N(0,1)` as the null distribution, we refer to them as the *z-test*.
+
+When we assume $p = 0.5$ and we also know Chimp A made 60 prosocial choices out 90, this turns into 
+
+$$\text{z} = \frac{\frac{60}{90}-0.5}{\sqrt{\frac{\frac{60}{90}(1-\frac{60}{90})}{90}}}\sim N(0,1)$$
+
+
+
+- *Step 3: Decision making process *
+
+Recall that in this step, we set a level of significance and find the probability of getting a value as or more extreme than the one obtained from our data, also known as the p-value.
+
+Let's look at the null distribution and annotate the observed value of our test statistic:
+
+```{r}
+null_p = 0.5
+p_hat = 60/90
+sd = sqrt(p_hat*(1-p_hat)/n)
+  
+(z = (p_hat- null_p)/sd) # this is our observed test statistic
+
+gnorm() +
+  geom_vline(xintercept = t, color = "red")
+```
+
+The values which are **as or less likely** than our observed test statistic are those that are greater than or equal to it, since the alternative hypothesis is $p > 0.5$. 
+
+
+```{r}
+pnorm(z,lower.tail = F)
+```
+
+The **p-value** for this test is 0.0004.
+
+Now let's also set the level of significance. Just as we mentioned in the previous lecture note, we will use $\alpha = 0.05$.
+
+- *Step 4: Interpret In Context*
+
+> We find strong evidence that Chimpanzee A is inclined to make the prosocial choice more often than randomly (p-value = 0.0004, single proportion test).
+
+It is also interesting to see that the conclusion of this hypothesis test supports the confidence interval built earlier for the proportion of prosocial choices. Since the 95% confidence interval started above 50%, the 5% significance test was also able to support the alternative hypothesis that says that the proportion of prosocial choices should be more than 50%.
+
+Note: In a situation, where we need to do a two sided test, the calculation of p-value remains as simple as calculating the one sided p-value. You would just have to multiply the probability you would get for your observed statistic with 2 to get the two sided p-value. But one has to be careful in finding the probability for the observed statistic. It is best to take absolute value of the observed value, find the right hand side prob and then multiply by two to get the correct p-value.
+
+For example: Let's assume that in the chimpanzee example we were doing a two sided test. And assume that the number of prosocial choice the chimp A had made was 20 out of 90. Then the test statistic would be 
+
+
+```{r}
+null_p = 0.5
+p_hat = 20/90
+sd = sqrt(p_hat*(1-p_hat)/n)
+  
+(z = (p_hat- null_p)/sd) # this is our observed test statistic
+
+gnorm() +
+  geom_vline(xintercept = z, color = "yellow") + # this gives the observed test statistic
+  geom_norm_fill(b = z, color = "red") + # these two give the region that contains the as or more extreme values as our test statistic
+  geom_norm_fill(a = -z, color = "red") 
+```
+
+A value as or more extreme as -6.34 will be all values below -6.34 and above 6.34 (and that's the logic behind the times 2, since the null distribution is symmetric). So to correctly find the probability of -6.34, is to get $P(t\leq -6.34)$.
+
+```{r}
+pnorm(z) # this is the prob of getting all extreme values less than -6.34
+2*pnorm(z) # the needed p-value, which is considering both the tails
+
+# or in general if we take the abs value of t, we can always just find the right tail and multiply that by 2
+
+2*pnorm(abs(z), lower.tail = F)
+```
+
+
+----------------
+
+Due to the nature of the binomial distribution the same test can also be done using a simpler test statistic. We will demonstrate that in the example below.
+
+### The Psychic Example
+
+A psychic is handed a random card from a deck, face down, and asked to determine what suit the card is without looking at it. (The card may be one of four suits, each with equal probability; "hearts", "diamonds", "spades", or "clubs"). The psychic claims they can sometimes tell what the suit is without looking at the card. This experiment was repeated 200 times, and the psychic got the suit right 57 times.
+
+> Conduct a hypothesis test to assess the evidence for the psychic's ability.
+
+- Step 1: Model Statement and stating the hypothesis
+
+Let $X$ be the observed number of correct guesses from $n = 200$ trials. Let $p$ be the true probability of the psychic getting the suit right on an individual trial.
+
+Then,
+
+$$
+X \sim Binom(200, p)
+$$
+
+We may verify the BINS assumptions; **B**: each trial is right or wrong, **I**: the trials are independent, **N**: There is a fixed sample size, $n = 200$, and **S**: each trial has the same probability of success, $p$.
+
+
+The null hypothesis captures the idea that the psychic is picking randomly, or has no psychic ability. If the psychic is picking randomly, they have a 1 in 4 chance of getting the suit right. Thus,
+
+$$
+H_0: p = 0.25
+$$
+
+The alternative hypothesis captures the thing that you seek to prove; that the psychic truly has a better-than-random chance of getting it right.
+
+$$
+H_A: p > 0.25
+$$
+
+---
+
+- *Step 2: Test Statistic and Null Distribution*
+
+We know that $X \sim Binom(200, p)$. Under the null hypothesis which states $p = 0.25$, $X \sim Binom(200, 0.25)$. We can use this distribution as the null distribution instead and the observed data is X = 57, is the test statistic. Since the null distribution is *Binomial* here, we refer to this test as the *binomial model test*.
+
+---
+
+- *Step 3: Decision making process *
+
+We find the p-value using $X=57$ and the null distribution as $X \sim Binom(200, 0.25)$. In this case, the p-value will tell us the probability of getting a $X$ as or more extreme than 57.
+
+```{r}
+gbinom(200, 0.25, scale = TRUE) +
+  geom_vline(xintercept = 57, color = "red") 
+```
+
+*Note: This test statistic is not that far from what we expect under the null hypothesis, so we probably will fail to reject the null.*
+
+
+```{r}
+# lower.tail = FALSE is same as 1 - pbinom(...)
+pbinom(57 - 1, 200, 0.25, lower.tail = FALSE)
+```
+
+
+
+Again choosing $\alpha = 0.05$, we see that the p-value is greater than $\alpha$.
+
+---
+
+- *Step 4: Interpret in Context*
+
+> We fail to find strong evidence that the psychic is not picking randomly. (p = 0.14, single proportion test)
+
+---
+
+Assume that the above test was two sided (i.e, $H_{\alpha}: p \neq 0.25$) instead of just greater than ($H_{\alpha}: p > 0.25$). Then calculating p-value becomes slightly more complicated. This different null will change the step 3 of our above hypothesis testing.
+
+Keep in mind that the null distribution is NOT symmetric, despite it's looks ($p = 0.25$, Binomial distribution is only symmetric when $p = 0.5$). Since, now the extreme values as $X=57$ lies on both side of the distribution. 
+
+```{r}
+gbinom(200, 0.25, scale = TRUE) +
+  geom_vline(xintercept = 57, color = "red") +
+  geom_hline(yintercept = dbinom(57, 200, 0.25), color = "red", linetype = "dashed") # this horizontal line is to help visualize what other X values have probability less than 57.
+```
+
+By annotating a horizontal line at the probability of getting 57, we see that our set of interest has valueson the left of the distribution too. To identify all outcomes **as or less likely than X = 57**, we can do something like this.
+
+```{r}
+dbinom(57, 200, 0.25) # find the prob of getting 57
+```
+
+Then find the probability of all other points and see which ones have probability less than or equal to P(X=57).
+
+```{r}
+tibble(
+  x = 38:45,
+  prob = dbinom(x, 200, 0.25),
+  lessThanP57 = prob < dbinom(57, 200, 0.25)
+)
+```
+
+X = 42 and below, and X = 57 and above are the outcomes less likely than $X = 57$ on the null distribution, $Binom(200, 0.25)$.
+
+
+```{r}
+gbinom(200, 0.25, scale = TRUE) +
+  geom_binom_density(200, 0.25, b = 42, color = "red") +
+  geom_binom_density(200, 0.25, a = 57, color = "red") +
+  geom_hline(yintercept = dbinom(57, 200, 0.25), color = "red", linetype = "dashed")
+```
+Thus our p-value is 
+
+```{r}
+# Left side + right side (right side is the one we already calculated, left side is a more straightforward pbinom)
+pbinom(42, 200, 0.25) + pbinom(57 - 1, 200, 0.25, lower.tail = FALSE)
+
+2*pbinom(57 - 1, 200, 0.25, lower.tail = FALSE) # here multiplying by 2 gives a slightly bigger number since the distribution is not symmetric and discrete
+```
+
+And again we will come to the same conclusion as before.
+
+# Inference on Two Proportions
+
+Many real life questions consider inference on **a difference between two proportions** two compare two different proportions coming from two different populations. These situation are often to answer question that look something like this: Are the true probability of two different characteristic from two different population equal? For example, in the chimpanzee, Let the true probability of a chimpanzee picking prosocially with no partner be $p_{no partner}$. One can ask the following question: Are $p_{no partner}$ and $p_{partner}$ for Chimp A equal? Or in other words, is Chimp A more prone to making a prosocial choice in the presence or absence of a partner.
+
+> Inference on **two proportions** or **a difference between two proportions** is more complex than just doing single-proportion inference twice and subtracting. It uses the same conceptual framework, but with a different test statistic and sampling distribution.
+
+The sole purpose of looking at the difference of proportion instead of the two proportions individually is to get a combined distribution instead of two separate ones.
+
+Here, we will use the following notations:
+
+$X_1$ will be used to denote the random variable 1, $n_1$ is the number of trials of $X_1$ and $p_1$ will denote the true probability of success associated with $X_1$. And $X_2$ will be used to denote the random variable 2, $n_2$ is the number of trials of $X_2$ and $p_2$ will denote the true probability of success associated with $X_2$.
+
+## Model
+
+Both the random variables $X_1$ and $X_2$ must satisfy the BINS assumption and follow the Binomial distributions, i.e, $X_1\sim \text{Binom}(n_1, p_1)$ and $X_2\sim \text{Binom}(n_2, p_2)$.
+
+
+Example: We will now consider the prosocial choices of Chimp A in the presence and absence of a partner. For sake of ease, we will denote $p_{no partner}$ and $p_1$ and $p_{partner}$ as $p_2$.
+
+Then, $X_1$ will be the number of prosocial choices Chimp A makes in the absence of a partner and follows $\text{Binom}(30, p_1)$. And $X_2$ will be the number of prosocial choices Chimp A makes with a partner and it follows $\text{Binom}(90, p_2)$.
+
+## Point estimator and sampling distribution
+
+In this case, since we are looking at $p_1-p_2$, our point estimator is $\widehat{p}_1-\widehat{p}_2$. Now using the information from the single proportion inference, we know that, in general, $\widehat{p}_i \sim N(p_i, \sqrt{\frac{p_i(1-p_i)}{n_i}})$ for each $i = 1 \text{ and } 2$. And using the additive property of Normal distributions (you can find more [here](https://en.wikipedia.org/wiki/Sum_of_normally_distributed_random_variables#:~:text=This%20means%20that%20the%20sum,squares%20of%20the%20standard%20deviations), but it basically says that sum of any two normally distributed variables will be normally distributed with sum of the means as the mean and sum of variances as the variance), we get that
+
+$$\widehat{p}_1-\widehat{p}_2 \sim N\left( p_1-p_2, \sqrt{\frac{p_1(1-p_1)}{n_1} + \frac{p_2(1-p_2)}{n_2}}\right).$$
+
+Again, we have faced the same problem as before, which are the unknown values of $p_1$ and $p_2$ in the expected value and standard error of the above sampling distribution. But here, we will proceed with caution while replacing the $p$'s with there estimators and we will see the reason for it soon.
+
+## Confidence Interval for difference of proportions
+
+We will again start of with the general form of a confidence interval:
+
+$$
+\text{Point Estimate } \pm  \text{qdist}(c+\frac{1-c}{2})*\text{Standard Error of PE}
+$$
+
+Now, we just plug in the point estimate, the critical value (which in this case, is also found using qnorm) and the standard error. In this case, it is okay to replace the $p$'s with their individual estimates. Thus, we get the confidence interval with $c$ level of confidence as
+
+
+$$
+(\widehat{p}_{1} - \widehat{p}_{2 }) \pm \text{qnorm}\left(c + \frac{1-c}{2}\right) * \sqrt{ \frac{\widehat{p}_{1 }(1-\widehat{p}_{1 })}{n_1} + \frac{\widehat{p}_{2 }(1-\widehat{p}_{2 })}{n_2} }.
+$$
+
+```{r}
+x1 = 16
+n1 = 30
+x2 = 60
+n2 = 90
+
+
+# Confidence level
+c = 0.95
+
+
+phat1 = x1/n1
+phat2 = x2/n2
+
+pe = phat1 - phat2
+
+se1 = phat1*(1-phat1)/n1 
+se2 = phat2*(1-phat2)/n2 
+se = sqrt(se1 + se2 )
+moe = qnorm(c + (1 - c)/2) * se
+
+left = pe - moe
+right = pe + moe
+
+c(left, right)
+```
+
+* We are NOT constructing a confidence interval for a single proportion - we are constructing a confidence interval for $p_1 - p_2$, a **difference in proportions**. That **difference can be negative!**
+
+* In context, we would interpret this as:
+
+> We are 95% confident that when Chimpanzee A has no partner, the change in the probability of making a prosocial choice compared to when has a partner is between -33.7% and 7%.
+
+
+## Hypothesis testing
+
+Hypothesis Testing for difference of proportions follows all the steps outlined in the intro to inference lecture notes. And we will demonstrate the hypothesis test with the chimpanzee example.
+
+- *Step 1: Model Statement and stating the hypothesis*
+
+Model: The random variables $X_1$ and $X_2$ must satisfy the BINS assumption and follow Binomial distributions, i.e, $X_1\sim \text{Binom}(n_1, p_1)$ and $X_2\sim \text{Binom}(n_2, p_2)$, respectively.
+
+Example: $X_1$ is the observed number of pro-social choices of Chimp A makes with NO partner from $n_1 = 30$ trials. $X_2$ is the observed number of pro-social choices of Chimp A makes with a partner from $n_2 = 90$ trials.
+
+$p_1$ is the true probability that Chimp A makes the pro-social choice when there is no partner. $p_2$ is the true probability that Chimp A makes the pro-social choice when there is a partner.
+
+
+$$
+X_1  \sim \text{Binomial}(30,p_1) \\
+X_2 \sim \text{Binomial}(90,p_2)
+$$
+
+
+State Hypotheses:
+
+Recall that the **null hypothesis** is always of the form `parameter = value`, and the **alternative hypothesis** is of the form `parameter \neq or > or < value`. 
+
+In this case, our parameter is $p_1 - p_2$, which will be tested for some value. In most real life scenarios, we test for the difference being $0$ or the two proportions being the same. Thus, the null and alterbate hypothesis look like
+
+$$H_0: p_1-p_2 = 0 \text{, or equiavlently, } p_1=p_2 \\
+H_{\alpha}: p_1-p_2 \neq/>/< 0 \text{, or equiavlently, } p_1\neq/>/<p_2$$
+
+Example: 
+$$
+H_0: p_1 = p_2
+$$
+
+$$
+H_{\alpha}: p_1 < p_2
+$$
+
+Or equivalently, 
+
+$$
+H_0: p_1 - p_2 = 0, H_A: p_1 - p_2 < 0
+$$
+
+
+- *Step 2: Identifying Test Statistic and Null Distribution*
+
+The test statistic in this case will be 
+
+$$\text{test statistic} = \frac{\text{point estimate} - \text{parameter}_{H_0}}{sd(\text{point estimate})}\\
+= \frac{(\widehat{p}_1-\widehat{p}_2) - (p_1-p_2)_{H_0}}{\sqrt{ \frac{p_{1 }(1-p_{1 })}{n_1} + \frac{p_{2 }(1-p_{2 })}{n_2}}}$$
+
+Here, we would have to deal with the $p_i$s in the denominator that are unknown but we have to careful. Because a test statistic assumes that the null is true. And under the null, $p_1=p_2$ and let's assume that they are equal to some value $p$, i.e, $p_1=p_2=p$. This $p$ is called the global proportion and is also unknown, the estimator for it will be denoted as $\bar{p}=\frac{x_1+x_2}{n_1+n_2}$. We will use this $p$ in the standard error. Also, under the null $p_1-p_2=0$ and ultimately, the null distribution in this case is also the standard normal distribution. Giving us the test statistic as
+
+$$\text{z} 
+= \frac{(\widehat{p}_1-\widehat{p}_2)}{\sqrt{ \frac{\hat{p}(1-\hat{p})}{n_1} + \frac{\hat{p}(1-\hat{p})}{n_2}}}\sim N(0, 1).$$
+
+Thus, this test is also a *z-test*.
+
+Example: For chimp A, our observed value of the test statistic is:
+
+```{r}
+x1 = 16
+n1 = 30
+x2 = 60
+n2 = 90
+
+
+pbar = (x1 + x2)/(n1+n2)
+
+numerator = (x1/n1) - (x2/n2)
+denominator = sqrt((pbar*(1-pbar)/n1) + (pbar*(1-pbar)/n2))
+
+test_stat = numerator/denominator
+test_stat
+```
+
+```{r}
+# Null distribution was N(0, 1)
+gnorm() +
+  geom_vline(xintercept = test_stat, color = "red")
+```
+
+The outcomes which are as or less likely than `test_stat` on our null distribution are $X \leq -1.31$.
+
+- *Step 3: Decision making process*
+
+Calculating the p-value
+
+```{r}
+pnorm(test_stat)
+```
+
+And using the level of significance as $0.05$. We get the conclusion in the next step.
+
+- *Step 4: Interpret In Context*
+
+> We fail to find sufficient evidence that the true probability of Chimpanzee A making the prosocial choice is different with a partner vs. without (p = 0.09, one-sided test for difference in proportions).
+
+The conclusion of this hypothesis test also supports the confidence interval built earlier for the difference of proportions. Since the 95% confidence interval included 0 in it, the 5% significance test was also able to support the null that says that the difference should be zero.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
