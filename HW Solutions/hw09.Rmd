@@ -44,7 +44,7 @@ Starting from the dataset created in problem 1, count the total number of ads in
 # Problem 3
 
 Perform a hypothesis test to determine whether less than half of superbowl ads are celebrity ads.  Use hypotheses
-$$H_0: p_{celebrity} \le 0.5 \quad \text{versus}\quad H_A: p_{celebrity} < 0.5$$
+$$H_0: p_{celebrity} \le 0.5 \quad \text{versus}\quad H_A: p_{celebrity} > 0.5$$
 and $\alpha = 0.01$.  Interpret your result in context.
 
 
