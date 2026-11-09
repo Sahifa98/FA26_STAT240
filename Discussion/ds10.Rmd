@@ -1,0 +1,50 @@
+---
+title: "Discussion 10"
+author: "Group Member Names Here"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = FALSE,
+                      error = TRUE)
+
+library(tidyverse)
+```
+
+
+# Preliminaries
+
+- This file should be in `STAT240/discussion`.
+- This assignment should be completed in your discussion groups.
+
+The goal of today's discussion will be to think about one-sample and two-sample proportion inference in more detail.  
+
+# Problem 1
+#### (approx. 15 minutes)
+
+A video game developer is calibrating the difficulty of their game.  They want 25% of players to beat a certain level on their first try.  In a test group of 120 players, 22 of them beat the level on their first try.
+
+(a) Write appropriate hypotheses to test $p$, the true probability that a player beats the level on their first try.  What is the direction of the alternative hypothesis?
+
+(b) Complete the hypothesis test at the 2% level using a binomial null distribution. State your test statistic, p-value, and conclusion.
+
+(c) Re-do the test of hypotheses in (a), but use a Z test as an approximation.  How do your p-value and conclusion compare to the one in (b)?
+
+(d) List a few advantages and disadvantages of using a binomial test versus using a Z test to analyze a proportion $p$.
+
+(e) Now, consider building a 98% CI for $p$ using the same data.  Do the conclusions about the null value of x from this interval match the conclusions binomial test, the normal test, or both?  Will the CI and hypothesis testing methods always reach the same conclusion?
+
+
+
+# Problem 2
+#### (approx. 15 minutes)
+
+We have seen how to perform a two-sample proportion test against a difference of zero. Now, consider a test where the null difference in proportions is not zero:
+$$H_0: p_1 - p_2 = 0.2 \quad\text{versus}\quad H_A: p_1 - p_2 \neq 0.2$$
+Show how this test would be performed if we have two groups of data with $\hat{p}_1 = 0.5$, $\hat{p}_2 = 0.35$, $n_1 = 80$, and $n_2 = 120$. Use $\alpha = 0.05$. *The test statistic is not the same as if we were testing $p_1 - p_2 = 0$!*
+
+# Final group project
+
+Use the rest of your discussion time for creating your Project proposal. During this discussion, make sure you find a dataset and set a question of interest.
+
