@@ -27,10 +27,9 @@ source("../../scripts/ggprob.R")
     
 ## Preliminaries
 
-1. Download the file `week09-regression.Rmd` into `STAT240/lecture/week09-regression`.
-2. Download the file `ggprob.R` into `STAT240/scripts` if you have not already.
-3. Download the file `lake-monona-winters-2024.csv` into `STAT240/data` if you have not already.
-4. Download the file `riley.txt` into `STAT240/data`.
+1. Download the file `ggprob.R` into `STAT240/scripts` if you have not already.
+2. Download the file `lake-monona-winters-2024.csv` into `STAT240/data` if you have not already.
+3. Download the file `riley.txt` into `STAT240/data`.
 
 # Motivation: The Relationship between Two Continuous Variables
 
