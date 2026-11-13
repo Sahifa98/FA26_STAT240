@@ -1,0 +1,104 @@
+---
+title: "Inference on proportions"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+```
+
+# Inference on single proportion
+
+$p$ = proportion of prosocial choices Chimp A makes when it has a partner
+
+$X \sim Binom(90, p)$
+
+satisfies almost all the assumptions (mostly will violate S assiumption)
+
+```{r}
+x = 60 # number of prosocial choices
+n = 90 # no. of trials
+p_hat = x/n # p.e
+se_w = sqrt(p_hat*(1-p_hat)/n) # Wald adjusted standard error
+
+# 99% CI for p
+
+z = qnorm(0.995) # cv with c+(1-c)/2
+z
+
+p_hat + c(-1, 1)*z*se_w
+```
+
+
+$$H_0: p = 0.5, H_{\alpha}: p > 0.5$$
+
+```{r}
+alpha = 0.01
+z = (p_hat-0.5)/se_w # test statitics
+z
+
+p_val = pnorm(z, lower.tail = F)
+p_val
+
+# p-val < alpha, we reject H_0, which implies that there is sufficient to support the claim that Chimp A is making prosocial choices
+```
+
+# Diff of prop
+
+$p_1 = $ Prob of making prosocial choices when Chimp A has no partner (true p1 should be 0.5 or random choice)
+
+$p_2 = $ Prob of making prosocial choices when Chimp A has a partner (true p2 should be more than 0.5 or prosocial choice)
+
+parameter: $p_1-p_2$
+p.e: $\hat{p}_1 - \hat{p}_2$
+s.e adj: CI: $$se_{adj} = \sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1}+\frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}$$
+
+
+hypo test: $$se_{adj} = \sqrt{\frac{\tilde{p}(1-\tilde{p})}{n_1}+\frac{\tilde{p}(1-\tilde{p})}{n_2}}$$
+
+$$H_0: p_1-p_2 = 0 \\ H_{\alpha}: p_1-p_2 < 0$$
+
+
+
+```{r}
+x1 = 16
+n1 = 30
+x2 = 60 
+n2 = 90
+
+phat1 = x1/n1
+phat2 = x2/n2
+ptilde = (x1+x2)/(n1+n2) # global prop
+
+cv = qnorm(0.975)
+
+se_ci = sqrt((phat1*(1-phat1)/n1)+(phat2*(1-phat2)/n2)) # se for CI
+
+
+# 95% CI for p1-p2
+(phat1-phat2) + c(-1,1)*cv*se_ci # note that the CI includes 0, which means that monkey makes prosocial choices irrespective of the presence of a partner
+
+
+se_ht = sqrt((ptilde*(1-ptilde)*(1/n1+ 1/n2))) # se for hypothesis testing
+             
+z = (phat1-phat2)/se_ht # test statistic
+
+pnorm(z) # p-val and comparing it with alpha = 0.05, we fail to reject H_0, whihc also coincides with the 95% CI built earlier
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
