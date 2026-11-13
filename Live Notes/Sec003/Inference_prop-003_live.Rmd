@@ -1,0 +1,109 @@
+---
+title: "Inference on proportions"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+```
+
+
+# Inference on single prop
+
+$p$ = proportion of prosocial choices chimp A makes with a partner
+
+X = number of prosocial choices Chimp A makes with a partner $\sim Binom(90, p)$
+
+
+(We assume that X satisfies BINS assumptions but S might not be satisfied here).
+
+```{r}
+x = 60 # number of successes
+n = 90 # number of trials
+
+# Normal model of testing
+phat = x/n
+
+se_w = sqrt(phat*(1-phat)/n) # wald estimate
+
+# 95% ci for the prop of prosocial choice that Chimp a makes
+
+cv = qnorm(0.975)
+
+phat + c(-1, 1)*cv*se_w
+
+# Normal model hypo testing for p
+# H0: p = 0.5, H_alpha: p < 0.5
+
+z = (phat-0.5)/se_w
+z # lies in the right hand side
+
+p_val = pnorm(z, lower.tail = F) # right tailed p value
+p_val
+
+pnorm(z) # left tailed p-value
+
+# alpha = 0.05, p-val < alpha, We have sufficient evidence to support the claim that Chimp A is making prosocial choices
+```
+
+
+# Diff of prop
+
+$p_1 = \text{Proportion of prosocial choices when Chimp A has no partner}$ (true p1 should be around 0.5 or random choices)
+
+$p_2 = \text{Proportion of prosocial choices when Chimp A has a partner}$ (true p2 should be more than 0.5 or prosocial choices)
+
+parameter: $p_1-p_2$
+p.e: $\hat{p}_1- \hat{p}_2$
+se_adj:
+
+CI: $$\sqrt{\frac{\hat{p}_1(1- \hat{p}_1)}{n_1}+ \frac{\hat{p}_2(1- \hat{p}_2)}{n_2}}$$
+
+
+
+Hypo test: $$\sqrt{\frac{\tilde{p}(1- \tilde{p})}{n_1}+ \frac{\tilde{p}(1- \tilde{p})}{n_2}}$$
+
+$$H_0: p_1-p_2 = 0 \\ H_{\alpha}: p_1-p_2 < 0$$
+
+
+
+```{r}
+x1 = 16
+n1 = 30
+x2 = 60 
+n2 = 90
+
+phat1 = x1/n1
+phat2 = x2/n2
+ptilde = (x1+x2)/(n1+n2) # global prop
+
+cv = qnorm(0.975)
+
+se_ci = sqrt((phat1*(1-phat1)/n1)+(phat2*(1-phat2)/n2)) # se for CI
+
+
+# 95% CI for p1-p2
+(phat1-phat2) + c(-1,1)*cv*se_ci # note that the CI includes 0, which means that monkey makes prosocial choices irrespective of the presence of a partner
+
+
+se_ht = sqrt((ptilde*(1-ptilde)*(1/n1+ 1/n2))) # se for hypothesis testing
+             
+z = (phat1-phat2)/se_ht # test statistic
+
+pnorm(z) # p-val and comparing it with alpha = 0.05, we fail to reject H_0, whihc also coincides with the 95% CI built earlier
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
