@@ -1,0 +1,137 @@
+---
+title: "Discussion 10"
+author: "Solutions"
+output: html_document
+---
+
+```{css, echo = F}
+.rsoln {
+background-color: #E6E6FA;
+}
+
+.soln {
+color: #5858d0;
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = FALSE,
+                      error = TRUE)
+
+library(tidyverse)
+```
+
+
+# Preliminaries
+
+- This file should be in `STAT240/discussion`.
+- This assignment should be completed in your discussion groups.
+
+The goal of today's discussion will be to think about one-sample and two-sample proportion inference in more detail.  
+
+# Problem 1
+#### (approx. 15 minutes)
+
+A video game developer is calibrating the difficulty of their game.  They want 25% of players to beat a certain level on their first try.  In a test group of 120 players, 22 of them beat the level on their first try.
+
+(a) Write appropriate hypotheses to test $p$, the true probability that a player beats the level on their first try.  What is the direction of the alternative hypothesis?
+
+[Since we are not looking to test whether $p$ is specifically smaller or greater than the desired 0.25, we should use two-sided hypotheses.
+$$H_0: p = 0.25 \quad \text{versus} \quad H_A: p \neq 0.25$$]{.soln}
+
+(b) Complete the hypothesis test at the 2% level using a binomial null distribution. State your test statistic, p-value, and conclusion.
+
+[Under the null, the number of players who beat the level on their first try is $X \sim Binom(120, 0.25)$.  We observed test statistic $x = 22$. Since we have a two-sided test, we need to find the probability on the null of seeing 22 or something more extreme in either direction.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+dbinom(22, 120, 0.25)
+
+tibble(x = 35:44,
+       p = dbinom(x, 120, 0.25))
+```
+
+[$P(X = 22)$ is 0.0204 and according to the table the outcomes 38 and above are more extreme than that under the null.  So, the p-value is $P(X \le 22) + P(X \ge 38) = 0.113$.  Our p-value is larger than our significance level of 0.02, so we fail to reject the null.  We don't have evidence that the true proportion is different from 0.25.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+pbinom(22, 120, 0.25) + (1 - pbinom(37, 120, 0.25))
+```
+
+(c) Re-do the test of hypotheses in (a), but use the normal model as an approximation.  How do your p-value and conclusion compare to the one in (b)?
+
+[Here, we are making use of a normal approximation to use $N(0, 1)$ as our null distribution instead of the binomial. The test statistic is 
+$$z \;=\; \frac{\frac{22}{120} - 0.25}{\sqrt{\frac{0.25(1-0.25)}{120}}} \;=\; -1.687.$$
+The p-value is the area on $N(0, 1)$ outside of -1.687 in both tails.  We can calculate the probability below -1.687 and multiply it by 2 since the normal curve is symmetric.  We get a p-value of 0.09, larger than our significance level of 0.02, so we decide to fail to reject.  Compared to the exact binomial test, we have a slightly different p-value but come to the same conclusion.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+2*pnorm(-1.687)
+```
+
+
+(d) List a few advantages and disadvantages of using a binomial test versus using a Z test to analyze a proportion $p$.
+
+[The binomial test for a single proportion is exact, and also requires fewer assumptions - we just need to assume the binomial model is accurate. The Z test is approximate, and may not be accurate if $np(1-p)$ is too small.  But the p-value calculation is easier on the continuous normal distribution.]{.soln}
+
+
+(e) Now, consider building a 98% CI for $p$ using the same data.  Do the conclusions about the null value of x from this interval match the conclusions binomial test, the normal test, or both?  Will the CI and hypothesis testing methods always reach the same conclusion?
+
+[The point estimate for our CI is $22/120 = 0.183$ and the estimated standard error is $\sqrt{\frac{0.183(1-0.183)}{120}} = 0.0353$.  For 98% confidence, the critical value is the 99th percentile of the normal distribution, which is 2.326.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+qnorm(0.99)
+```
+
+[The 98% CI is
+$$0.183 \pm 2.326(0.0353) \;=\; (0.101, 0.265).$$]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Check work with R
+pt_est <- 22/120
+se <- sqrt((22/120)*(1 - 22/120) / 120)
+
+cv <- qnorm(0.99)
+
+c(pt_est - cv*se, pt_est + cv*se)
+```
+
+[The value 0.25 falls within the interval, which corresponds to the fact that we failed to failed to reject the null value of 0.25 in our hypothesis tests. The CI makes use of a Z critical value, so it is using the normal approximation, so it should correspond to the one-sample Z proportion test.]{.soln}
+
+[However, the two methods are not identical, since they use different standard error terms. In the Z test, the standard error (denominator of our test statistic) uses the null value $p = 0.25$.  But for the CI, we have no null value, so we have to approximate standard error with $\hat{p} = 22/120$. The two methods often agree but will not necessarily reach the same conclusions in every case.]{.soln}
+
+
+
+# Problem 2
+#### (approx. 15 minutes)
+
+We have seen how to perform a two-sample proportion test against a difference of zero. Now, consider a test where the null difference in proportions is not zero:
+$$H_0: p_1 - p_2 = 0.2 \quad\text{versus}\quad H_A: p_1 - p_2 \neq 0.2$$
+Show how this test would be performed if we have two groups of data with $\hat{p}_1 = 0.5$, $\hat{p}_2 = 0.35$, $n_1 = 80$, and $n_2 = 120$. Use $\alpha = 0.05$. *The test statistic is not the same as if we were testing $p_1 - p_2 = 0$!*
+
+[When testing for a difference of 0, we start by assuming that $p_1 = p_2 = p$. $p$ is the common proportion, estimated with $\hat{p}$. However, our null hypothesis of a difference of 0.2 does not make that assumption, so we would want to use the more general form of standard error. The standard error of the difference in proportions is 
+$$se(\hat{p}_1 - \hat{p}_2) \;=\; \sqrt{\frac{p_1(1-p_1)}{n_1} + \frac{p_2(1-p_2)}{n_2}}.$$
+Since we cannot simplify this expression anymore, we use the more general standard error (estimated from our data) in the denominator of our test statistic.  Our test statistic is
+$$z_{obs} \;=\; \frac{\hat{p}_1 - \hat{p}_2 - 0.2}{\sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1} + \frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}} \;=\; \frac{0.5 - 0.35 - 0.2}{\sqrt{\frac{0.5(1-0.5)}{80} + \frac{0.35(1-0.35)}{120}}} \;=\; -0.706.$$]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+phat1 <- 0.5; phat2 <- 0.35
+n1 <- 80; n2 <- 120
+
+se <- sqrt(phat1*(1-phat1)/n1 + phat2*(1-phat2)/n2)
+
+test_stat <- (phat1 - phat2 - 0.2)/se
+test_stat
+```
+
+[The p-value is $2\times P(Z \le -0.706) = 0.48$. This is much larger than our significance level of 0.05, so we would fail to reject the null.  We do not have evidence that the true difference in proportions is not 0.2.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+2*pnorm(test_stat)
+```
+
+
+# Final group project
+
+Use the rest of your discussion time for creating your Project proposal. During this discussion, make sure you find a dataset and set a question of interest.
+
+
+
+
