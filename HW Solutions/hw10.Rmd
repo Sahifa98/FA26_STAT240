@@ -108,7 +108,7 @@ with $\alpha = 0.05$, assuming unequal variances.  You must do this by hand, but
 
 # Problem 8
 
-Repeat the by-hand test in problem 4, but instead write hypotheses for $\mu_{HHC} - \mu_{ESCU}$ (the order of subtraction is switched).  Show that you get identical results to problem 4.
+Repeat the by-hand test in problem 7, but instead write hypotheses for $\mu_{HHC} - \mu_{ESCU}$ (the order of subtraction is switched).  Show that you get identical results to problem 7.
 
 
 
