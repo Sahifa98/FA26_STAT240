@@ -1,0 +1,77 @@
+---
+title: "Inference on proportions"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+```
+
+
+# Inference on single mean
+
+Parameter: $\mu$.
+
+Model: $X \sim D$ with $E(X)=\mu$ and $sd(X)=\sigma$.
+
+What the theorem provides you with the basics of this inference?
+> CLT.
+
+Gives us that: $$\overline{X} \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+The se of the distribution of $\overline{X}$ is unknown, which why we can't use the Normal dist as the sampling distribution.
+
+The sampling distribution the t distribution with $n-1$ degrees of freedom.
+
+100c% CI: $$\overline{x}\pm qt(c+\frac{1-c}{2}, n-1)*\frac{s}{\sqrt{n}}$$
+
+
+Hypo testing: 
+
+$$H_0: \mu = value \quad H_{\alpha}: \mu > or < or \neq value$$
+Test statistic: $$t = \frac{\overline{X}-\mu_{H_0}}{\frac{s}{\sqrt{n}}}$$
+
+
+Null distribution: $t(n-1)$
+
+p-val: $pt(t, n-1, lower.tail = ...)$, if it's two tailed test you would need to multiply by 2 to get the p-val.
+
+
+$X= \text{Time taken by a male in the age range of 18-34 athlete to finish the Boston marathon} \sim D(\mu, \sigma)$
+
+
+
+```{r}
+library(tidyverse)
+male = bm %>% filter(Year == 2010, Sex == "male", Age_Range == "18-34") %>% select(Time) 
+  
+summary_bm = male %>% summarize(avg = mean(Time), s = sd(Time))
+
+pe = 207.9315
+s = 40.18435	
+
+# 95% CI
+pe + c(-1, 1)*qt(0.975, 200-1)*s/(sqrt(200))
+
+# H_0: \mu = 209 min, H_alpha: \mu \neq 209 min
+
+t = (pe-209)/(s/(sqrt(200)))
+t
+
+pval = 2*pt(t, 200-1)
+pval
+
+#alpha = 0.05, pval = 0.25 > alpha and thus we fail to reject H_0 which is that true average time taken by a male athlete to finish the 2010 Boston marathon is 209 mins.
+
+?t.test
+
+
+```
+
+
+```{r}
+t.test(male, mu = 209)
+```
+
