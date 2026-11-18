@@ -1,0 +1,87 @@
+---
+title: "Inference on proportions"
+author: "Sahifa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = T)
+```
+
+
+# Inference on single mean
+
+Parameter: $\mu$.
+
+Model: $X \sim D$ with $E(X)=\mu$ and $sd(X)=\sigma$.
+
+What the theorem provides you with the basics of this inference?
+> CLT.
+
+Gives us that: $$\overline{X} \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
+
+The se of the distribution of $\overline{X}$ is unknown, which why we can't use the Normal dist as the sampling distribution.
+
+The sampling distribution the t distribution with $n-1$ degrees of freedom.
+
+100c% CI for $\mu$: 
+
+$$\overline{x} \pm qt(c+\frac{1-c}{2}, n-1) \times \frac{s}{\sqrt{n}}$$
+
+Hypo testing for $\mu$:
+
+$$H_0: \mu = value \quad H_{\alpha}: \mu < or > or \neq value$$
+Test statistic:
+
+$$T = \frac{\overline{X}-\mu_{H_0}}{\frac{s}{\sqrt{n}}} \sim t(n-1)$$
+
+p-value: pt(t, n-1, lower.tail = ...) (if doing a two sided test, this quantity needs to be multiplied with 2).
+
+
+
+What is the average time taken by a male athlete in the age group of 18-34 to complete the Boston Marathon in the year 2010?
+
+```{r}
+set.seed(20109)
+
+male_2010 = bm %>% filter(Year == 2010, Sex == "male", Age_Range == "18-34") %>% slice_sample(n = 200)
+
+male_2010
+```
+
+$X = \text{Time taken to complete the 2010 Boston marathon by male participants in the age group of 18-34}$
+
+$X \sim D(\mu, \sigma)$
+
+
+```{r}
+times = male_2010$Time
+(pe = mean(times))
+(s = sd(times))
+n = 200
+
+# 95% CI
+pe + c(-1, 1)*qt(0.975, n-1)*s/sqrt(n)
+```
+
+
+$$H_0: \mu = 210, \quad H_{\alpha}: \mu < 210$$
+
+```{r}
+(t = (215.2504 - 210)/(45.16001/sqrt(200)))
+pval = pt(t, n-1)
+pval
+
+# alpha = 0.05, pval > alpha, we say we fail to reject H_0.
+
+# bm %>% filter(Year == 2010, Sex == "male", Age_Range == "18-34") %>% summarise(mu = mean(Time)), # we see that we ended up making a type II error because the value we got for xbar was extreme. 
+
+
+?t.test
+t.test(times, mu = 210, alternative = "less")
+```
+
+
+
+
