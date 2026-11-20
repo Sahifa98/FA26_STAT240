@@ -1,0 +1,255 @@
+---
+title: "Homework 8"
+author: "Solutions"
+output: html_document
+---
+
+```{css, echo = F}
+.rsoln {
+background-color: #E6E6FA;
+}
+
+.soln {
+color: #5858d0;
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE, error = TRUE,
+                      fig.height = 3)
+library(tidyverse)
+```
+
+```{r, echo=F}
+old <- theme_get()
+
+theme_set(theme(panel.background = element_rect(fill = "#ededfb")))
+```
+
+# Preliminaries
+
+- This file should be in `STAT240/homework` on your local computer.
+- Download `superbowl_commercials.csv` to `STAT240/data`.
+
+
+# Problem 1
+
+The file `superbowl_commercials.csv` contains a list of advertisements for 10 brands aired during Super Bowls from 2000 to 2020.  Each advertisement is classified according to several characterisitcs.  More information can be found  [here](https://github.com/fivethirtyeight/superbowl-ads).
+
+Transform the data as follows:
+
+- Group the rows by brand
+- Count the number of ads described as "celebrity"
+- Count the total number of ads
+- Find the proportion of "celebrity" ads for each brand
+- Save the dataset to your environment for the later problems
+- Print the dataset
+
+```{r}
+commercials <- read_csv("../data/superbowl_commercials.csv")
+```
+
+
+```{r, class.source="rsoln", class.output="rsoln"}
+commercials_tidy <- commercials %>%
+  group_by(Brand) %>%
+  summarize(n_celebrity = sum(Celebrity), n_tot = n()) %>%
+  mutate(p_celebrity = n_celebrity/n_tot)
+
+commercials_tidy
+```
+
+
+# Problem 2
+
+Starting from the dataset created in problem 1, count the total number of ads in the dataset, as well as the total number of "celebrity" ads.  Build and interpret a 99% CI for $p_{celebrity}$, the overall proportion of celebrity ads across all of the brands.
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Total number of ads (number of rows of original data)
+n <- sum(commercials_tidy$n_tot)
+
+# Number of celebrity ads
+x <- sum(commercials_tidy$n_celebrity)
+
+phat <- x / n
+
+# Proportion tandard error
+se <- sqrt(phat*(1 - phat)/n)
+
+# Critical value for 99% confidence
+cv <- qnorm(0.995)
+
+# Find upper and lower bounds of interval
+c(phat - cv*se, phat + cv*se)
+```
+
+[Our point estimate for the proportion of celebrity ads is 0.285.  This gives a standard error of about 0.029.  Finally, the critical value for 99% confidence is $cv_{0.005} = 2.576$.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Find upper and lower bounds of interval
+c(phat - cv*se, phat + cv*se)
+```
+
+[We are 99% confident that the true proportion of celebrity advertisements is within (0.211, 0.359).]{.soln}
+
+
+# Problem 3
+
+Perform a hypothesis test to determine whether more than half of superbowl ads are celebrity ads.  Use hypotheses
+$$H_0: p_{celebrity} \le 0.5 \quad \text{versus}\quad H_A: p_{celebrity} > 0.5$$
+and $\alpha = 0.01$.  Interpret your result in context.
+
+
+[You can either use the binomial model: Under $H_0$, $X_{celebrity}$, the number of celebrity ads out of 249, is Binom(249, 0.5).  The observed number of celebrity ads is $x_{obs} = 71$.  To calculate a p-value, we need to find the probability of seeing 71 *or more* ads that are celebrity, under the null assumption.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+1 - pbinom(70, 249, 0.5)
+```
+
+[If one-half of advertisements are celebrity, the proability of seeing our observed data or something more extreme is very big.  Our p-value is much bigger than $\alpha = 0.01$, so we fail to reject $H_0$.  We have evidence that either half or less than half of ads are celebrity.]{.soln}
+
+[Or you could use the normal model: Under $H_0$, $\hat{p}_{celebrity}$, the proportion of celebrity ads, is $Normal(p, \sqrt{\frac{p(1-p)}{n}})$.  The observed proportion of celebrity ads is $0.285$ or the test statistic, $z_{obs} = \frac{0.285-0.5}{\sqrt{\frac{0.285*(1-0.285)}{249}}}= -7.516$.  To calculate a p-value, we need to find the probability of seeing -7.516 *or more* ads that are celebrity, under the null assumption.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+z = (0.285-0.5)/(sqrt(0.285*(1-0.285)/249))
+
+pnorm(z, lower.tail = F)
+```
+
+[If one-half of advertisements are celebrity, the proability of seeing our observed data or something more extreme is very big.  Our p-value is much bigger than $\alpha = 0.01$, so we fail to reject $H_0$.  We have evidence that either half or less than half of ads are celebrity.]{.soln}
+
+
+# Problem 4
+
+State the model and assumptions you used to perform inference on $p_{celebrity}$ in problems 6 and 7.  State one criticism where reality may differ from the assumptions, potentially leading to misleading conclusions.
+
+[The null distribution in my hypothesis test for $p$ assumes the count of celebrity ads is binomial with $n = 249$ and some success probability $p$.  We use this result to further assume the proportion of celebrity ads is approximately normal.]{.soln}
+
+[These assumptions rely on the BINS assumptions, but I am skeptical about the "S" or same probability assumption.  The $n = 249$ counts the ads across 10 different companies, and different companies might be more or less likely to advertise their product featuring a celebrity.]{.soln}
+
+
+# Problem 5
+
+What can you say about the test statistic and p-value of the test conducted in problem 3? Do the hypotheses constructed in problem 3 align with the CI in problem 2? Is the p-value also indicative of it?
+
+[The test statistic we get is negative and also the p-value is way bigger than 0.5 (is 1), which indicates to the fact that we are probably doing a wrong tailed test. We can see this in the CI built in problem 2 as well, where the CI covers probabilities or proportions less than 0.5. Getting a very large p-value is often indicative of the wrong test.]{.soln}
+
+# Problem 6
+
+(Fictional data): In a survey done in 2000, 63 out of 500 American households reported serving only vegetarian or vegan dishes for Thanksgiving.  In a similar survey done in 2024, the number of reported households serving only vegetarian or vegan dishes was 116 out of 500.
+
+Based on this data, a confidence interval for the difference in proportions (2000 - 2024) was reported as 
+
+$$(-0.1455, -0.0665)$$
+
+Identify the confidence level that was used to create this interval.
+
+[The interval was made with the formula point estimate $\pm$ critical value $\times$ standard error, where the critical value was determined by the confidence level.  So, we need to solve for the critical value.  This is the margin of error divided by the (Wald-adjusted) standard error.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Margin of error: half-width of interval
+moe <- (-0.0665 + 0.1455) / 2
+
+# Observed proportions and standard error
+x1 <- 63; x2 <- 116
+n1 <- 500; n2 <- 500
+
+phat1 <- x1/n1; phat2 <- x2/n2
+
+se <- sqrt(phat1*(1-phat1)/n1 + phat2*(1-phat2)/n2)
+
+# Solve for critical value
+cv <- moe / se
+cv
+```
+
+[The critical value/multiplier used to create the interval is about 1.645.  So, 1.645 is the quantile that cuts off $\alpha/2$ area in the upper tail of the standard normal curve. To find $\alpha/2$, use `pnorm()`.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+pnorm(cv, lower.tail = F)
+```
+
+[We get $\alpha/2 = 0.05$ which means $\alpha = 0.1$. This corresponds to 90% confidence. We can re-create the original interval with `qnorm(0.95)`.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+original_cv <- qnorm(0.95)
+
+pt_est <- phat1 - phat2
+
+c(pt_est - original_cv*se, pt_est + original_cv*se)
+```
+
+
+# Problem 7
+
+The human sex ratio at birth slightly favors boys (abouth 50.7% to 51.5% of live births are boys).  The "[returning soldier effect](https://en.wikipedia.org/wiki/Returning_soldier_effect)" is a phenemonon where more boys are born immediately following crises such as war.
+
+In the year 1940, before the US joined World War II, there were 1211684 male and 1148715 female live births in the US.  In the year 1946, after WWII ended, there were 1691220 male and 1597452 female live births in the US.
+
+Build a 95% confidence interval on the difference in proportion of male births between 1940 and 1946 and interpret your results in context.
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Counts of total births and boy births
+n1 <- 1211684 + 1148715
+x1 <- 1211684
+n2 <- 1691220 + 1597452
+x2 <- 1691220
+
+phat1 <- x1/n1
+phat2 <- x2/n2
+
+pt_est <- phat1 - phat2
+
+# Standard error with AC adjustment
+se <- sqrt(phat1*(1 - phat1)/n1 + phat2*(1 - phat2)/n2)
+
+# Critical value
+cv <- qnorm(0.975)
+```
+
+[The point estimate is the observed difference in proportions, which is about -0.0009.  The standard error of the difference is 0.0004.  Finally, the critical value for 95% confidence is $cv_{0.025} = 1.96$.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Find upper and lower bounds of interval
+c(pt_est - cv*se, pt_est + cv*se)
+```
+
+[We are 95% confident that the difference in the proportion of boy births between 1940 and 1946 is within (-0.0016, -0.0002).  The interval endpoints are both negative.]{.soln}
+
+
+# Problem 8
+
+Perform a hypothesis test to determine whether the proportion of male births in the US in 1946 is greater than the proportion of male births in the US in 1940.  Write appropriate one-sided hypotheses and draw a conclusion with $\alpha = 0.05$.
+
+[Our two-sided hypotheses are 
+$$H_0: p_{boy, 1940} = p_{boy, 1946} \quad \text{versus} \quad H_A: p_{boy, 1940} < p_{boy, 1946}$$ or $$H_0: p_{boy, 1940} - p_{boy, 1946} = 0 \quad \text{versus} \quad H_A: p_{boy, 1940} - p_{boy, 1946} < 0$$
+Our point estimate is the difference in proportions.  We also need to calculate a standard error with a pooled proportion of male births, which we estimate with $$\frac{x_1 + x_2}{n_1 + n_2}$$]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+# Counts of total births and boy births
+n1 <- 1211684 + 1148715
+x1 <- 1211684
+n2 <- 1691220 + 1597452
+x2 <- 1691220
+
+p_hat <- (x1 + x2)/(n1 + n2) # Estimated common proportion
+
+numerator <- (x1/n1) - (x2/n2)  # Observed difference in proportions
+
+denominator <- sqrt(p_hat*(1-p_hat)*(1/n1 + 1/n2))  # SE using common proportion
+
+test_stat <- numerator/denominator
+test_stat
+```
+
+[We get an observed test statistic of $\frac{\hat{p}_{boy, 1940} - \hat{p}_{boy, 1946}}{\hat{se}} = -2.152$.  Under $H_0$, this value was drawn from a standard normal curve.  For our one-sided p-value, we calculate $P(Z < -2.152)$.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+pnorm(-2.152)
+```
+
+[We get a p-value of 0.016 which is smaller than $\alpha = 0.05$, so we reject $H_0$.  We have evidence of a greater proportion of boys born in the US in 1946 compared to 1940.]{.soln}
+
+
+
