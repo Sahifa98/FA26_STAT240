@@ -1,0 +1,178 @@
+---
+title: "Homework 9"
+author: "Solutions"
+output: html_document
+---
+
+```{css, echo = F}
+.rsoln {
+background-color: #E6E6FA;
+}
+
+.soln {
+color: #5858d0;
+}
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE, error = TRUE,
+                      fig.height = 3)
+library(tidyverse)
+```
+
+```{r, echo=F}
+old <- theme_get()
+
+theme_set(theme(panel.background = element_rect(fill = "#ededfb")))
+```
+
+
+# Preliminaries
+
+- This file should be in `STAT240/homework/hw09` on your local computer.
+- Download `parental_leave.csv` to `STAT240/data`.
+
+
+
+# Problem 1
+
+The p-value for a two-sided T test of the hypotheses $H_0: \mu = 15$ versus $H_A: \mu \neq 15$ is 0.03.
+
+(a) Does the 99% T confidence interval for $\mu$ using this same sample include 15? Why or why not?
+
+[A 99% confidence interval is very wide and is equivalent to a 1% hypothesis test. This requires a very extreme $\bar{x}$ (a p value of at most 0.01 to reject the null) so since 0.03 > 0.01 the confidence interval will contain the null value of 15.]{.soln}
+
+(b) Does the 95% T confidence interval for $\mu$ using this same sample include 15? Why or why not?
+
+[A 95% confidence interval is less wide than a 99% with the same sample data and is equivalent to a 5% hypothesis test. Since 0.03 < 0.05, the confidence interval will not contain 15 (15 is not a plausible value at the 5% level).]{.soln}
+
+
+# Problem 2
+
+The file `parental_leave.csv` contains information on crowdsourced parental leave data (in weeks) for 1601 different companies.  
+
+```{r}
+leave <- read_csv("../../data/parental_leave.csv")
+
+# Remove spaces from column names
+names(leave) <- make.names(names(leave))
+
+# Tidy numeric columns
+leave <- leave %>%
+  mutate_at(vars(Paid.Maternity.Leave, Unpaid.Maternity.Leave,
+                 Paid.Paternity.Leave, Unpaid.Paternity.Leave),
+            as.numeric) %>%
+  replace(is.na(.), 0)
+```
+
+(a) Mutate a column for total paid leave by adding the weeks of paid maternity and paternity leave. Optionally, give the columns shorter names that are easier to reference.
+
+```{r, class.source="rsoln", class.output="rsoln"}
+leave <- leave %>%
+  rename(mat_paid = Paid.Maternity.Leave,
+         pat_paid = Paid.Paternity.Leave,
+         mat_unpaid = Unpaid.Maternity.Leave,
+         pat_unpaid = Unpaid.Paternity.Leave) %>%
+  mutate(total_paid = mat_paid + pat_paid)
+```
+
+(b) Filter the data to only include the "Educational Services: College & Universities" industry.  Create a histogram of total paid leave and comment on its shape.
+
+```{r, echo=F}
+old <- theme_get()
+
+theme_set(theme(panel.background = element_rect(fill = "#ededfb")))
+```
+
+```{r, class.source="rsoln", class.output="rsoln"}
+leave %>%
+  filter(Industry == "Educational Services: College & Universities") %>%
+  ggplot(aes(x = total_paid)) +
+  geom_histogram()
+```
+
+```{r, echo=F}
+theme_set(old)
+```
+
+[The histogram is right-skewed, with one very prominent outlier.]{.soln}
+
+(c) Comment on why a T test for the mean might still be an appropriate method, even though the total paid leave data does not look normal.
+
+[The T test for the mean is based on the CLT, which says that the sample mean will be approximately normal for large enough n.  We have 52 observations, which is probably large enough to account for the fact that our underlying population is very skewed.]{.soln}
+
+
+(d) Build a 98% T CI for the average total weeks of paid leave of companies in "Educational Services: College & Universities", and interpret the results. You must do this by hand, but you can check your results with `t.test()`.
+
+-  First, calculate and save the summary values.
+
+```{r, class.source="rsoln", class.output="rsoln"}
+leave_escu <- leave %>%
+  filter(Industry == "Educational Services: College & Universities") %>%
+  summarize(avg_leave = mean(total_paid), sd_leave = sd(total_paid), n = n())
+
+xbar <- leave_escu$avg_leave
+s <- leave_escu$sd_leave
+n <- leave_escu$n
+```
+
+-  Calculate the point estimate and standard error from the data.  Find a T critical value with $n - 1$ degrees of freedom based on $\alpha = 0.02$ and use this to construct the CI.
+
+```{r, class.source="rsoln", class.output="rsoln"}
+pt_est <- xbar
+se <- s/sqrt(n)
+
+cv <- qt(0.99, df = n-1)
+
+c(pt_est - cv*se, pt_est + cv*se)
+```
+
+[We are 98% confident that the true average total paid leave (for the College & Universities industry) is within (6.824, 11.964).]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+obs_leave <- leave %>%
+  filter(Industry == "Educational Services: College & Universities") %>%
+  pull(total_paid)
+
+t.test(obs_leave, conf.level = 0.98)
+```
+
+
+# Problem 3
+
+Perform a test at the 2% level to determine whether the "Educational Services: College & Universities" average total paid leave is greater than 10 weeks.  State hypotheses, report a test statistic and p-value. You must do this by hand, but you can check your results with `t.test()`.
+
+[Our hypotheses need to reflect that we are looking for a value greater than 10, not just different from 10.  Let $\mu$ refer to the true average total paid leave for this industry.  We have:
+$$H_0: \mu \le 10 \quad \text{versus}\quad H_A: \mu > 10$$]{.soln}
+
+[Next, we calculate a test statistic to compare our observed mean to the value 10.  We calculate a p-value on the T with $n - 1$ degrees of freedom by looking at the area above our test statistic (since we have a "greater than" alternative).]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+test_stat <- (xbar - 10) / (s / sqrt(n))
+
+test_stat
+
+pt(test_stat, df = n-1, lower.tail = F)
+```
+
+[We have a negative test statistic -0.566, since our observed mean is actually less than 10.  This results in a very large p-value of 0.713.  We fail to reject $H_0$ and we do not have evidence that the mean total paid leave is greater than 10 hours.  We can confirm this with `t.test`.]{.soln}
+
+```{r, class.source="rsoln", class.output="rsoln"}
+t.test(obs_leave, mu = 10, alternative = "greater")
+```
+
+
+# Problem 4
+
+Re-calculate the p-value from problem 3, but use a standard normal distribution instead of a $T_{n-1}$ distribution.  Why are the results very similar?
+
+```{r, class.source="rsoln", class.output="rsoln"}
+pnorm(test_stat, lower.tail = F)
+```
+
+[We get a p-value of 0.714, as opposed to the earlier p-value of 0.713.  We have a fairly large number of observations, which means that our T degrees of freedom (51) are also large.  As the degrees of freedom increase, the T curve starts to resemble a standard normal.  So, we get very similar results if we use a T null distribution or a N(0, 1) null distribution.]{.soln}
+
+
+
+# Probl
