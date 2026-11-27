@@ -1,0 +1,138 @@
+---
+title: "Homework 10"
+author: "Student's Name Here"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE,
+                      warning = FALSE, error = TRUE,
+                      fig.height = 3)
+library(tidyverse)
+```
+
+```{r, echo=F}
+old <- theme_get()
+
+theme_set(theme(panel.background = element_rect(fill = "#ededfb")))
+```
+
+
+# Preliminaries
+
+- This file should be in `STAT240/homework` on your local computer.
+- Download `happiness_2019` and `dc_weather.csv` to `STAT240/data`.
+
+
+
+# Problem 1
+
+Match the six values of correlation to the scatterplots in `p1_choices.png`. Briefly justify your choices.
+
+- $r = -0.85$
+
+- $r = -0.74$
+
+- $r = 0.08$
+
+- $r = 0.44$
+
+- $r = 0.98$
+
+- $r = 1$
+
+
+# Problem 2
+
+The [Happiness index](https://www.kaggle.com/datasets/sougatapramanick/happiness-index-2018-2019) data contains information on the happiness index of different countries from 2018-2019.  We will focus on the happiness index (`Score`) and GDP per capita of countries in 2019.
+
+```{r}
+happiness <- read_csv("../data/happiness_2019.csv")
+
+# Remove spaces from column names
+names(happiness) <- make.names(names(happiness))
+```
+
+(a) Create a scatterplot of GDP per capita (x) versus happiness index (y) and calculate the correlation between length and weight.  Comment on the strength and magnitude of the linear relationship, and whether a linear model would be appropriate for this data.
+
+(b) Calculate the slope and intercept of a least-squares linear regression model for GDP per capita versus happiness index.  Do this with the "by hand formulas" and check your work with R `lm()`.  Interpret the coefficients in context.
+
+(c) Using your linear model, predict the happiness index for theoretical countries with 0.75, 1.25, and 2 GDP per capita.  Which of these predictions would you consider to be the least reliable, and why?
+
+(d) What are the conclusions we can make about the relationship between GDP per capita and happiness index, based on the linear model?  Does money buy happiness?
+
+(e) Build and interpret a 98% CI for the true slope of the linear relationship between happiness index and GDP.  Does the interval cover 0?
+
+(f) Perform a hypothesis test of hypotheses $$H_0: \beta_1 = 0 \quad \text{versus}\quad H_A: \beta_1 \neq 0$$ for the slope of the happiness model.  What is the test statistic, p-value, and conclusion at the 2% level?
+
+# Problem 3
+
+Consider predicting the happiness index of a country with 1 GDP per capita.
+
+(a) Build a *prediction interval* for the happiness index of a new country with $x^* = 1$ GDP per capita.  You can use the `predict()` function.
+
+(b) Build a *confidence interval* for the height of the regression line at $x^* = 1$.  You can use the `predict()` function.
+
+(c) Explain the difference in how the prediction and confidence intervals are calculated.
+
+
+# Problem 4
+
+26 measurements of outside low temperature (in C) and gas consumption (in 1000's of cubic feet) are taken for a house in England.  A linear model was fit to relate gas consumption to outside temperature.  Use the coefficient table of the lm summary output given in `hw11p4.png` to answer the following questions.
+
+(a) Complete a test at the 5% level to determine whether the slope of the linear relationship between gas consumption and temperature is less than -0.3.  Include hypotheses, test statistic, p-value, and a conclusion.
+
+(b) The 11th point in the data has a residual value of 0.17.  Does the linear model overestimate or underestimate the gas consumption on that day?
+
+(c) The outside low temperature on the day when the 11th point of data was recorded was 5.4 degrees C.  How much gas was actually consumed on this day?
+
+(d) We know that the standard deviation of the temperature measurements are larger than the standard deviation of the gas consumption measurements.  Which of the four statements is true about the correlation between temperature and gas consumption, and why?
+
+- The correlation is between -1 and -0.393.
+- The correlation is between -0.393 and 0.
+- The correlation is between 0 and 0.393.
+- The correlation is between 0.393 and 1.
+
+# Problem 5
+
+Which of the following conditions lead to a smaller prediction error?  Briefly explain your choices.
+
+- A smaller sample size vs a larger sample size
+
+- A smaller value of $\sigma$ vs a larger value of $\sigma$
+
+- Predicting closer to $\bar{x}$ vs predicting further from $\bar{x}$
+
+- A smaller variance vs a larger variance in the original $X$ data
+
+
+# Problem 6
+
+The file `dc_weather.csv` contains weather data for Washington, DC from August 2018 to August 2024. 
+
+```{r}
+weather <- read_csv("../data/dc_weather.csv")
+```
+
+(a) Make a plot of minimum temperature (in C) on the x axis versus dew point on the y axis.  Comment on the shape of the data.
+
+(b) Use R's `lm()` to fit a linear model for dew point in terms of minimum temperature.  Perform a residual analysis to assess the validity of this model.
+
+# Problem 7
+
+We want to test whether the slope of the linear relationship between minimum temperature and dew point is greater than 1.  Write hypotheses corresponding to the question of interest and carry out the test on the weather data.  Make a conclusion with $\alpha = 0.05$.
+
+# Problem 8
+
+A one-sided hypothesis test of 
+
+$$H_A: \beta_1 > 0$$
+
+is performed on a linear model.  The p-value of this test is 0.035.  What would be the p-value if the same data was used to test the following alternatives?
+
+(a) $$H_A: \beta_1 < 0$$
+
+(b) $$H_A: \beta_1 \neq 0$$
+
+
